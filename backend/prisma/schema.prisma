@@ -11,3 +11,528 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Account {
+  id                     String               @id @default(cuid())
+  phoneNumber            String               @unique @map("phone_number")
+  email                  String?              @unique
+  login                  String               @unique
+  password               String
+  isEmailVerified        Boolean              @default(false) @map("is_email_verified")
+  isPhoneVerified        Boolean              @default(false) @map("is_phone_verified")
+  twoFactorSecret        String?              @map("two_factor_secret")
+  role                   AccountRole          @default(USER)
+  createdAt              DateTime             @default(now()) @map("created_at")
+  updatedAt              DateTime             @updatedAt @map("updated_at")
+  profile                Profile?
+  profileMusic           ProfileMusic?
+  profilePhoto           ProfilePhoto[]
+  followers              Follow[]             @relation("Followers")
+  following              Follow[]             @relation("Following")
+  incomingFriendRequests FriendRequest[]      @relation("IncomingFriendRequests")
+  sentFriendRequests     FriendRequest[]      @relation("SentFriendRequests")
+  friend1                Friend[]             @relation("Friend1")
+  friend2                Friend[]             @relation("Friend2")
+  customNamesByMe        FriendCustomName[]   @relation("CustomNamesByMe")
+  customNamesToMe        FriendCustomName[]   @relation("CustomNamesToMe")
+  customAvatarsByMe      FriendCustomAvatar[] @relation("CustomAvatarsByMe")
+  customAvatarsToMe      FriendCustomAvatar[] @relation("CustomAvatarsToMe")
+  blockedAccounts        AccountBlackList[]   @relation("BlockedAccounts")
+  blockMe                AccountBlackList[]   @relation("BlockMe")
+  chats                  ChatMember[]
+  messages               Message[]
+  markedMessages         MarkedMessage[]
+  pinnedGroupMessages    PinnedGroupMessage[]
+  messageViews           MessageView[]
+  messageReactions       MessageReaction[]
+  myFlows                Flow[]
+  flows                  FlowMember[]         @relation("Flows")
+  whoBanned              FlowMember[]         @relation("WhoBanned")
+  notifications          Notification[]
+  reports                Report[]
+
+  @@map("accounts")
+}
+
+model Profile {
+  accountId      String    @id @map("account_id")
+  username       String    @unique
+  name           String
+  description    String?
+  avatarUrl      String?   @map("avatar_url")
+  coverUrl       String?   @map("cover_url")
+  socialVerified Boolean   @default(false) @map("social_verified")
+  lastSeen       DateTime? @map("last_seen")
+  account        Account   @relation(fields: [accountId], references: [id])
+
+  @@map("profiles")
+}
+
+model ProfileMusic {
+  accountId String  @id @map("account_id")
+  url       String
+  title     String
+  artist    String
+  account   Account @relation(fields: [accountId], references: [id])
+
+  @@map("profile_music")
+}
+
+model ProfilePhoto {
+  id        String   @id @default(cuid())
+  accountId String   @map("account_id")
+  url       String
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  account   Account  @relation(fields: [accountId], references: [id])
+
+  @@map("profile_photos")
+}
+
+model Follow {
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  follower    Account  @relation("Followers", fields: [followerId], references: [id])
+  following   Account  @relation("Following", fields: [followingId], references: [id])
+
+  @@id([followerId, followingId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+model FriendRequest {
+  fromId    String              @map("from_id")
+  toId      String              @map("to_id")
+  status    FriendRequestStatus @default(PENDING)
+  createdAt DateTime            @default(now()) @map("created_at")
+  from      Account             @relation("SentFriendRequests", fields: [fromId], references: [id])
+  to        Account             @relation("IncomingFriendRequests", fields: [toId], references: [id])
+
+  @@id([toId, fromId])
+  @@index([fromId])
+  @@map("friend_requests")
+}
+
+model Friend {
+  account1Id String   @map("account_1_id")
+  account2Id String   @map("account_2_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user1      Account  @relation("Friend1", fields: [account1Id], references: [id])
+  user2      Account  @relation("Friend2", fields: [account2Id], references: [id])
+
+  @@id([account1Id, account2Id])
+  @@index([account2Id])
+  @@map("friends")
+}
+
+model FriendCustomName {
+  fromId     String  @map("from_id")
+  toId       String  @map("to_id")
+  customName String  @map("custom_name")
+  isHidden   Boolean @default(false) @map("is_hidden")
+  from       Account @relation("CustomNamesByMe", fields: [fromId], references: [id])
+  to         Account @relation("CustomNamesToMe", fields: [toId], references: [id])
+
+  @@id([fromId, toId])
+  @@map("user_friend_custom_names")
+}
+
+model FriendCustomAvatar {
+  fromId          String  @map("from_id")
+  toId            String  @map("to_id")
+  customAvatarUrl String  @map("custom_avatar_url")
+  isHidden        Boolean @default(false) @map("is_hidden")
+  from            Account @relation("CustomAvatarsByMe", fields: [fromId], references: [id])
+  to              Account @relation("CustomAvatarsToMe", fields: [toId], references: [id])
+
+  @@id([fromId, toId])
+  @@map("friend_custom_avatars")
+}
+
+model AccountBlackList {
+  blockerId String   @map("blocker_id")
+  blockedId String   @map("blocked_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  blocker   Account  @relation("BlockedAccounts", fields: [blockerId], references: [id])
+  blocked   Account  @relation("BlockMe", fields: [blockedId], references: [id])
+
+  @@id([blockerId, blockedId])
+  @@index([blockedId])
+  @@map("account_black_lists")
+}
+
+model Chat {
+  id                  String               @id @default(cuid())
+  type                ChatType             @default(PRIVATE)
+  title               String?
+  lastMessageId       String?              @map("last_message_id")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  chatMembers         ChatMember[]
+  messages            Message[]
+  pinnedGroupMessages PinnedGroupMessage[]
+
+  @@map("chats")
+}
+
+model ChatMember {
+  chatId            String   @map("chat_id")
+  accountId         String   @map("account_id")
+  role              ChatRole @default(MEMBER)
+  lastReadMessageId String?  @map("last_read_message_id")
+  chat              Chat     @relation(fields: [chatId], references: [id])
+  account           Account  @relation(fields: [accountId], references: [id])
+  joinedAt          DateTime @default(now()) @map("joined_at")
+
+  @@id([chatId, accountId])
+  @@index([accountId])
+  @@map("chat_members")
+}
+
+model ContentBlock {
+  id         String                 @id @default(cuid())
+  entityType ContentBlockEntityType @map("entity_type")
+  entityId   String                 @map("entity_id")
+  type       ContentBlockType
+  position   Int
+  text       String?
+  url        String?
+  meta       Json?
+
+  @@index([entityType, entityId])
+  @@map("content_blocks")
+}
+
+model Message {
+  id                  String               @id @default(cuid())
+  chatId              String               @map("chat_id")
+  isSystemMessage     Boolean              @default(false) @map("is_system_message")
+  senderId            String?              @map("sender_id")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  isDeleted           Boolean              @default(false) @map("is_deleted")
+  chat                Chat                 @relation(fields: [chatId], references: [id])
+  sender              Account?             @relation(fields: [senderId], references: [id])
+  markedMessages      MarkedMessage[]
+  pinnedGroupMessages PinnedGroupMessage[]
+  messageViews        MessageView[]
+  repliedTo           MessageReply[]       @relation("Child")
+  replies             MessageReply[]       @relation("Parents")
+  messageReactions    MessageReaction[]
+
+  @@index([chatId])
+  @@map("messages")
+}
+
+model MarkedMessage {
+  markedBy  String  @map("marked_by")
+  messageId String  @map("message_id")
+  account   Account @relation(fields: [markedBy], references: [id])
+  message   Message @relation(fields: [messageId], references: [id])
+
+  @@id([markedBy, messageId])
+  @@map("marked_messages")
+}
+
+model PinnedGroupMessage {
+  pinnedBy  String   @map("pinned_by")
+  chatId    String   @map("chat_id")
+  messageId String   @map("message_id")
+  pinnedAt  DateTime @default(now()) @map("pinned_at")
+  account   Account  @relation(fields: [pinnedBy], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  message   Message  @relation(fields: [messageId], references: [id])
+
+  @@id([chatId, messageId])
+  @@map("pinned_group_messages")
+}
+
+model MessageView {
+  viewerId  String   @map("viewer_id")
+  messageId String   @map("message_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  viewer    Account  @relation(fields: [viewerId], references: [id])
+  message   Message  @relation(fields: [messageId], references: [id])
+
+  @@id([viewerId, messageId])
+  @@index([messageId])
+  @@map("message_views")
+}
+
+model MessageReply {
+  messageId     String  @map("message_id")
+  replyTo       String  @map("reply_to")
+  childMessage  Message @relation("Child", fields: [messageId], references: [id])
+  parentMessage Message @relation("Parents", fields: [replyTo], references: [id])
+
+  @@id([messageId, replyTo])
+  @@index([replyTo])
+  @@map("message_replies")
+}
+
+model MessageReaction {
+  messageId  String   @map("message_id")
+  actorId    String   @map("actor_id")
+  reactionId String   @map("reaction_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  message    Message  @relation(fields: [messageId], references: [id])
+  actor      Account  @relation(fields: [actorId], references: [id])
+  reaction   Reaction @relation(fields: [reactionId], references: [id])
+
+  @@id([messageId, actorId])
+  @@map("message_reactions")
+}
+
+model Reaction {
+  id               String            @id @default(cuid())
+  emoji            String            @unique
+  messageReactions MessageReaction[]
+
+  @@map("reactions")
+}
+
+model Flow {
+  id             String       @id @default(cuid())
+  ownerId        String       @map("owner_id")
+  flowname       String       @unique
+  name           String
+  description    String?
+  avatarUrl      String?      @map("avatar_url")
+  coverUrl       String?      @map("cover_url")
+  socialVerified Boolean      @default(false) @map("social_verified")
+  type           FlowType     @default(PUBLIC)
+  memberCount    Int          @default(1) @map("member_count")
+  pulseScore     Int          @default(0) @map("pulse_score")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  owner          Account      @relation(fields: [ownerId], references: [id])
+  flowMembers    FlowMember[]
+
+  @@map("flows")
+}
+
+model FlowMember {
+  flowId                      String         @map("flow_id")
+  memberId                    String         @map("member_id")
+  role                        FlowMemberRole @default(MEMBER)
+  joinedAt                    DateTime       @default(now()) @map("joined_at")
+  mutedUntil                  DateTime?      @map("muted_until")
+  isBanned                    Boolean        @default(false) @map("is_banned")
+  bannedBy                    String?        @map("banned_by")
+  isSubscribedToNotifications Boolean        @default(false) @map("is_subscribed_to_notifications")
+  flow                        Flow           @relation(fields: [flowId], references: [id])
+  member                      Account        @relation("Flows", fields: [memberId], references: [id])
+  whoBanned                   Account?       @relation("WhoBanned", fields: [bannedBy], references: [id])
+
+  @@id([flowId, memberId])
+  @@index([memberId])
+  @@map("flow_members")
+}
+
+model Post {
+  id          String          @id @default(cuid())
+  creatorType PostCreatorType @map("creator_type")
+  creatorId   String          @map("creator_id")
+  visibility  PostVisibility  @default(PUBLIC)
+  isPinned    Boolean         @default(false) @map("is_pinned")
+  isDeleted   Boolean         @default(false) @map("is_deleted")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  @@index([creatorType, creatorId, createdAt])
+  @@map("posts")
+}
+
+model Like {
+  actorId    String         @map("actor_id")
+  entityType LikeEntityType @map("entity_type")
+  entityId   String         @map("entity_id")
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  @@id([actorId, entityType, entityId])
+  @@index([entityId])
+  @@map("likes")
+}
+
+model Comment {
+  id               String             @id @default(cuid())
+  creatorType      CommentCreatorType @default(USER) @map("creator_type")
+  creatorId        String             @map("creator_id")
+  entityType       CommentEntityType  @map("entity_type")
+  entityId         String             @map("entity_id")
+  replyToCommentId String?            @map("reply_to_comment_id")
+  isDeleted        Boolean            @default(false) @map("is_deleted")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  replyTo          Comment?           @relation("CommentReplies", fields: [replyToCommentId], references: [id])
+  replies          Comment[]          @relation("CommentReplies")
+
+  @@index([creatorType, creatorId])
+  @@index([entityType, entityId])
+  @@map("comments")
+}
+
+model Notification {
+  id          String                  @id @default(cuid())
+  recipientId String                  @map("recipient_id")
+  senderType  NotificationSenderType  @map("sender_type")
+  senderId    String?                 @map("sender_id")
+  type        NotificationType?
+  entityType  NotificationEntityType? @map("entity_type")
+  entityId    String?                 @map("entity_id")
+  meta        Json
+  isRead      Boolean                 @default(false) @map("is_read")
+  createdAt   DateTime                @default(now()) @map("created_at")
+  recipient   Account                 @relation(fields: [recipientId], references: [id])
+
+  @@index([recipientId])
+  @@map("notifications")
+}
+
+model Report {
+  id               String                  @id @default(cuid())
+  reporterId       String                  @map("reporter_id")
+  entityType       ReportEntityType        @map("entity_type")
+  entityId         String                  @map("entity_id")
+  reason           ReportReason
+  status           ReportStatus            @default(PENDING)
+  moderationAction ReportModerationAction? @map("moderation_action")
+  createdAt        DateTime                @default(now()) @map("created_at")
+  handledBy        String?                 @map("handled_by")
+  handledAt        DateTime?               @map("handled_at")
+  reporter         Account                 @relation(fields: [reporterId], references: [id])
+
+  @@index([reporterId])
+  @@index([status])
+  @@index([entityType, entityId])
+  @@map("reports")
+}
+
+enum AccountRole {
+  USER
+  MODERATOR
+  OWNER
+}
+
+enum FriendRequestStatus {
+  PENDING
+  REJECTED
+}
+
+enum ChatType {
+  PRIVATE
+  GROUP
+}
+
+enum ChatRole {
+  OWNER
+  MODERATOR
+  MEMBER
+  MUTED
+}
+
+enum ContentBlockEntityType {
+  POST
+  MESSAGE
+  COMMENT
+}
+
+enum ContentBlockType {
+  TEXT
+  VOICE
+  CIRCLE_VIDEO
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+  SHARED_POST
+  SHARED_MESSAGE
+  SHARED_COMMENT
+  SHARED_PHOTO
+}
+
+enum FlowType {
+  PUBLIC
+  PRIVATE
+}
+
+enum FlowMemberRole {
+  OWNER
+  MODERATOR
+  MEMBER
+}
+
+enum PostCreatorType {
+  USER
+  FLOW
+}
+
+enum PostVisibility {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
+enum LikeEntityType {
+  POST
+  COMMENT
+  PHOTO
+}
+
+enum CommentCreatorType {
+  USER
+  FLOW
+}
+
+enum CommentEntityType {
+  POST
+  COMMENT
+  PHOTO
+}
+
+enum NotificationSenderType {
+  USER
+  FLOW
+  SYSTEM
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  SHARE
+  REPLY_TO_COMMENT
+  FOLLOW
+  FRIEND_REQUEST
+  FRIEND_ACCEPTED
+  FLOW_INVITE
+  FLOW_JOIN
+}
+
+enum NotificationEntityType {
+  POST
+  COMMENT
+  PHOTO
+}
+
+enum ReportEntityType {
+  USER
+  FLOW
+  POST
+  PHOTO
+  COMMENT
+}
+
+enum ReportReason {
+  REASONS
+}
+
+enum ReportStatus {
+  PENDING
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum ReportModerationAction {
+  ACTIONS
+}
