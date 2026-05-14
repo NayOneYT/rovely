@@ -14,10 +14,10 @@ datasource db {
 
 model Account {
   id                     String               @id @default(cuid())
-  phoneNumber            String               @unique @map("phone_number")
+  phoneNumber            String?              @unique @map("phone_number")
   email                  String?              @unique
-  login                  String               @unique
-  password               String
+  login                  String?              @unique
+  password               String?
   isEmailVerified        Boolean              @default(false) @map("is_email_verified")
   isPhoneVerified        Boolean              @default(false) @map("is_phone_verified")
   twoFactorSecret        String?              @map("two_factor_secret")
