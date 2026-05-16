@@ -14,7 +14,7 @@ datasource db {
 
 model Account {
   id                     String               @id @default(cuid())
-  phoneNumber            String?              @unique @map("phone_number")
+  phone                  String?              @unique
   email                  String?              @unique
   login                  String?              @unique
   password               String?
