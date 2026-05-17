@@ -12,12 +12,12 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     const payload = jwt.verify(token, config.jwtAccessSecret) as { id: string }
     req.userId = payload.id
     next()
-  } catch (err) {
-    if (err instanceof AppError) {
-      next(err)
+  } catch (error) {
+    if (error instanceof AppError) {
+      next(error)
       return
     }
-    if (err instanceof jwt.TokenExpiredError) {
+    if (error instanceof jwt.TokenExpiredError) {
       next(new AppError(401, {
         message: ["Токен истек"]
       }))

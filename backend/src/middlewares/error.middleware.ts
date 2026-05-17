@@ -6,11 +6,11 @@ export class AppError extends Error {
   }
 }
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
-  if (err instanceof AppError) {
-    res.status(err.statusCode).json({ errors: err.errors })
+export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
+  if (error instanceof AppError) {
+    res.status(error.statusCode).json({ errors: error.errors })
     return
   }
-  console.error(err.stack)
+  console.error(error.stack)
   res.status(500).json({ message: "Произошла ошибка сервера, попробуйте позже" })
 }
