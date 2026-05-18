@@ -417,7 +417,7 @@ model verificationEmailRequest {
   account     Account  @relation(fields: [accountId], references: [id])
 
   @@id([email, accountId])
-  @@map("verification_email_request")
+  @@map("verification_email_requests")
 }
 
 enum AccountRole {
