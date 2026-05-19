@@ -412,7 +412,7 @@ model verificationEmailRequest {
   email       String
   accountId   String   @default("none") @map("account_id")
   isConfirmed Boolean  @default(false) @map("is_confirmed")
-  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@id([email, accountId])
   @@map("verification_email_requests")
