@@ -408,9 +408,9 @@ model Report {
 }
 
 model verificationEmailRequest {
+  token       String   @unique
   email       String
   accountId   String   @default("none") @map("account_id")
-  token       String
   isConfirmed Boolean  @default(false) @map("is_confirmed")
   createdAt   DateTime @default(now())
 
