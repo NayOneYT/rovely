@@ -1,30 +1,22 @@
-import { AppError } from "./error.middleware.js";
+import { AppError } from "./error.middleware.js"
 import jwt from "jsonwebtoken"
-import { config } from "../config/index.js";
-import type { Request, Response, NextFunction } from "express";
+import { config } from "@/config/index.js"
+import type { Request, Response, NextFunction } from "express"
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies.accessToken
-    if (!token) throw new AppError(401, {
-      message: ["Не авторизован"]
-    })
+    if (!token) throw new AppError(401, { message: ["Не авторизован"] })
     const payload = jwt.verify(token, config.jwtAccessSecret) as { id: string }
-    req.userId = payload.id
+    req.accountId = payload.id
     next()
   } catch (error) {
     if (error instanceof AppError) {
-      next(error)
-      return
+      return next(error)
     }
     if (error instanceof jwt.TokenExpiredError) {
-      next(new AppError(401, {
-        message: ["Токен истек"]
-      }))
-      return
+      return next(new AppError(401, { message: ["Токен истек"] }))
     }
-    next(new AppError(401, {
-      message: ["Невалидный токен"]
-    }))
+    next(new AppError(401, { message: ["Невалидный токен"] }))
   }
 }
