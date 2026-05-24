@@ -419,11 +419,12 @@ model verificationEmailRequest {
 }
 
 model verificationPhoneRequest {
-  code        Int
-  phone       String
-  accountId   String   @default("none") @map("account_id")
-  isConfirmed Boolean  @default(false) @map("is_confirmed")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  code           Int
+  phone          String
+  telegramChatId Int      @map("telegram_chat_id")
+  accountId      String   @default("none") @map("account_id")
+  isConfirmed    Boolean  @default(false) @map("is_confirmed")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@id([phone, accountId])
   @@map("verification_phone_requests")
