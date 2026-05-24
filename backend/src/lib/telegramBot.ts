@@ -1,4 +1,4 @@
-import { Telegraf } from "telegraf"
+import { Bot } from "grammy"
 import { config } from "@/config/index.js"
 
-export const bot = new Telegraf(config.telegramBotToken)
+export const bot = new Bot(config.telegramBotToken)
