@@ -18,7 +18,6 @@ model Account {
   email                  String?              @unique
   login                  String?              @unique
   password               String?
-  isPhoneVerified        Boolean              @default(false) @map("is_phone_verified")
   twoFactorSecret        String?              @map("two_factor_secret")
   role                   AccountRole          @default(USER)
   createdAt              DateTime             @default(now()) @map("created_at")
