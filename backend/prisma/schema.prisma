@@ -16,6 +16,7 @@ model Account {
   id                     String               @id @default(cuid())
   phone                  String?              @unique
   email                  String?              @unique
+  lowercaseEmail         String?              @unique @map("lowercase_email")
   login                  String?              @unique
   password               String?
   twoFactorSecret        String?              @map("two_factor_secret")
@@ -53,15 +54,16 @@ model Account {
 }
 
 model Profile {
-  accountId      String    @id @map("account_id")
-  username       String    @unique
-  name           String
-  description    String?
-  avatarUrl      String?   @map("avatar_url")
-  coverUrl       String?   @map("cover_url")
-  socialVerified Boolean   @default(false) @map("social_verified")
-  lastSeen       DateTime? @map("last_seen")
-  account        Account   @relation(fields: [accountId], references: [id])
+  accountId         String    @id @map("account_id")
+  username          String    @unique
+  lowercaseUsername String    @unique @map("lowercase_username")
+  name              String
+  description       String?
+  avatarUrl         String?   @map("avatar_url")
+  coverUrl          String?   @map("cover_url")
+  socialVerified    Boolean   @default(false) @map("social_verified")
+  lastSeen          DateTime? @map("last_seen")
+  account           Account   @relation(fields: [accountId], references: [id])
 
   @@map("profiles")
 }
