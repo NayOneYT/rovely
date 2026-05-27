@@ -19,10 +19,10 @@ model Account {
   lowercaseEmail         String?              @unique @map("lowercase_email")
   login                  String?              @unique
   password               String?
+  passwordChangedAt      DateTime?            @map("password_changed_at")
   twoFactorSecret        String?              @map("two_factor_secret")
   role                   AccountRole          @default(USER)
   createdAt              DateTime             @default(now()) @map("created_at")
-  updatedAt              DateTime             @updatedAt @map("updated_at")
   profile                Profile?
   profileMusic           ProfileMusic?
   profilePhoto           ProfilePhoto[]
