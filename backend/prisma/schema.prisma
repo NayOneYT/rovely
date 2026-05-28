@@ -13,31 +13,31 @@ datasource db {
 }
 
 model Account {
-  id                     String               @id @default(cuid())
-  phone                  String?              @unique
-  email                  String?              @unique
-  lowercaseEmail         String?              @unique @map("lowercase_email")
-  login                  String?              @unique
+  id                     String                  @id @default(cuid())
+  phone                  String?                 @unique
+  email                  String?                 @unique
+  lowercaseEmail         String?                 @unique @map("lowercase_email")
+  login                  String?                 @unique
   password               String?
-  passwordChangedAt      DateTime?            @map("password_changed_at")
-  twoFactorSecret        String?              @map("two_factor_secret")
-  role                   AccountRole          @default(USER)
-  createdAt              DateTime             @default(now()) @map("created_at")
+  passwordChangedAt      DateTime?               @map("password_changed_at")
+  twoFactorSecret        String?                 @map("two_factor_secret")
+  role                   AccountRole             @default(USER)
+  createdAt              DateTime                @default(now()) @map("created_at")
   profile                Profile?
   profileMusic           ProfileMusic?
   profilePhoto           ProfilePhoto[]
-  followers              Follow[]             @relation("Followers")
-  following              Follow[]             @relation("Following")
-  incomingFriendRequests FriendRequest[]      @relation("IncomingFriendRequests")
-  sentFriendRequests     FriendRequest[]      @relation("SentFriendRequests")
-  friend1                Friend[]             @relation("Friend1")
-  friend2                Friend[]             @relation("Friend2")
-  customNamesByMe        FriendCustomName[]   @relation("CustomNamesByMe")
-  customNamesToMe        FriendCustomName[]   @relation("CustomNamesToMe")
-  customAvatarsByMe      FriendCustomAvatar[] @relation("CustomAvatarsByMe")
-  customAvatarsToMe      FriendCustomAvatar[] @relation("CustomAvatarsToMe")
-  blockedAccounts        AccountBlackList[]   @relation("BlockedAccounts")
-  blockMe                AccountBlackList[]   @relation("BlockMe")
+  followers              Follow[]                @relation("Followers")
+  following              Follow[]                @relation("Following")
+  incomingFriendRequests FriendRequest[]         @relation("IncomingFriendRequests")
+  sentFriendRequests     FriendRequest[]         @relation("SentFriendRequests")
+  friend1                Friend[]                @relation("Friend1")
+  friend2                Friend[]                @relation("Friend2")
+  customNamesByMe        FriendCustomName[]      @relation("CustomNamesByMe")
+  customNamesToMe        FriendCustomName[]      @relation("CustomNamesToMe")
+  customAvatarsByMe      FriendCustomAvatar[]    @relation("CustomAvatarsByMe")
+  customAvatarsToMe      FriendCustomAvatar[]    @relation("CustomAvatarsToMe")
+  blockedAccounts        AccountBlackList[]      @relation("BlockedAccounts")
+  blockMe                AccountBlackList[]      @relation("BlockMe")
   chats                  ChatMember[]
   messages               Message[]
   markedMessages         MarkedMessage[]
@@ -45,11 +45,11 @@ model Account {
   messageViews           MessageView[]
   messageReactions       MessageReaction[]
   myFlows                Flow[]
-  flows                  FlowMember[]         @relation("Flows")
-  whoBanned              FlowMember[]         @relation("WhoBanned")
+  flows                  FlowMember[]            @relation("Flows")
+  whoBanned              FlowMember[]            @relation("WhoBanned")
   notifications          Notification[]
   reports                Report[]
-  loginPhoneCodes        LoginPhoneCode[]
+  loginPhoneCodes        LoginWithPhoneRequest[]
 
   @@map("accounts")
 }
@@ -439,13 +439,13 @@ model TelegramLink {
   @@map("telegram_links")
 }
 
-model LoginPhoneCode {
+model LoginWithPhoneRequest {
   code      String
   phone     String   @id
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
   account   Account  @relation(fields: [phone], references: [phone])
 
-  @@map("login_phone_codes")
+  @@map("login_with_phone_requests")
 }
 
 enum AccountRole {
