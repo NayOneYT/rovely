@@ -1,16 +1,16 @@
 import type { Request, Response, NextFunction } from "express"
 import type { ZodSchema } from "zod"
 
-type ValidateTarget = "body" | "params"
+type ValidateTarget = "body" | "params" | "query"
 
 export const validate = (schema: ZodSchema, target: ValidateTarget) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req[target])
-    req[target] = result.data
     if (!result.success) {
       res.status(400).json({ errors: result.error.flatten().fieldErrors })
       return
     }
+    req[target] = result.data
     next()
   }
 }
