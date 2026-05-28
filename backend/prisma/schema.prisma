@@ -49,6 +49,7 @@ model Account {
   whoBanned              FlowMember[]         @relation("WhoBanned")
   notifications          Notification[]
   reports                Report[]
+  loginPhoneCodes        LoginPhoneCode[]
 
   @@map("accounts")
 }
@@ -408,7 +409,7 @@ model Report {
   @@map("reports")
 }
 
-model verificationEmailRequest {
+model VerificationEmailRequest {
   token          String   @unique
   email          String   @unique
   lowercaseEmail String   @map("lowercase_email")
@@ -420,7 +421,7 @@ model verificationEmailRequest {
   @@map("verification_email_requests")
 }
 
-model verificationPhoneRequest {
+model VerificationPhoneRequest {
   code        String
   phone       String
   accountId   String   @default("none") @map("account_id")
@@ -431,11 +432,20 @@ model verificationPhoneRequest {
   @@map("verification_phone_requests")
 }
 
-model telegramLink {
+model TelegramLink {
   phone          String @unique
   telegramUserId Int    @unique @map("telegram_user_id")
 
   @@map("telegram_links")
+}
+
+model LoginPhoneCode {
+  code      String
+  phone     String   @id
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  account   Account  @relation(fields: [phone], references: [phone])
+
+  @@map("login_phone_codes")
 }
 
 enum AccountRole {
