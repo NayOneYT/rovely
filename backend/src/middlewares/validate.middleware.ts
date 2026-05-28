@@ -10,7 +10,7 @@ export const validate = (schema: ZodSchema, target: ValidateTarget) => {
       res.status(400).json({ errors: result.error.flatten().fieldErrors })
       return
     }
-    req[target] = result.data
+    if (target === "body") req[target] = result.data
     next()
   }
 }
