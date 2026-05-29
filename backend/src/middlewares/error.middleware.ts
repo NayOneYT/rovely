@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express"
 
 export class AppError extends Error {
-  constructor(public statusCode: number = 500, public errors: Record<string, string[]>) {
+  constructor(public statusCode: number, public errors: Record<string, string>) {
     super()
   }
 }
