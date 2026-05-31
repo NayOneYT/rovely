@@ -1,11 +1,17 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div>
+    <RouterView></RouterView>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap');
+
+* {
+  font-family: "Chiron GoRound TC", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+}
+</style>
