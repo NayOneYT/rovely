@@ -7,6 +7,7 @@ import SvgEmail from "@/components/SvgEmail.vue"
 import SvgEyeOpen from "@/components/SvgEyeOpen.vue"
 import SvgEyeClosed from "@/components/SvgEyeClosed.vue"
 import SvgTelegram from "@/components/SvgTelegram.vue"
+import SvgCheck from "@/components/SvgCheck.vue"
 
 const {
   name, nameClientError, onNameBlur,
@@ -20,6 +21,7 @@ const {
 } = useRegistrationForm()
 
 const showPassword = ref(false)
+const acceptedTerms = ref(false)
 </script>
 
 <template>
@@ -250,8 +252,29 @@ const showPassword = ref(false)
       </div>
     </div>
     <InputError :clientError="passwordClientError" />
-    <p class="text-white/40 font-light mt-2"><i>Используйте логин для входа в аккаунт</i></p>
-    <div class="flex justify-between mt-6">
+    <div class="flex justify-between mt-4 mb-5">
+      <label class="group flex items-center">
+        <input
+          v-model="acceptedTerms"
+          type="checkbox" 
+          class="peer sr-only"
+        >
+        <div 
+          class="w-5 h-5 cursor-pointer bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center 
+          peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all
+          "
+        >
+          <SvgCheck class="size-4" />
+        </div>
+        <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">
+          <span>Я принимаю </span> 
+          <a href="/terms" target="_blank" class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline">условия</a>
+          <span> и </span> 
+          <a href="/privacy" target="_blank" class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline">политику</a>
+        </span>
+      </label>
+    </div>
+    <div class="flex justify-between">
       <button
         @click.prevent="step = 2"
         class="
@@ -262,9 +285,11 @@ const showPassword = ref(false)
         Назад
       </button>
       <button
+        :disabled="!acceptedTerms"
+        :class="!acceptedTerms ? 'pointer-events-none' : ''"
         class="
         w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-        hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
+        hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] 
         "
       >
         <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full"></span>
