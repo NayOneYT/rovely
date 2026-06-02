@@ -4,7 +4,7 @@ import { registrationSchema } from "../schema"
 import { ref, watch } from "vue"
 import api from "../api"
 import { AxiosError } from "axios"
-import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
+import { parsePhoneNumberFromString, AsYouType, isPossibleNumber } from "libphonenumber-js"
 import { useMutation } from "@tanstack/vue-query"
 import { useRouter } from "vue-router"
 import { useEmailVerification } from "@/features/verification/email/composables/useEmailVerification"
@@ -15,6 +15,7 @@ export const useRegistrationForm = () => {
   const step = ref(1)
   const verifiedEmails = new Set<string>()
   const isEmailVerified = ref(false)
+  const isProcessing = ref(false)
 
   const router = useRouter()
 
@@ -190,22 +191,27 @@ export const useRegistrationForm = () => {
   const handleSendVerificationEmail = async () => {
     const emailResult = await emailValidate()
     if (!emailResult.valid || !email.value) return
+    isProcessing.value = true
     const verified = await checkRegistrationEmailVerification()
     if (verified) {
       isEmailVerified.value = true
       verifiedEmails.add(email.value.toLowerCase())
       return
     }
-    sendVerificationEmail()
+    await sendVerificationEmail()
+    isProcessing.value = false
   }
 
   const handleSendVerificationCode = async () => {
+    isProcessing.value = true
     const verified = await checkRegistrationPhoneVerification()
     if (verified) {
-      goToNextStep()
+      await goToNextStep()
+      isProcessing.value = false
       return
     }
-    sendVerificationCode()
+    await sendVerificationCode()
+    isProcessing.value = false
   }
 
   const goToNextStep = async () => {
@@ -216,6 +222,7 @@ export const useRegistrationForm = () => {
           usernameValidate()
         ])
         if (!nameResult.valid || !usernameResult.valid) return
+        isProcessing.value = true
         if (username.value) {
           try {
             await api.check("username", username.value)
@@ -224,14 +231,18 @@ export const useRegistrationForm = () => {
               const data = error.response?.data as ResponseErrorDto
               if (data.errors) {
                 usernameServerError.value = data.errors.username
+                isProcessing.value = false
                 return
               }
               alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
             }
+            isProcessing.value = false
+            return
           }
         }
         usernameServerError.value = undefined
         step.value = 2
+        isProcessing.value = false
         break
       case 2:
         if (!email.value && !phone.value) {
@@ -243,6 +254,7 @@ export const useRegistrationForm = () => {
           phoneValidate()
         ])
         if (!emailResult.valid || !phoneResult.valid) return
+        isProcessing.value = true
         if (email.value) {
           try {
             const [, verified] = await Promise.all([
@@ -253,6 +265,7 @@ export const useRegistrationForm = () => {
               alert("Сначала подтвердите email")
               verifiedEmails.delete(email.value.toLowerCase())
               isEmailVerified.value = false
+              isProcessing.value = false
               return
             }
             isEmailVerified.value = true
@@ -262,11 +275,13 @@ export const useRegistrationForm = () => {
               const data = error.response?.data as ResponseErrorDto
               if (data.errors) {
                 emailServerError.value = data.errors.email
+                isProcessing.value = false
                 return
               }
               alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-              return
             }
+            isProcessing.value = false
+            return
           }
         }
         if (phone.value) {
@@ -282,27 +297,33 @@ export const useRegistrationForm = () => {
               codeSetErrors("")
               step.value = 2.5
             }
+            isProcessing.value = false
             return
           } catch (error) {
             if (error instanceof AxiosError) {
               const data = error.response?.data as ResponseErrorDto
               if (data.errors) {
                 phoneServerError.value = data.errors.phone
+                isProcessing.value = false
                 return
               }
               alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-              return
+              isProcessing.value = false
             }
+            return
           }
         }
         emailServerError.value = undefined
         step.value = 3
+        isProcessing.value = false
         break
       case 2.5:
+        isProcessing.value = true
         const result = await verifyPhone()
         if (result) {
           step.value = 3
         }
+        isProcessing.value = false
     }
   }
 
@@ -311,6 +332,7 @@ export const useRegistrationForm = () => {
     onSuccess: () => {
       alert("Аккаунт успешно создан")
       router.push({ name: "login" })
+      isProcessing.value = false
     },
     onError: (error) => {
       if (error instanceof AxiosError) {
@@ -329,10 +351,12 @@ export const useRegistrationForm = () => {
           }
           else if (phoneServerError.value) step.value = 2
           else if (codeServerError.value) step.value = 2.5
+          isProcessing.value = false
           return
         }
         alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
+      isProcessing.value = false
     }
   })
 
@@ -348,7 +372,9 @@ export const useRegistrationForm = () => {
         }
         alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
+      return
     }
+    isProcessing.value = true
     registerMutation.mutate(values)
   })
 
@@ -360,6 +386,6 @@ export const useRegistrationForm = () => {
     onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
     login, loginClientError, loginServerError, onLoginBlur,
     password, passwordClientError, onPasswordBlur,
-    step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register
+    step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register, isProcessing
   }
 }

@@ -17,7 +17,7 @@ const {
   onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
   login, loginClientError, loginServerError, onLoginBlur,
   password, passwordClientError, onPasswordBlur,
-  step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register
+  step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register, isProcessing
 } = useRegistrationForm()
 
 const showPassword = ref(false)
@@ -32,39 +32,37 @@ const acceptedTerms = ref(false)
     <input 
       v-model="name"
       @blur="onNameBlur"
+      :disabled="isProcessing"
       id="name"
       autocomplete="name"
       type="text"
       maxlength="30"
       placeholder="Гуру успешного успеха 😎💸"
-      class="
-      w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
-      "
+      class="w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
+      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="nameClientError" />
     <label for="username" class="text-[18px] pb-0.5 mt-4 self-start">Имя пользователя (необязательно)</label>
     <input 
       v-model="username"
       @blur="onUsernameBlur"
+      :disabled="isProcessing"
       id="username"
       type="text"
       maxlength="30"
       placeholder="username"
-      class="
-      w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
-      "
+      class="w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
+      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="usernameClientError" :serverError="usernameServerError" />
     <p class="text-white/40 font-light mt-2"><i>Вас смогут найти по @username</i></p>
     <button
-      class="
-      w-full self-end relative p-3 mt-6 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-      hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
-      "
+      :disabled="isProcessing"
+      :class="isProcessing ? 'pointer-events-none' : ''"
+      class="w-full self-end relative p-3 mt-6 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
+      cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
     >
-      <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full"></span>
+      <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
       <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
         Далее
       </span>
@@ -73,14 +71,14 @@ const acceptedTerms = ref(false)
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2">
     <label for="email" class="text-[18px] pb-0.5 self-start">Email</label>
     <div 
-      class="
-      group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
-      focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
-      "
+      :class="isProcessing ? 'pointer-events-none' : ''"
+      class="group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
+      focus-within:border-[#13d373] focus-within:outline-none focus-within:shadow-[0_0_6px_#13d373] transition-all"
     >
       <input 
         v-model="email"
         @blur="onEmailBlur"
+        :disabled="isProcessing"
         id="email"
         autocomplete="email"
         type="email"
@@ -94,7 +92,7 @@ const acceptedTerms = ref(false)
           type="button"
           @click="handleSendVerificationEmail"
           @mousedown.prevent
-          :disabled="isEmailVerified || !!sendVerificationEmailCooldown"
+          :disabled="isEmailVerified || !!sendVerificationEmailCooldown || isProcessing"
           class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
         >
           <SvgEmail :class="sendVerificationEmailCooldown && !isEmailVerified ? 'size-5 mt-1' : 'size-6 m-3'" />
@@ -108,6 +106,7 @@ const acceptedTerms = ref(false)
       :value="phoneString"
       @input="onPhoneInput"
       @blur="onPhoneBlur"
+      :disabled="isProcessing"
       id="phone"
       autocomplete="tel"
       type="tel"
@@ -122,20 +121,20 @@ const acceptedTerms = ref(false)
     <div class="flex justify-between mt-6">
       <button
         @click.prevent="step = 1"
-        class="
-        w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl cursor-pointer text-white/60
-      hover:text-white focus-visible:text-white focus-visible:outline-none transition-all
-        "
+        :disabled="isProcessing"
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
+        cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         Назад
       </button>
       <button
-        class="
-        w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-        hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
-        "
+        :disabled="isProcessing"
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
+        cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
       >
-        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full"></span>
+        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
         <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
           Далее
         </span>
@@ -145,15 +144,15 @@ const acceptedTerms = ref(false)
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2.5">
     <label for="code" class="text-[18px] pb-0.5 self-start">Код подтверждения</label>
     <div 
-      class="
-      group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
-      focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
-      "
+      :class="isProcessing ? 'pointer-events-none' : ''"
+      class="group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
+      focus-within:border-[#13d373] focus-within:outline-none focus-within:shadow-[0_0_6px_#13d373] transition-all"
     >
       <input
         :value="codeString"
         @input="onCodeInput"
         @blur="onCodeBlur"
+        :disabled="isProcessing"
         id="code"
         type="text"
         inputmode="numeric"
@@ -167,7 +166,7 @@ const acceptedTerms = ref(false)
           type="button"
           @click="handleSendVerificationCode"
           @mousedown.prevent
-          :disabled="!!sendCodeCooldown"
+          :disabled="!!sendCodeCooldown || isProcessing"
           class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
         >
           <SvgTelegram :class="sendCodeCooldown ? 'size-6 mt-1' : 'size-8 m-2'" />
@@ -178,7 +177,15 @@ const acceptedTerms = ref(false)
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
     <p class="text-white/40 font-light mt-2">
       <i>Чтобы получить код:<br>
-      1. Перейдите в Telegram-бота — <a href="https://t.me/rovely_bot" target="_blank" class="hover:text-white transition-all focus-visible:outline-none focus-visible:text-white">@rovely_bot (ссылка)</a><br>
+      1. Перейдите в Telegram-бота — 
+      <a 
+        href="https://t.me/rovely_bot" 
+        target="_blank" 
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="hover:text-white transition-all focus-visible:outline-none focus-visible:text-white"
+      >
+        @rovely_bot (ссылка)
+      </a><br>
       2. Активируйте его нажав на кнопку либо через /start<br>
       3. Отправьте боту свой номер телефона (кнопкой)<br>
       4. Нажмите на самолетик справа от поля ввода кода</i>
@@ -186,20 +193,20 @@ const acceptedTerms = ref(false)
     <div class="flex justify-between mt-6">
       <button
         @click.prevent="step = 2"
-        class="
-        w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl cursor-pointer text-white/60
-      hover:text-white focus-visible:text-white focus-visible:outline-none transition-all
-        "
+        :disabled="isProcessing"
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
+        cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         Назад
       </button>
       <button
-        class="
-        w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-        hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
-        "
+        :disabled="isProcessing"
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
+        cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
       >
-        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full"></span>
+        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
         <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
           Далее
         </span>
@@ -211,6 +218,7 @@ const acceptedTerms = ref(false)
     <input 
       v-model="login"
       @blur="onLoginBlur"
+      :disabled="isProcessing"
       id="login"
       type="text"
       maxlength="50"
@@ -223,6 +231,7 @@ const acceptedTerms = ref(false)
     <InputError :clientError="loginClientError" :serverError="loginServerError" />
     <label for="password" class="text-[18px] pb-0.5 mt-4 self-start">Пароль</label>
     <div 
+      :class="isProcessing ? 'pointer-events-none' : ''"
       class="
       group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
       focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
@@ -231,9 +240,10 @@ const acceptedTerms = ref(false)
       <input
         v-model="password"
         @blur="onPasswordBlur"
+        :disabled="isProcessing"
+        :type="showPassword ? 'text' : 'password'"
         id="password"
         autocomplete="current-password"
-        :type="showPassword ? 'text' : 'password'"
         maxlength="72"
         placeholder="Введите пароль"
         class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
@@ -241,9 +251,10 @@ const acceptedTerms = ref(false)
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
       <div class=" w-14 px-3 flex items-center justify-center">
         <button
-          type="button"
           @click="showPassword = !showPassword"
           @mousedown.prevent
+          :disabled="isProcessing"
+          type="button"
           class="p-3 text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
         >
           <SvgEyeOpen v-if="showPassword" class="size-6" />
@@ -256,43 +267,59 @@ const acceptedTerms = ref(false)
       <label class="group flex items-center">
         <input
           v-model="acceptedTerms"
+          :disabled="isProcessing"
           type="checkbox" 
           class="peer sr-only"
         >
         <div 
-          class="w-5 h-5 cursor-pointer bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center 
-          peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all
-          "
+          :class="isProcessing ? 'pointer-events-none' : ''"
+          class="w-5 h-5 bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center
+          cursor-pointer peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all"
         >
           <SvgCheck class="size-4" />
         </div>
-        <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">
+        <span 
+          :class="isProcessing ? 'pointer-events-none' : ''"
+          class="pl-1 select-none text-white/60 cursor-pointer peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all"
+        >
           <span>Я принимаю </span> 
-          <a href="/terms" target="_blank" class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline">условия</a>
+          <a 
+            :class="isProcessing ? 'pointer-events-none' : ''"
+            href="/terms" 
+            target="_blank" 
+            class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+          >
+            условия
+          </a>
           <span> и </span> 
-          <a href="/privacy" target="_blank" class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline">политику</a>
+          <a 
+            :class="isProcessing ? 'pointer-events-none' : ''"
+            href="/privacy" 
+            target="_blank" 
+            class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+          >
+            политику
+          </a>
         </span>
       </label>
     </div>
     <div class="flex justify-between">
       <button
         @click.prevent="step = 2"
-        class="
-        w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl cursor-pointer text-white/60
-      hover:text-white focus-visible:text-white focus-visible:outline-none transition-all
-        "
+        :disabled="isProcessing"
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl  text-white/60
+        cursor-pointer hover:text-white focus-visible:text-white focus-visible:outline-none transition-all"
       >
         Назад
       </button>
       <button
-        :disabled="!acceptedTerms"
-        :class="!acceptedTerms ? 'pointer-events-none' : ''"
-        class="
-        w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-        hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] 
-        "
+        :disabled="!acceptedTerms || isProcessing"
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
+        cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
       >
-        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full"></span>
+        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
         <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
           Завершить
         </span>
@@ -307,16 +334,11 @@ const acceptedTerms = ref(false)
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
   </div>
   <button
-    class="
-    w-full p-3 rounded-4xl mt-2
-    bg-[#060e0b] border border-[#1c2e28]
-    text-white
-    hover:border-[#13d373] hover:text-white
-    flex items-center justify-center gap-2
-    transition-all duration-200
-    hover:shadow-[0_0_6px_#13d373] cursor-pointer select-none
-    focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]
-    "
+    :disabled="isProcessing"
+    :class="isProcessing ? 'pointer-events-none' : ''"
+    class="w-full p-3 rounded-4xl mt-2 bg-[#060e0b] border border-[#1c2e28] text-white flex items-center justify-center gap-2 
+    select-none cursor-pointer hover:border-[#13d373] hover:text-white hover:shadow-[0_0_6px_#13d373] 
+    focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all duration-200"
   >
     <SvgGoogle class="size-5" />
     Продолжить с Google
