@@ -6,8 +6,10 @@ import { useMutation } from "@tanstack/vue-query"
 import api from "../api"
 import { AxiosError } from "axios"
 import useTimer from "./useTimer"
-import type { CheckResponseDto, SendResponseDto } from "../../interface"
+import type { CheckResponseDto } from "../../interface"
+import type { ResponseMessageDto } from "@/interface"
 import type { ResponseErrorDto } from "@/interface"
+import { toast } from "vue-sonner"
 
 export const useEmailVerification = (name: Ref | string, accountId?: string) => {
   const { startTimer, formattedTime, clearAllTimers } = useTimer()
@@ -54,7 +56,7 @@ export const useEmailVerification = (name: Ref | string, accountId?: string) => 
     mutationFn: api.checkRegistrationVerification,
     onError: (error) => {
       if (error instanceof AxiosError) {
-        alert(error.response?.data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(error.response?.data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
     }
   })
@@ -77,16 +79,16 @@ export const useEmailVerification = (name: Ref | string, accountId?: string) => 
           emailServerError.value = data.errors.email
           return
         }
-        alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
     }
   })
 
   const sendVerificationEmail = handleSubmit(async (values) => {
     try {
-      const result = await sendVerificationEmailMutation.mutateAsync({ ...values, name: typeof name === "string" ? name : name.value }) as SendResponseDto
+      const result = await sendVerificationEmailMutation.mutateAsync({ ...values, name: typeof name === "string" ? name : name.value }) as ResponseMessageDto
       if (result.secondsLeft) startTimer(email.value.toLowerCase(), result.secondsLeft)
-      alert(result.message)
+      toast[result.type](result.message)
     } catch {
       return null
     }

@@ -8,7 +8,9 @@ import { AxiosError } from "axios"
 import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
 import useCodeTimer from "@/composables/useCodeTimer"
 import type { ResponseErrorDto } from "@/interface"
-import type { CheckResponseDto, SendResponseDto, VerifyResponseDto } from "../interface"
+import type { CheckResponseDto } from "../interface"
+import type { ResponseMessageDto } from "@/interface"
+import { toast } from "vue-sonner"
 
 export const usePhoneVerification = (name: Ref | string, accountId?: string) => {
   const { startTimer, formattedTime, clearAllTimers } = useCodeTimer()
@@ -101,15 +103,15 @@ export const usePhoneVerification = (name: Ref | string, accountId?: string) => 
           codeServerError.value = data.errors.code
           return
         }
-        alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
     }
   })
 
   const verifyPhone = handleSubmit(async (values) => {
     try {
-      const result = await verifyPhoneMutation.mutateAsync(values) as VerifyResponseDto
-      alert(result.message)
+      const result = await verifyPhoneMutation.mutateAsync(values) as ResponseMessageDto
+      toast[result.type](result.message)
       return result
     } catch {
       return null
@@ -120,7 +122,7 @@ export const usePhoneVerification = (name: Ref | string, accountId?: string) => 
     mutationFn: api.checkRegistrationVerification,
     onError: (error) => {
       if (error instanceof AxiosError) {
-        alert(error.response?.data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(error.response?.data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
     }
   })
@@ -141,10 +143,10 @@ export const usePhoneVerification = (name: Ref | string, accountId?: string) => 
         const data = error.response?.data as ResponseErrorDto
         if (data.errors) {
           phoneServerError.value = data.errors.phone
-          if (data.errors.message) alert(data.errors.message)
+          if (data.errors.message) toast.warning(data.errors.message)
           return
         }
-        alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
     }
   })
@@ -159,12 +161,12 @@ export const usePhoneVerification = (name: Ref | string, accountId?: string) => 
         accountId
       }
       const validatedData = sendVerificationCodeSchema.parse(rawData)
-      const result = await sendVerificationCodeMutation.mutateAsync(validatedData) as SendResponseDto
+      const result = await sendVerificationCodeMutation.mutateAsync(validatedData) as ResponseMessageDto
       if (result.secondsLeft) {
         codeServerError.value = undefined
         startTimer(validatedData.phone, result.secondsLeft)
       }
-      alert(result.message)
+      toast[result.type](result.message)
     } catch { }
   }
 

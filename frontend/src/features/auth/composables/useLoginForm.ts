@@ -7,6 +7,7 @@ import api from "../api"
 import { useRouter } from "vue-router"
 import { AxiosError } from "axios"
 import { useLocalStorage } from "@vueuse/core"
+import { toast } from "vue-sonner"
 import type { ResponseErrorDto } from "@/interface"
 
 export const useLoginForm = () => {
@@ -87,7 +88,7 @@ export const useLoginForm = () => {
           passwordServerError.value = data.errors.password
           return
         }
-        alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
     }
   })

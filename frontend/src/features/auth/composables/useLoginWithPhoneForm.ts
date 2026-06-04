@@ -9,7 +9,8 @@ import api from "../api"
 import { useRouter } from "vue-router"
 import { useLocalStorage } from "@vueuse/core"
 import { AxiosError } from "axios"
-import type { ResponseErrorDto } from "@/interface"
+import { toast } from "vue-sonner"
+import type { ResponseErrorDto, ResponseMessageDto } from "@/interface"
 
 export const useLoginWithPhoneForm = () => {
   const { startTimer, formattedTime, clearAllTimers } = useCodeTimer()
@@ -113,7 +114,7 @@ export const useLoginWithPhoneForm = () => {
           codeServerError.value = data.errors.code
           return
         }
-        alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
     }
   })
@@ -129,10 +130,10 @@ export const useLoginWithPhoneForm = () => {
         const data = error.response?.data as ResponseErrorDto
         if (data.errors) {
           phoneServerError.value = data.errors.phone
-          if (data.errors.message) alert(data.errors.message)
+          if (data.errors.message) toast.warning(data.errors.message)
           return
         }
-        alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
     }
   })
@@ -141,12 +142,12 @@ export const useLoginWithPhoneForm = () => {
     try {
       const phoneResult = await phoneValidate()
       if (!phoneResult.valid) return
-      const result = await sendLoginWithPhoneCodeMutation.mutateAsync(phone.value)
+      const result = await sendLoginWithPhoneCodeMutation.mutateAsync(phone.value) as ResponseMessageDto
       if (result.secondsLeft) {
         codeServerError.value = undefined
         startTimer(parsePhoneNumberFromString(phone.value)?.number as string, result.secondsLeft)
       }
-      alert(result.message)
+      toast[result.type](result.message)
     } catch { }
   }
 

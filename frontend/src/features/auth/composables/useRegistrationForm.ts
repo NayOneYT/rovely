@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/vue-query"
 import { useRouter } from "vue-router"
 import { useEmailVerification } from "@/features/verification/email/composables/useEmailVerification"
 import { usePhoneVerification } from "@/features/verification/phone/usePhoneVerification"
+import { toast } from "vue-sonner"
 import type { ResponseErrorDto } from "@/interface"
 
 export const useRegistrationForm = () => {
@@ -234,7 +235,7 @@ export const useRegistrationForm = () => {
                 isProcessing.value = false
                 return
               }
-              alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+              toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
             }
             isProcessing.value = false
             return
@@ -246,7 +247,7 @@ export const useRegistrationForm = () => {
         break
       case 2:
         if (!email.value && !phone.value) {
-          alert("Укажите email или номер телефона")
+          toast.info("Укажите email или номер телефона")
           return
         }
         const [emailResult, phoneResult] = await Promise.all([
@@ -262,7 +263,7 @@ export const useRegistrationForm = () => {
               checkRegistrationEmailVerification()
             ])
             if (!verified) {
-              alert("Сначала подтвердите email")
+              toast.warning("Сначала подтвердите email")
               verifiedEmails.delete(email.value.toLowerCase())
               isEmailVerified.value = false
               isProcessing.value = false
@@ -278,7 +279,7 @@ export const useRegistrationForm = () => {
                 isProcessing.value = false
                 return
               }
-              alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+              toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
             }
             isProcessing.value = false
             return
@@ -307,7 +308,7 @@ export const useRegistrationForm = () => {
                 isProcessing.value = false
                 return
               }
-              alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+              toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
               isProcessing.value = false
             }
             return
@@ -330,7 +331,7 @@ export const useRegistrationForm = () => {
   const registerMutation = useMutation({
     mutationFn: api.register,
     onSuccess: () => {
-      alert("Аккаунт успешно создан")
+      toast.success("Аккаунт успешно создан")
       router.push({ name: "login" })
       isProcessing.value = false
     },
@@ -354,7 +355,7 @@ export const useRegistrationForm = () => {
           isProcessing.value = false
           return
         }
-        alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
       isProcessing.value = false
     }
@@ -370,7 +371,7 @@ export const useRegistrationForm = () => {
           loginServerError.value = data.errors.login
           return
         }
-        alert(data.message ?? "Произошла ошибка сервера, попробуйте позже")
+        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
       return
     }
