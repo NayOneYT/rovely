@@ -197,6 +197,7 @@ export const useRegistrationForm = () => {
     if (verified) {
       isEmailVerified.value = true
       verifiedEmails.add(email.value.toLowerCase())
+      isProcessing.value = false
       return
     }
     await sendVerificationEmail()
