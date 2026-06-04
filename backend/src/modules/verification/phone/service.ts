@@ -100,7 +100,7 @@ export const phoneVerificationService = {
           }
         })
       ])
-      if (!link) return { type: "info", message: "Сначала отправьте свой номер телефона боту" }
+      if (!link) return { type: "warning", message: "Сначала отправьте свой номер телефона боту" }
       const now = new Date()
       if (request && !request.isConfirmed && request.updatedAt.getTime() > now.getTime() - PHONE_CODE_RATE_LIMIT_MS) {
         const timePassed = now.getTime() - request.updatedAt.getTime()
