@@ -1,7 +1,17 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { Toaster } from "vue-sonner"
+import 'vue-sonner/style.css'
+</script>
 
 <template>
   <div>
+    <Toaster 
+      rich-colors
+      position="top-center"
+      :close-button=true
+      close-button-position="top-right"
+      theme="system" 
+    />
     <RouterView></RouterView>
   </div>
 </template>
