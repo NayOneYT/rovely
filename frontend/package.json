@@ -17,6 +17,7 @@
     "axios": "^1.15.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
     "libphonenumber-js": "^1.13.1",
     "lucide-vue-next": "^1.0.0",
     "pinia": "^3.0.4",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.4",
     "@tsconfig/node24": "^24.0.4",
+    "@types/google.accounts": "^0.0.18",
     "@types/node": "^24.12.2",
     "@vitejs/plugin-vue": "^6.0.6",
     "@vue/tsconfig": "^0.9.1",
