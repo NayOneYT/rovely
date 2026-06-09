@@ -22,8 +22,7 @@ export default {
     })
   },
   register: async (data: RegistrationDto) => {
-    const response = await axios.post("/api/auth/register", data)
-    return response.data
+    await axios.post("/api/auth/register", data)
   },
   me: async () => {
     const response = await axios.get("/api/auth/me")
