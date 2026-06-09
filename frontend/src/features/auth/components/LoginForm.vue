@@ -11,17 +11,19 @@ import SvgCheck from "@/components/SvgCheck.vue"
 import SvgGoogle from "@/components/SvgGoogle.vue"
 import SvgTelegram from "@/components/SvgTelegram.vue"
 
+const isProcessing = ref<boolean>(false)
+
 const { 
   identifier, identifierClientError, identifierServerError, onIdentifierBlur,
   password, passwordClientError, passwordServerError, onPasswordBlur,
-  login, isLoggingIn
-} = useLoginForm()
+  login
+} = useLoginForm(isProcessing)
 
 const {
   phoneString, onPhoneInput, onPhoneBlur, phoneClientError, phoneServerError,
   codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
-  loginWithPhone, sendLoginWithPhoneCode, isLoggingWithPhoneIn
-} = useLoginWithPhoneForm()
+  loginWithPhone, sendLoginWithPhoneCode
+} = useLoginWithPhoneForm(isProcessing)
 
 const rememberMe = useLocalStorage("rememberMe", false)
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -37,7 +39,7 @@ const isLoginWithPassword = ref(true)
     <input 
       v-model="identifier"
       @blur="onIdentifierBlur"
-      :disabled="isLoggingIn"
+      :disabled="isProcessing"
       id="identifier"
       autocomplete="username"
       type="text"
@@ -60,7 +62,7 @@ const isLoginWithPassword = ref(true)
       <input
         v-model="password"
         @blur="onPasswordBlur"
-        :disabled="isLoggingIn"
+        :disabled="isProcessing"
         :type="showPassword ? 'text' : 'password'"
         id="password"
         autocomplete="current-password"
@@ -75,7 +77,7 @@ const isLoginWithPassword = ref(true)
           @click="showPassword = !showPassword"
           @mousedown.prevent
           class="p-3 text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
-          :disabled="isLoggingIn"
+          :disabled="isProcessing"
         >
           <SvgEyeOpen v-if="showPassword" class="size-6" />
           <SvgEyeClosed v-else class="size-6" />
@@ -84,9 +86,9 @@ const isLoginWithPassword = ref(true)
     </div>
     <InputError :clientError="passwordClientError" :serverError="passwordServerError" />
     <div class="flex justify-between mt-4 mb-5">
-      <label class="group flex items-center" :class="isLoggingIn ? 'pointer-events-none' : ''">
+      <label class="group flex items-center" :class="isProcessing ? 'pointer-events-none' : ''">
         <input 
-          :disabled="isLoggingIn"
+          :disabled="isProcessing"
           v-model="rememberMe"
           type="checkbox" 
           class="peer sr-only"
@@ -101,16 +103,16 @@ const isLoginWithPassword = ref(true)
         <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
       </label>
       <a 
-        :href="isLoggingIn ? undefined : '/'"
-        :class="isLoggingIn ? 'pointer-events-none' : ''"
+        :href="isProcessing ? undefined : '/'"
+        :class="isProcessing ? 'pointer-events-none' : ''"
         class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
       >
         Забыли пароль?
       </a>
     </div>
     <button
-      :disabled="isLoggingIn"
-      :class="isLoggingIn ? 'pointer-events-none' : ''"
+      :disabled="isProcessing"
+      :class="isProcessing ? 'pointer-events-none' : ''"
       class="
       relative w-full p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
       hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
@@ -118,8 +120,8 @@ const isLoginWithPassword = ref(true)
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
       <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
-        <SvgLoading v-if="isLoggingIn" class="size-6 text-[#060e0b]" />
-        {{ isLoggingIn ? "Проверка..." : "Войти" }}
+        <SvgLoading v-if="isProcessing" class="size-6 text-[#060e0b]" />
+        {{ isProcessing ? "Проверка..." : "Войти" }}
       </span>
     </button>
   </form>
@@ -129,7 +131,7 @@ const isLoginWithPassword = ref(true)
       :value="phoneString"
       @input="onPhoneInput"
       @blur="onPhoneBlur"
-      :disabled="isLoggingWithPhoneIn"
+      :disabled="isProcessing"
       id="phone"
       autocomplete="tel"
       type="tel"
@@ -151,7 +153,7 @@ const isLoginWithPassword = ref(true)
         :value="codeString"
         @input="onCodeInput"
         @blur="onCodeBlur"
-        :disabled="isLoggingWithPhoneIn"
+        :disabled="isProcessing"
         id="code"
         type="text"
         inputmode="numeric"
@@ -165,7 +167,7 @@ const isLoginWithPassword = ref(true)
           type="button"
           @click="sendLoginWithPhoneCode"
           @mousedown.prevent
-          :disabled="!!sendCodeCooldown || isLoggingWithPhoneIn"
+          :disabled="!!sendCodeCooldown || isProcessing"
           class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
         >
           <SvgTelegram :class="sendCodeCooldown ? 'size-6 mt-1' : 'size-8 m-2'" />
@@ -175,9 +177,9 @@ const isLoginWithPassword = ref(true)
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
     <div class="flex justify-between mt-4 mb-5">
-      <label class="group flex items-center" :class="isLoggingWithPhoneIn ? 'pointer-events-none' : ''">
+      <label class="group flex items-center" :class="isProcessing ? 'pointer-events-none' : ''">
         <input 
-          :disabled="isLoggingWithPhoneIn"
+          :disabled="isProcessing"
           v-model="rememberMe"
           type="checkbox" 
           class="peer sr-only"
@@ -197,13 +199,13 @@ const isLoginWithPassword = ref(true)
       relative w-full p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
       hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
       "
-      :disabled="isLoggingWithPhoneIn"
-      :class="isLoggingWithPhoneIn ? 'pointer-events-none' : ''"
+      :disabled="isProcessing"
+      :class="isProcessing ? 'pointer-events-none' : ''"
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
       <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
-        <SvgLoading v-if="isLoggingWithPhoneIn" class="size-6 text-[#060e0b]" />
-        {{ isLoggingWithPhoneIn ? "Проверка..." : "Войти" }}
+        <SvgLoading v-if="isProcessing" class="size-6 text-[#060e0b]" />
+        {{ isProcessing ? "Проверка..." : "Войти" }}
       </span>
     </button>
   </form>
@@ -222,8 +224,8 @@ const isLoginWithPassword = ref(true)
     hover:shadow-[0_0_6px_#13d373] cursor-pointer select-none
     focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]
     "
-    :disabled="isLoggingIn || isLoggingWithPhoneIn"
-    :class="isLoggingIn ? 'pointer-events-none' : ''"
+    :disabled="isProcessing"
+    :class="isProcessing ? 'pointer-events-none' : ''"
   >
     {{ isLoginWithPassword ? "Войти по номеру телефона" : "Войти с паролем" }}
   </button>
@@ -238,8 +240,8 @@ const isLoginWithPassword = ref(true)
     hover:shadow-[0_0_6px_#13d373] cursor-pointer select-none
     focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]
     "
-    :disabled="isLoggingIn || isLoggingWithPhoneIn"
-    :class="isLoggingIn || isLoggingWithPhoneIn ? 'pointer-events-none' : ''"
+    :disabled="isProcessing"
+    :class="isProcessing ? 'pointer-events-none' : ''"
   >
     <SvgGoogle class="size-5" />
     Войти через Google

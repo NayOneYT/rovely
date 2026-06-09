@@ -1,7 +1,7 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { loginSchema } from "../schema"
-import { ref, watch } from "vue"
+import { ref, watch, type Ref } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import api from "../api"
 import { useRouter } from "vue-router"
@@ -10,7 +10,7 @@ import { useLocalStorage } from "@vueuse/core"
 import { toast } from "vue-sonner"
 import type { ResponseErrorDto } from "@/interface"
 
-export const useLoginForm = () => {
+export const useLoginForm = (isProcessing: Ref<boolean>) => {
   const router = useRouter()
   const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
   const rememberMe = useLocalStorage("rememberMe", false)
@@ -75,6 +75,7 @@ export const useLoginForm = () => {
 
   const loginMutation = useMutation({
     mutationFn: api.login,
+    onMutate: () => isProcessing.value = true,
     onSuccess: async () => {
       const account = await api.me()
       router.push(`/profiles/${account.profile.username}`)
@@ -90,18 +91,17 @@ export const useLoginForm = () => {
         }
         toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
-    }
+    },
+    onSettled: () => isProcessing.value = false
   })
 
   const login = handleSubmit((values) => {
     loginMutation.mutate(values)
   })
 
-  const { isPending: isLoggingIn } = loginMutation
-
   return {
     identifier, identifierClientError, identifierServerError, onIdentifierBlur,
     password, passwordClientError, passwordServerError, onPasswordBlur,
-    login, isLoggingIn
+    login
   }
 }

@@ -1,10 +1,10 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { registrationSchema } from "../schema"
-import { ref, watch } from "vue"
+import { ref, watch, type Ref } from "vue"
 import api from "../api"
 import { AxiosError } from "axios"
-import { parsePhoneNumberFromString, AsYouType, isPossibleNumber } from "libphonenumber-js"
+import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
 import { useMutation } from "@tanstack/vue-query"
 import { useRouter } from "vue-router"
 import { useEmailVerification } from "@/features/verification/email/composables/useEmailVerification"
@@ -12,11 +12,10 @@ import { usePhoneVerification } from "@/features/verification/phone/usePhoneVeri
 import { toast } from "vue-sonner"
 import type { ResponseErrorDto } from "@/interface"
 
-export const useRegistrationForm = () => {
+export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const step = ref(1)
   const verifiedEmails = new Set<string>()
   const isEmailVerified = ref(false)
-  const isProcessing = ref(false)
 
   const router = useRouter()
 
@@ -388,6 +387,6 @@ export const useRegistrationForm = () => {
     onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
     login, loginClientError, loginServerError, onLoginBlur,
     password, passwordClientError, onPasswordBlur,
-    step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register, isProcessing
+    step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register
   }
 }

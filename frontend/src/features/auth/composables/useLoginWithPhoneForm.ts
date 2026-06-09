@@ -1,7 +1,7 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { loginWithPhoneSchema } from "../schema"
-import { ref, computed, watch, onUnmounted } from "vue"
+import { ref, computed, watch, onUnmounted, type Ref } from "vue"
 import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
 import useCodeTimer from "@/composables/useCodeTimer"
 import { useMutation } from "@tanstack/vue-query"
@@ -12,7 +12,7 @@ import { AxiosError } from "axios"
 import { toast } from "vue-sonner"
 import type { ResponseErrorDto, ResponseMessageDto } from "@/interface"
 
-export const useLoginWithPhoneForm = () => {
+export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const { startTimer, formattedTime, clearAllTimers } = useCodeTimer()
   const sendCodeCooldown = computed(() => {
     if (!phone.value) return undefined
@@ -101,6 +101,7 @@ export const useLoginWithPhoneForm = () => {
 
   const loginWithPhoneMutation = useMutation({
     mutationFn: api.loginWithPhone,
+    onMutate: () => isProcessing.value = true,
     onSuccess: async () => {
       const account = await api.me()
       router.push(`/profiles/${account.profile.username}`)
@@ -116,7 +117,8 @@ export const useLoginWithPhoneForm = () => {
         }
         toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
       }
-    }
+    },
+    onSettled: () => isProcessing.value = false
   })
 
   const loginWithPhone = handleSubmit((values) => {
@@ -151,13 +153,11 @@ export const useLoginWithPhoneForm = () => {
     } catch { }
   }
 
-  const { isPending: isLoggingWithPhoneIn } = loginWithPhoneMutation
-
   onUnmounted(clearAllTimers)
 
   return {
     phoneString, onPhoneInput, onPhoneBlur, phoneClientError, phoneServerError,
     codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
-    loginWithPhone, sendLoginWithPhoneCode, isLoggingWithPhoneIn
+    loginWithPhone, sendLoginWithPhoneCode
   }
 }

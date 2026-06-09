@@ -9,6 +9,8 @@ import SvgEyeClosed from "@/components/SvgEyeClosed.vue"
 import SvgTelegram from "@/components/SvgTelegram.vue"
 import SvgCheck from "@/components/SvgCheck.vue"
 
+const isProcessing = ref<boolean>(false)
+
 const {
   name, nameClientError, onNameBlur,
   username, usernameClientError, usernameServerError, onUsernameBlur,
@@ -17,8 +19,8 @@ const {
   onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
   login, loginClientError, loginServerError, onLoginBlur,
   password, passwordClientError, onPasswordBlur,
-  step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register, isProcessing
-} = useRegistrationForm()
+  step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register
+} = useRegistrationForm(isProcessing)
 
 const showPassword = ref(false)
 const acceptedTerms = ref(false)
