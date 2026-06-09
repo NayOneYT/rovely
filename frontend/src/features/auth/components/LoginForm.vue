@@ -2,6 +2,7 @@
 import { ref } from "vue"
 import { useLoginForm } from "../composables/useLoginForm"
 import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
+import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { useLocalStorage } from "@vueuse/core"
 import InputError from "@/components/InputError.vue"
 import SvgLoading from "@/components/SvgLoading.vue"
@@ -24,6 +25,15 @@ const {
   codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
   loginWithPhone, sendLoginWithPhoneCode
 } = useLoginWithPhoneForm(isProcessing)
+
+const { 
+  googleClient
+} = useGoogleAuth(isProcessing)
+
+const handleGoogleLogin = () => {
+  isProcessing.value = true
+  googleClient.requestCode()
+}
 
 const rememberMe = useLocalStorage("rememberMe", false)
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -230,6 +240,7 @@ const isLoginWithPassword = ref(true)
     {{ isLoginWithPassword ? "Войти по номеру телефона" : "Войти с паролем" }}
   </button>
   <button
+    @click="handleGoogleLogin"
     class="
     w-full p-3 rounded-4xl mt-2
     bg-[#060e0b] border border-[#1c2e28]
