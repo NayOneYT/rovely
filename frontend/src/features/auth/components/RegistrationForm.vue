@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { useRegistrationForm } from "../composables/useRegistrationForm"
+import { useGoogleAuth } from "../composables/useGoogleAuth"
 import InputError from "@/components/InputError.vue"
 import SvgGoogle from "@/components/SvgGoogle.vue"
 import SvgEmail from "@/components/SvgEmail.vue"
@@ -21,6 +22,15 @@ const {
   password, passwordClientError, onPasswordBlur,
   step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register
 } = useRegistrationForm(isProcessing)
+
+const { 
+  googleClient
+} = useGoogleAuth(isProcessing)
+
+const handleGoogleRegistration = () => {
+  isProcessing.value = true
+  googleClient.requestCode()
+}
 
 const showPassword = ref(false)
 const acceptedTerms = ref(false)
@@ -336,6 +346,7 @@ const acceptedTerms = ref(false)
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
   </div>
   <button
+    @click="handleGoogleRegistration"
     :disabled="isProcessing"
     :class="isProcessing ? 'pointer-events-none' : ''"
     class="w-full p-3 rounded-4xl mt-2 bg-[#060e0b] border border-[#1c2e28] text-white flex items-center justify-center gap-2 
