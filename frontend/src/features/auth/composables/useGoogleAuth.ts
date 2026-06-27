@@ -25,7 +25,8 @@ export const useGoogleAuth = (isProcessing: Ref<boolean>) => {
     client_id: config.googleClientId,
     scope: 'openid profile email',
     ux_mode: 'popup',
-    callback: authenticate
+    callback: authenticate,
+    error_callback: () => isProcessing.value = false
   })
 
   return { googleClient }
