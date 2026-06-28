@@ -14,6 +14,7 @@ datasource db {
 
 model Account {
   id                     String                  @id @default(cuid())
+  googleId               String?                 @unique @map("google_id")
   phone                  String?                 @unique
   email                  String?                 @unique
   lowercaseEmail         String?                 @unique @map("lowercase_email")
