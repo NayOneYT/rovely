@@ -67,6 +67,17 @@ export const authController = {
     }
   },
 
+  google: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const code = req.body.code
+      const { statusCode, accessToken, refreshToken } = await authService.google(code)
+      setTokenCookie(res, accessToken, refreshToken, true)
+      res.sendStatus(statusCode)
+    } catch (error) {
+      next(error)
+    }
+  },
+
   me: async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.accountId) throw new AppError(401, { message: "Не авторизован" })

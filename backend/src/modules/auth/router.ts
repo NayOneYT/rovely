@@ -12,6 +12,7 @@ router.post("/login-with-phone", validate(loginWithPhoneSchema, "body"), authCon
 router.post("/login-with-phone/send", validate(sendLoginWithPhoneCodeSchema, "body"), authController.sendLoginWithPhoneCode)
 router.get("/check", validate(checkSchema, "query"), authController.check)
 router.post("/register", validate(registerSchema, "body"), authController.register)
+router.post("/google", authController.google)
 router.get("/me", authMiddleware, authController.me)
 router.post("/logout", authController.logout)
 

@@ -10,6 +10,7 @@ import { GrammyError } from "grammy"
 import { bot } from "@/lib/telegramBot.js"
 import { PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS } from "@/utils/constants.js"
 import { generateCode } from "@/utils/code.js"
+import { googleClient } from "@/lib/google.js"
 import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto } from "./schema.js"
 
 const sendCode = async (name: string, telegramUserId: number, code: string) => {
@@ -249,6 +250,72 @@ export const authService = {
         phone: data.phone
       }
     })
+  },
+
+  google: async (code: string) => {
+    const googleResponse = await googleClient.getToken(code)
+    const idToken = googleResponse.tokens.id_token
+    if (!idToken) throw new AppError(400, { message: "Google не вернул id_token" })
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: config.googleClientId
+    })
+    const payload = ticket.getPayload()
+    if (!payload) throw new AppError(400, { message: "payload для этого id_token пуст" })
+    const email = payload.email
+    if (!email) throw new AppError(400, { message: "Google для этого аккаунта не предоставляет email" })
+    const googleId = payload.sub
+    const lowercaseEmail = email.toLowerCase()
+    const name = payload.name?.slice(0, 30) ?? "Некто"
+    const avatarUrl = payload.picture ?? null
+    let account = await prisma.account.findFirst({
+      where: {
+        OR: [
+          { googleId },
+          { lowercaseEmail }
+        ]
+      }
+    })
+    let statusCode = 200
+    if (!account) {
+      statusCode = 201
+      const username = await generateUniqueUsername(email)
+      const lowercaseUsername = username.toLowerCase(); // The ";" here is mandatory so that the engine doesn't merge this line with the next one
+      [account] = await prisma.$transaction([
+        prisma.account.create({
+          data: {
+            googleId,
+            email,
+            lowercaseEmail,
+            profile: {
+              create: {
+                username,
+                lowercaseUsername,
+                name,
+                avatarUrl
+              }
+            }
+          }
+        }),
+        prisma.verificationEmailRequest.deleteMany({
+          where: {
+            lowercaseEmail
+          }
+        })
+      ])
+    } else if (!account.googleId) {
+      await prisma.account.update({
+        where: {
+          id: account.id
+        },
+        data: {
+          googleId
+        }
+      })
+    }
+    const accessToken = jwt.sign({ id: account.id, role: account.role }, config.jwtAccessSecret, { expiresIn: "5m" })
+    const refreshToken = jwt.sign({ id: account.id, rememberMe: true, passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0 }, config.jwtRefreshSecret, { expiresIn: "1y" })
+    return { statusCode, accessToken, refreshToken }
   },
 
   me: async (accountId: string) => {
