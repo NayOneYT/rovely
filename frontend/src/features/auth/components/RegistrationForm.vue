@@ -67,7 +67,7 @@ const acceptedTerms = ref(false)
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="usernameClientError" :serverError="usernameServerError" />
-    <p class="text-white/40 font-light mt-2"><i>Вас смогут найти по @username</i></p>
+    <p class="text-white/40 font-light mt-2"><i>Вас смогут найти по @{{ username || "username" }}</i></p>
     <button
       :disabled="isProcessing"
       :class="isProcessing ? 'pointer-events-none' : ''"
