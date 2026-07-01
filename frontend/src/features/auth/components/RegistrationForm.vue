@@ -2,6 +2,7 @@
 import { ref } from "vue"
 import { useRegistrationForm } from "../composables/useRegistrationForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
+import { useLocalStorage } from "@vueuse/core"
 import InputError from "@/components/InputError.vue"
 import SvgGoogle from "@/components/SvgGoogle.vue"
 import SvgEmail from "@/components/SvgEmail.vue"
@@ -32,12 +33,13 @@ const handleGoogleRegistration = () => {
   googleClient.requestCode()
 }
 
+const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 const showPassword = ref(false)
 const acceptedTerms = ref(false)
 </script>
 
 <template>
-  <p class="text-4xl font-medium cursor-default">Давайте знакомиться</p>
+  <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Расскажите нам о себе</p>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 1">
     <label for="name" class="text-[18px] pb-0.5 self-start">Отображаемое имя (необязательно)</label>
