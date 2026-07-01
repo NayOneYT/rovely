@@ -135,6 +135,7 @@ const acceptedTerms = ref(false)
         @click.prevent="step = 1"
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
+        type="button"
         class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
         cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
@@ -207,6 +208,7 @@ const acceptedTerms = ref(false)
         @click.prevent="step = 2"
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
+        type="button"
         class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
         cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
@@ -320,6 +322,7 @@ const acceptedTerms = ref(false)
         @click.prevent="step = 2"
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
+        type="button"
         class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl  text-white/60
         cursor-pointer hover:text-white focus-visible:text-white focus-visible:outline-none transition-all"
       >
