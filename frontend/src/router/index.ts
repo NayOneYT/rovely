@@ -23,7 +23,7 @@ const router = createRouter({
     {
       path: "/verification/email/verify/:token",
       name: "verifyEmail",
-      component: () => import("@/pages/VerifyEmailPage.vue"),
+      component: () => import("@/pages/VerifyEmail.vue"),
       meta: { title: "Верификация почты | ROVELY" }
     }
   ],
