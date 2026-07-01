@@ -10,7 +10,7 @@ export const setTokenCookie = (res: Response, accessToken: string, refreshToken:
   }
   res.cookie("accessToken", accessToken, {
     ...cookieOptions,
-    maxAge: 5 * 60 * 1000
+    ...(rememberMe ? { maxAge: 5 * 60 * 1000 } : {})
   })
   res.cookie("refreshToken", refreshToken, {
     ...cookieOptions,
