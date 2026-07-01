@@ -45,7 +45,7 @@ const isLoginWithPassword = ref(true)
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт, чтобы продолжить</p>
   <form v-if="isLoginWithPassword" @submit="login" class="flex flex-col">
-    <label for="identifier" class="text-[18px] pb-0.5 self-start">Логин или email</label>
+    <label for="identifier" class="texl-lg pb-0.5 self-start">Логин или email</label>
     <input 
       v-model="identifier"
       @blur="onIdentifierBlur"
@@ -62,7 +62,7 @@ const isLoginWithPassword = ref(true)
       "
     >
     <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
-    <label for="password" class="text-[18px] pb-0.5 mt-4 self-start">Пароль</label>
+    <label for="password" class="texl-lg pb-0.5 mt-4 self-start">Пароль</label>
     <div 
       class="
       group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28] 
@@ -129,14 +129,14 @@ const isLoginWithPassword = ref(true)
       "
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-      <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
+      <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
         <SvgLoading v-if="isProcessing" class="size-6 text-[#060e0b]" />
         {{ isProcessing ? "Проверка..." : "Войти" }}
       </span>
     </button>
   </form>
   <form v-else @submit="loginWithPhone" class="flex flex-col">
-    <label for="phone" class="text-[18px] pb-0.5 self-start">Телефон</label>
+    <label for="phone" class="texl-lg pb-0.5 self-start">Телефон</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -152,7 +152,7 @@ const isLoginWithPassword = ref(true)
       "
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
-    <label for="code" class="text-[18px] pb-0.5 mt-4 self-start">Код подтверждения</label>
+    <label for="code" class="texl-lg pb-0.5 mt-4 self-start">Код подтверждения</label>
     <div 
       class="
       group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
@@ -213,7 +213,7 @@ const isLoginWithPassword = ref(true)
       :class="isProcessing ? 'pointer-events-none' : ''"
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-      <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
+      <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
         <SvgLoading v-if="isProcessing" class="size-6 text-[#060e0b]" />
         {{ isProcessing ? "Проверка..." : "Войти" }}
       </span>

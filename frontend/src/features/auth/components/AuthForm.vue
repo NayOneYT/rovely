@@ -25,7 +25,7 @@ const isLogin = computed(() => route.name === "Login")
         v-for="feature in features"
         :key="feature.key"
         :to="`${feature.key}`"
-        class="relative w-full text-center text-[18px] p-3 rounded-4xl transition-all duration-200 focus-visible:outline-none" 
+        class="relative w-full text-center texl-lg p-3 rounded-4xl transition-all duration-200 focus-visible:outline-none" 
         :class="(feature.key === 'login' && isLogin) || (feature.key === 'registration' && !isLogin)
           ? 'text-[#060e0b] font-semibold' 
           : 'cursor-pointer text-white/60 hover:text-white focus-visible:text-white'"

@@ -42,7 +42,7 @@ const acceptedTerms = ref(false)
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Расскажите нам о себе</p>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 1">
-    <label for="name" class="text-[18px] pb-0.5 self-start">Отображаемое имя (необязательно)</label>
+    <label for="name" class="texl-lg pb-0.5 self-start">Отображаемое имя (необязательно)</label>
     <input 
       v-model="name"
       @blur="onNameBlur"
@@ -56,7 +56,7 @@ const acceptedTerms = ref(false)
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="nameClientError" />
-    <label for="username" class="text-[18px] pb-0.5 mt-4 self-start">Имя пользователя (необязательно)</label>
+    <label for="username" class="texl-lg pb-0.5 mt-4 self-start">Имя пользователя (необязательно)</label>
     <input 
       v-model="username"
       @blur="onUsernameBlur"
@@ -77,13 +77,13 @@ const acceptedTerms = ref(false)
       cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-      <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
+      <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
         Далее
       </span>
     </button>
   </form>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2">
-    <label for="email" class="text-[18px] pb-0.5 self-start">Email</label>
+    <label for="email" class="texl-lg pb-0.5 self-start">Email</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
@@ -115,7 +115,7 @@ const acceptedTerms = ref(false)
       </div>
     </div>
     <InputError :clientError="emailClientError" :serverError="emailServerError" />
-    <label for="phone" class="text-[18px] pb-0.5 mt-4 self-start">Телефон</label>
+    <label for="phone" class="texl-lg pb-0.5 mt-4 self-start">Телефон</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -138,7 +138,7 @@ const acceptedTerms = ref(false)
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
         type="button"
-        class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
+        class="w-50 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
         cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         Назад
@@ -150,14 +150,14 @@ const acceptedTerms = ref(false)
         cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
       >
         <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-        <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
+        <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
           Далее
         </span>
       </button>
     </div>
   </form>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2.5">
-    <label for="code" class="text-[18px] pb-0.5 self-start">Код подтверждения</label>
+    <label for="code" class="texl-lg pb-0.5 self-start">Код подтверждения</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
@@ -211,7 +211,7 @@ const acceptedTerms = ref(false)
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
         type="button"
-        class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
+        class="w-50 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
         cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         Назад
@@ -223,14 +223,14 @@ const acceptedTerms = ref(false)
         cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
       >
         <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-        <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
+        <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
           Далее
         </span>
       </button>
     </div>
   </form>
   <form @submit="register" class="flex flex-col" v-if="step === 3">
-    <label for="login" class="text-[18px] pb-0.5 self-start">Логин</label>
+    <label for="login" class="texl-lg pb-0.5 self-start">Логин</label>
     <input 
       v-model="login"
       @blur="onLoginBlur"
@@ -245,7 +245,7 @@ const acceptedTerms = ref(false)
       "
     >
     <InputError :clientError="loginClientError" :serverError="loginServerError" />
-    <label for="password" class="text-[18px] pb-0.5 mt-4 self-start">Пароль</label>
+    <label for="password" class="texl-lg pb-0.5 mt-4 self-start">Пароль</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="
@@ -324,7 +324,7 @@ const acceptedTerms = ref(false)
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
         type="button"
-        class="w-50 text-[18px] bg-[#060e0b] select-none p-3 rounded-4xl  text-white/60
+        class="w-50 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl  text-white/60
         cursor-pointer hover:text-white focus-visible:text-white focus-visible:outline-none transition-all"
       >
         Назад
@@ -336,7 +336,7 @@ const acceptedTerms = ref(false)
         cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
       >
         <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-        <span class="flex justify-center items-center gap-1 z-10 font-bold text-[18px] select-none">
+        <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
           Завершить
         </span>
       </button>
