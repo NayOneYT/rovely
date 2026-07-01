@@ -11,7 +11,7 @@ const features = [
 
 const route = useRoute()
 
-const isLogin = computed(() => route.name === "login")
+const isLogin = computed(() => route.name === "Login")
 </script>
 
 <template>

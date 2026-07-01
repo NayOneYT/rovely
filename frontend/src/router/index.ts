@@ -10,31 +10,31 @@ const router = createRouter({
     },
     {
       path: "/login",
-      name: "login",
+      name: "Login",
       component: () => import("@/pages/HomePage.vue"),
       meta: { title: "Вход | ROVELY" }
     },
     {
       path: "/registration",
-      name: "registration",
+      name: "Registration",
       component: () => import("@/pages/HomePage.vue"),
       meta: { title: "Регистрация | ROVELY" }
     },
     {
       path: "/verification/email/verify/:token",
-      name: "verifyEmail",
+      name: "VerifyEmail",
       component: () => import("@/pages/VerifyEmail.vue"),
       meta: { title: "Верификация почты | ROVELY" }
     },
     {
       path: "/terms",
-      name: "terms",
+      name: "Terms",
       component: () => import("@/pages/TermsOfUse.vue"),
       meta: { title: "Правила пользования | ROVELY" }
     },
     {
       path: "/privacy",
-      name: "privacy",
+      name: "Privacy",
       component: () => import("@/pages/PrivacyPolicy.vue"),
       meta: { title: "Политика конфиденциальности | ROVELY" }
     }
