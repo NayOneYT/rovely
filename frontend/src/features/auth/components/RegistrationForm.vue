@@ -327,7 +327,7 @@ const acceptedTerms = ref(false)
       </button>
       <button
         :disabled="!acceptedTerms || isProcessing"
-        :class="isProcessing ? 'pointer-events-none' : ''"
+        :class="!acceptedTerms || isProcessing ? 'pointer-events-none' : ''"
         class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
         cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
       >
