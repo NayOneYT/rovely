@@ -10,13 +10,8 @@ const features = [
 ]
 
 const route = useRoute()
-const router = useRouter()
 
 const isLogin = computed(() => route.name === "login")
-
-const selectFeature = (feature) => {
-  router.push({ name: feature === "login" ? "login" : "registration" })
-}
 </script>
 
 <template>
@@ -26,17 +21,17 @@ const selectFeature = (feature) => {
         class="absolute top-0 bottom-0 w-1/2 bg-[#13d373] rounded-4xl transition-all duration-200"
         :style="{ transform: isLogin ? 'translateX(0)' : 'translateX(100%)' }"
       />
-      <button
+      <router-link
         v-for="feature in features"
         :key="feature.key"
-        class="relative w-full text-[18px] p-3 rounded-4xl transition-all duration-200 focus-visible:outline-none" 
+        :to="`${feature.key}`"
+        class="relative w-full text-center text-[18px] p-3 rounded-4xl transition-all duration-200 focus-visible:outline-none" 
         :class="(feature.key === 'login' && isLogin) || (feature.key === 'registration' && !isLogin)
           ? 'text-[#060e0b] font-semibold' 
           : 'cursor-pointer text-white/60 hover:text-white focus-visible:text-white'"
-        @click="selectFeature(feature.key)"
       >
         {{ feature.label }}
-      </button>
+      </router-link>
     </div>
     <component :is="isLogin ? LoginForm : RegistrationForm" />
   </section>
