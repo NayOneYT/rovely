@@ -39,6 +39,18 @@ const router = createRouter({
       meta: { title: "Политика конфиденциальности | ROVELY" }
     }
   ],
+  scrollBehavior(to) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: "smooth"
+      }
+    }
+    return {
+      top: 0,
+      behavior: "smooth"
+    }
+  }
 })
 
 router.beforeEach(async (to) => {
