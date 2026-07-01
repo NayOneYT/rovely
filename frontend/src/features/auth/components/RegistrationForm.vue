@@ -303,8 +303,7 @@ const acceptedTerms = ref(false)
             target="_blank" 
             class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
           >
-            условия
-          </a>
+            условия</a> <!-- if you move </a> to a new line, the space before "и" will also be underlined -->
           <span> и </span> 
           <a 
             :class="isProcessing ? 'pointer-events-none' : ''"
