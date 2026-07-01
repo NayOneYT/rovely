@@ -25,6 +25,18 @@ const router = createRouter({
       name: "verifyEmail",
       component: () => import("@/pages/VerifyEmail.vue"),
       meta: { title: "Верификация почты | ROVELY" }
+    },
+    {
+      path: "/terms",
+      name: "terms",
+      component: () => import("@/pages/TermsOfUse.vue"),
+      meta: { title: "Правила пользования | ROVELY" }
+    },
+    {
+      path: "/privacy",
+      name: "privacy",
+      component: () => import("@/pages/PrivacyPolicy.vue"),
+      meta: { title: "Политика конфиденциальности | ROVELY" }
     }
   ],
 })
