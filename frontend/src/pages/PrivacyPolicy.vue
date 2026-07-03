@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
-interface policySection {
+interface PolicySection {
   id: string,
   title: string,
   intro?: string,
@@ -14,7 +14,7 @@ interface policySection {
   }>
 }
 
-const policySections: Array<policySection> = [
+const policySections: Array<PolicySection> = [
   {
     id: "obshchie-polozheniya",
     title: "1. Общие положения",
