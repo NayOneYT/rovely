@@ -299,22 +299,22 @@ const acceptedTerms = ref(false)
           class="pl-1 select-none text-white/60 cursor-pointer peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all"
         >
           <span>Я принимаю </span> 
-          <a 
+          <router-link 
             :class="isProcessing ? 'pointer-events-none' : ''"
-            href="/terms" 
+            to="/terms" 
             target="_blank" 
             class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
           >
-            условия</a> <!-- if you move </a> to a new line, the space before "и" will also be underlined -->
+            условия</router-link> <!-- if you move </a> to a new line, the space before "и" will also be underlined -->
           <span> и </span> 
-          <a 
+          <router-link 
             :class="isProcessing ? 'pointer-events-none' : ''"
-            href="/privacy" 
+            to="/privacy" 
             target="_blank" 
             class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
           >
             политику
-          </a>
+          </router-link>
         </span>
       </label>
     </div>
