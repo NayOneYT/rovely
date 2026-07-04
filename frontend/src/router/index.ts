@@ -29,13 +29,13 @@ const router = createRouter({
     {
       path: "/terms",
       name: "Terms",
-      component: () => import("@/pages/TermsOfUse.vue"),
+      component: () => import("@/pages/LegalPage.vue"),
       meta: { title: "Правила пользования | ROVELY" }
     },
     {
       path: "/privacy",
       name: "Privacy",
-      component: () => import("@/pages/PrivacyPolicy.vue"),
+      component: () => import("@/pages/LegalPage.vue"),
       meta: { title: "Политика конфиденциальности | ROVELY" }
     }
   ],
