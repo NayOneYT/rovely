@@ -1,6 +1,9 @@
 import { Router } from "express"
 import { validate } from "@/middlewares/validate.middleware.js"
-import { loginSchema, checkSchema, registerSchema, loginWithPhoneSchema, sendLoginWithPhoneCodeSchema } from "./schema.js"
+import {
+  loginSchema, checkSchema, registerSchema, loginWithPhoneSchema, sendLoginWithPhoneCodeSchema,
+  passwordRecoveryIdentifySchema, sendPasswordRecoverySchema, resetPasswordSchema
+} from "./schema.js"
 import { authController } from "./controller.js"
 import { authMiddleware } from "@/middlewares/auth.middleware.js"
 
@@ -13,6 +16,9 @@ router.post("/login-with-phone/send", validate(sendLoginWithPhoneCodeSchema, "bo
 router.get("/check", validate(checkSchema, "query"), authController.check)
 router.post("/register", validate(registerSchema, "body"), authController.register)
 router.post("/google", authController.google)
+router.get("/password-recovery/identify", validate(passwordRecoveryIdentifySchema, "query"), authController.passwordRecoveryIdentify)
+router.post("/password-recovery/send", validate(sendPasswordRecoverySchema, "body"), authController.sendPasswordRecovery)
+router.post("/password-recovery/reset", validate(resetPasswordSchema, "body"), authController.resetPassword)
 router.get("/me", authMiddleware, authController.me)
 router.post("/logout", authController.logout)
 

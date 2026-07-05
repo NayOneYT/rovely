@@ -8,10 +8,12 @@ import { emailVerificationService } from "@/modules/verification/email/service.j
 import { phoneVerificationService } from "@/modules/verification/phone/service.js"
 import { GrammyError } from "grammy"
 import { bot } from "@/lib/telegramBot.js"
-import { PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS } from "@/utils/constants.js"
+import { PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS } from "@/utils/constants.js"
 import { generateCode } from "@/utils/code.js"
 import { googleClient } from "@/lib/google.js"
-import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto } from "./schema.js"
+import crypto from "crypto"
+import { resend } from "@/lib/email.js"
+import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto, PasswordRecoveryIdentifyDto, IdentifiersDto, SendPasswordRecoveryDto, SendPasswordRecoveryResultDto, ResetPasswordDto } from "./schema.js"
 
 const sendCode = async (name: string, telegramUserId: number, code: string) => {
   await bot.api.sendMessage(
@@ -37,6 +39,29 @@ const generateUniqueUsername = async (email?: string | null): Promise<string> =>
     triedUsernames.add(username.toLowerCase())
     if (triedUsernames.size > 20) throw new AppError(500, { username: "Ошибка генерации, придумайте username" })
   }
+}
+
+const generateToken = () => crypto.randomBytes(32).toString("hex")
+
+const sendPasswordRecoveryEmail = async (to: string, name: string, token: string) => {
+  await resend.emails.send({
+    to,
+    template: {
+      id: "reset-password",
+      variables: {
+        name,
+        url: config.nodeEnv === "development" ? `http://localhost:5173/reset-password/${token}` : `https://rovely.org/reset-password/${token}`
+      }
+    }
+  })
+}
+
+const sendPasswordRecoveryMessage = async (telegramUserId: number, name: string, token: string) => {
+  await bot.api.sendMessage(
+    telegramUserId,
+    `Здравствуйте, ${name}\n\nБыл запрошен сброс пароля для привязанного к этому номеру телефона аккаунта в ROVELY.\nДля завершения перейдите по ссылке ниже и укажите новый пароль:\n\n${config.nodeEnv === "development" ? `http://localhost:5173/reset-password/${token}` : `https://rovely.org/reset-password/${token}`}\n\n<i>Эта ссылка будет считаться актуальной <b>1 час</b> (если не запрашивать новую)\n\nЕсли вы не запрашивали сброс пароля — просто проигнорируйте это сообщение</i>`,
+    { parse_mode: "HTML" }
+  )
 }
 
 export const authService = {
@@ -316,6 +341,130 @@ export const authService = {
     const accessToken = jwt.sign({ id: account.id, role: account.role }, config.jwtAccessSecret, { expiresIn: "5m" })
     const refreshToken = jwt.sign({ id: account.id, rememberMe: true, passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0 }, config.jwtRefreshSecret, { expiresIn: "1y" })
     return { statusCode, accessToken, refreshToken }
+  },
+
+  passwordRecoveryIdentify: async (data: PasswordRecoveryIdentifyDto) => {
+    const login = data.login
+    const account = await prisma.account.findUnique({
+      where: {
+        login
+      }
+    })
+    if (!account) throw new AppError(404, { login: "Аккаунт не найден" })
+    let identifiers: IdentifiersDto = {}
+    if (account.email) {
+      const email = account.email
+      const atPosition = email.indexOf("@")
+      const local = email.slice(0, atPosition)
+      const domain = email.slice(atPosition)
+      let blurredLocal = local.length > 5
+        ? local.slice(0, 2) + "***" + local.slice(-2)
+        : local[0] + "***"
+      const blurredEmail = blurredLocal + domain
+      identifiers.email = blurredEmail
+    }
+    if (account.phone) {
+      const phone = account.phone
+      const blurredPhone = "+" + "*".repeat(phone.length - 3) + phone.slice(-2)
+      identifiers.phone = blurredPhone
+    }
+    return identifiers
+  },
+
+  sendPasswordRecovery: async (data: SendPasswordRecoveryDto): Promise<SendPasswordRecoveryResultDto> => {
+    try {
+      const login = data.login
+      const to = data.to
+      const account = await prisma.account.findUnique({
+        where: {
+          login
+        },
+        include: {
+          profile: true
+        }
+      })
+      if (!account) throw new AppError(404, { login: "Аккаунт не найден" })
+      if (to === "EMAIL" && account.email === null) throw new AppError(422, { message: "К этому аккаунту не привязана почта" })
+      let telegramUserId: number
+      if (to === "PHONE") {
+        if (account.phone === null) throw new AppError(422, { message: "К этому аккаунту не привязан номер телефона" })
+        const link = await prisma.telegramLink.findUnique({
+          where: {
+            phone: account.phone
+          }
+        })
+        telegramUserId = link!.telegramUserId
+      }
+      const request = await prisma.passwordRecoveryRequest.findUnique({
+        where: {
+          login_to: {
+            login,
+            to
+          }
+        }
+      })
+      const now = new Date()
+      if (request && request.updatedAt.getTime() > now.getTime() - (to === "EMAIL" ? PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS : PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS)) {
+        const timePassed = now.getTime() - request.updatedAt.getTime()
+        const timeLeft = (to === "EMAIL" ? PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS : PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS) - timePassed
+        const secondsLeft = Math.ceil(timeLeft / 1000)
+        return { statusCode: 429, type: "info", message: `${to === "EMAIL" ? "Письмо" : "Сообщение"} для восстановления недавно уже было отправлено`, secondsLeft }
+      }
+      const token = generateToken()
+      to === "EMAIL"
+        ? await sendPasswordRecoveryEmail(account.email!, account.profile!.name, token)
+        : await sendPasswordRecoveryMessage(telegramUserId!, account.profile!.name, token)
+      request
+        ? await prisma.passwordRecoveryRequest.update({
+          where: {
+            login_to: {
+              login,
+              to
+            }
+          },
+          data: {
+            token
+          }
+        })
+        : await prisma.passwordRecoveryRequest.create({
+          data: {
+            token,
+            login,
+            to
+          }
+        })
+      return { statusCode: 200, type: "success", message: `${to === "EMAIL" ? "Письмо" : "Сообщение"} для восстановления отправленно`, secondsLeft: (to === "EMAIL" ? PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS / 1000 : PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS / 1000) }
+    } catch (error) {
+      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, { message: "Сначала разблокируйте бота" })
+      throw error
+    }
+  },
+
+  resetPassword: async (data: ResetPasswordDto) => {
+    const request = await prisma.passwordRecoveryRequest.findUnique({
+      where: {
+        token: data.token
+      }
+    })
+    const now = new Date()
+    if (!request || request.updatedAt.getTime() < now.getTime() - RESET_PASSWORD_TOKEN_EXPIRY_MS) throw new AppError(request ? 410 : 404, { token: "Токен истек" })
+    const hashedPassword = await bcrypt.hash(data.password, 10)
+    await prisma.$transaction([
+      prisma.account.update({
+        where: {
+          login: request.login
+        },
+        data: {
+          password: hashedPassword,
+          passwordChangedAt: now
+        }
+      }),
+      prisma.passwordRecoveryRequest.deleteMany({
+        where: {
+          login: request.login
+        }
+      })
+    ])
   },
 
   me: async (accountId: string) => {

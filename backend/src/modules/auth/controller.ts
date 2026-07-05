@@ -2,7 +2,7 @@ import { authService } from "./service.js"
 import { AppError } from "@/middlewares/error.middleware.js"
 import { setTokenCookie, removeTokenCookie } from "@/utils/cookie.js"
 import type { Request, Response, NextFunction } from "express"
-import { type CheckDto } from "./schema.js"
+import type { CheckDto, PasswordRecoveryIdentifyDto, SendPasswordRecoveryDto, ResetPasswordDto } from "./schema.js"
 
 export const authController = {
   refresh: async (req: Request, res: Response, next: NextFunction) => {
@@ -73,6 +73,33 @@ export const authController = {
       const { statusCode, accessToken, refreshToken } = await authService.google(code)
       setTokenCookie(res, accessToken, refreshToken, true)
       res.sendStatus(statusCode)
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  passwordRecoveryIdentify: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await authService.passwordRecoveryIdentify(req.query as PasswordRecoveryIdentifyDto)
+      res.status(200).json(result)
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  sendPasswordRecovery: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { statusCode, ...result } = await authService.sendPasswordRecovery(req.body)
+      res.status(statusCode).json(result)
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  resetPassword: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await authService.resetPassword(req.body)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }
