@@ -332,7 +332,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     mutationFn: api.register,
     onSuccess: () => {
       toast.success("Аккаунт успешно создан")
-      router.push({ name: "login" })
+      router.push({ name: "Login" })
       isProcessing.value = false
     },
     onError: (error) => {
