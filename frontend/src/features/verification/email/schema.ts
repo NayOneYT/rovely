@@ -1,8 +1,8 @@
 import { z } from "zod"
-import { discardEmpty } from "@/lib/discardEmpty"
+import { removeEmptyValues } from "@/lib/removeEmptyValues"
 
 export const sendVerificationEmailSchema = z.object({
-  name: discardEmpty.pipe(z
+  name: removeEmptyValues.pipe(z
     .string()
     .optional()),
   email: z

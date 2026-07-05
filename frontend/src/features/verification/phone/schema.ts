@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { parsePhoneNumberFromString } from "libphonenumber-js"
-import { discardEmpty } from "@/lib/discardEmpty"
+import { removeEmptyValues } from "@/lib/removeEmptyValues"
 
 export const verifyPhoneSchema = z.object({
   phone: z
@@ -29,7 +29,7 @@ export const sendVerificationCodeSchema = z.object({
     .transform((value) => parsePhoneNumberFromString(value))
     .refine((value) => value?.isValid(), "Неверный формат")
     .transform((value) => value?.number as string),
-  name: discardEmpty.pipe(z
+  name: removeEmptyValues.pipe(z
     .string()
     .optional()),
   accountId: z

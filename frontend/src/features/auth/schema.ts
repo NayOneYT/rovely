@@ -1,6 +1,6 @@
 import { z } from "zod"
 import parsePhoneNumberFromString from "libphonenumber-js"
-import { discardEmpty } from "@/lib/discardEmpty"
+import { removeEmptyValues } from "@/lib/removeEmptyValues"
 
 export const loginSchema = z.object({
   identifier: z
@@ -40,15 +40,15 @@ export const registrationSchema = z.object({
   name: z
     .string()
     .optional(),
-  username: discardEmpty.pipe(z
+  username: removeEmptyValues.pipe(z
     .string()
     .regex(/^[a-zA-Z0-9]+$/, "Только латиница и цифры")
     .optional()),
-  email: discardEmpty.pipe(z
+  email: removeEmptyValues.pipe(z
     .string()
     .email("Неверный формат")
     .optional()),
-  phone: discardEmpty.pipe(z
+  phone: removeEmptyValues.pipe(z
     .string()
     .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат")
     .optional()),
