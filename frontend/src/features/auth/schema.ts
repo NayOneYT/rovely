@@ -1,6 +1,6 @@
 import { z } from "zod"
 import parsePhoneNumberFromString from "libphonenumber-js"
-import { removeEmptyValues } from "@/lib/removeEmptyValues"
+import { removeEmptyValues } from "@/utils/removeEmptyValues"
 
 export const loginSchema = z.object({
   identifier: z
