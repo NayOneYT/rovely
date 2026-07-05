@@ -124,6 +124,6 @@ export const emailVerificationService = {
           }
         })
     ])
-    return { type: "success", message: "Письмо для подтверждения отправлено. В течении 1 часа подтвердите email, перейдя по ссылке в письме", secondsLeft: EMAIL_RATE_LIMIT_MS / 1000 }
+    return { type: "success", message: "Письмо для подтверждения отправлено", secondsLeft: EMAIL_RATE_LIMIT_MS / 1000 }
   }
 }
