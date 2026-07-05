@@ -6,14 +6,8 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import emailVerificationRouter from "./modules/verification/email/router.js"
 import phoneVerificationRouter from "./modules/verification/phone/router.js"
-import { bot } from "./lib/telegramBot.js"
-import "./modules/verification/phone/telegramBot/handler.js"
 
 const app = express()
-
-bot.start().catch((error) => {
-  console.error(`Ошибка при запуске Telegram-бота: ${error}`)
-})
 
 app.use(express.json())
 app.use(cookieParser())
@@ -30,9 +24,4 @@ app.use("/api/verification/email", emailVerificationRouter)
 app.use("/api/verification/phone", phoneVerificationRouter)
 app.use(errorHandler)
 
-app.listen(config.port, () => {
-  console.log(`Cервер запущен на http://localhost:${config.port}`)
-})
-
-process.once("SIGINT", () => bot.stop());
-process.once("SIGTERM", () => bot.stop());
+export default app
