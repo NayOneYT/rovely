@@ -10,7 +10,7 @@ import { useRouter } from "vue-router"
 import { useLocalStorage } from "@vueuse/core"
 import { AxiosError } from "axios"
 import { toast } from "vue-sonner"
-import type { ResponseErrorDto, ResponseMessageDto } from "@/interface"
+import type { ResponseErrorDto, ResponseMessageDto } from "@/types"
 
 export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const { startTimer, formattedTime, clearAllTimers } = useCodeTimer()

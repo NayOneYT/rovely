@@ -1,6 +1,6 @@
 import axios from "@/lib/axios"
 import type { LoginDto, LoginWithPhoneDto, RegistrationDto } from "./schema"
-import type { MeDto } from "./interface"
+import type { MeDto } from "./types"
 
 export default {
   login: async (data: LoginDto) => {

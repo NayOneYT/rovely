@@ -6,9 +6,9 @@ import { useMutation } from "@tanstack/vue-query"
 import api from "../api"
 import { AxiosError } from "axios"
 import useTimer from "./useTimer"
-import type { CheckResponseDto } from "../../interface"
-import type { ResponseMessageDto } from "@/interface"
-import type { ResponseErrorDto } from "@/interface"
+import type { CheckResponseDto } from "../../types"
+import type { ResponseMessageDto } from "@/types"
+import type { ResponseErrorDto } from "@/types"
 import { toast } from "vue-sonner"
 
 export const useEmailVerification = (name: Ref | string, accountId?: string) => {

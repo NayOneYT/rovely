@@ -5,7 +5,7 @@ import api from '@/features/verification/email/api'
 import SiteLogo from '@/components/SiteLogo.vue'
 import SvgLoading from '@/components/SvgLoading.vue'
 import { AxiosError } from 'axios'
-import type { ResponseErrorDto } from "@/interface"
+import type { ResponseErrorDto } from "@/types"
 
 const route = useRoute()
 const message = ref<string | undefined>("")

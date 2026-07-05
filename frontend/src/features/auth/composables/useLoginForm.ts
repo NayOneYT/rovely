@@ -8,7 +8,7 @@ import { useRouter } from "vue-router"
 import { AxiosError } from "axios"
 import { useLocalStorage } from "@vueuse/core"
 import { toast } from "vue-sonner"
-import type { ResponseErrorDto } from "@/interface"
+import type { ResponseErrorDto } from "@/types"
 
 export const useLoginForm = (isProcessing: Ref<boolean>) => {
   const router = useRouter()
