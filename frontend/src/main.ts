@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { VueQueryPlugin } from '@tanstack/vue-query'
-import './main.css'
+import './style.css'
 
 import App from './App.vue'
 import router from './router'
