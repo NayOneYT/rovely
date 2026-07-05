@@ -54,7 +54,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  const isAuthRoute = to.name === "login" || to.name === "registration"
+  const isAuthRoute = to.name === "Login" || to.name === "Registration"
   if (isAuthRoute) {
     try {
       const account = await authApi.me()
