@@ -108,29 +108,39 @@ export const registerSchema = z.object({
   }
 })
 
-export const passwordRecoveryIdentifySchema = z.object({
-  login: z
+export const passwordRecoveryContactsSchema = z.object({
+  identifier: z
     .string({ required_error: "Обязательное поле" })
     .min(1, "Обязательное поле")
     .min(4, "Минимум 4 символа")
-    .max(50, "Максимум 50 символов")
+    .trim()
+    .max(254, "Максимум 254 символа")
     .toLowerCase()
-    .regex(/^[a-zа-яё0-9._-]+$/, "Только латиница, кирилица, цифры и ._-")
+    .refine((value) => {
+      const isEmail = z.string().email().safeParse(value).success
+      const isLogin = /^[a-zа-яё0-9._-]+$/.test(value)
+      return isEmail || isLogin
+    }, "Неверный формат")
 })
 
-export interface IdentifiersDto {
+export interface ContactsDto {
   email?: string,
   phone?: string
 }
 
 export const sendPasswordRecoverySchema = z.object({
-  login: z
+  identifier: z
     .string({ required_error: "Обязательное поле" })
     .min(1, "Обязательное поле")
     .min(4, "Минимум 4 символа")
-    .max(50, "Максимум 50 символов")
+    .trim()
+    .max(254, "Максимум 254 символа")
     .toLowerCase()
-    .regex(/^[a-zа-яё0-9._-]+$/, "Только латиница, кирилица, цифры и ._-"),
+    .refine((value) => {
+      const isEmail = z.string().email().safeParse(value).success
+      const isLogin = /^[a-zа-яё0-9._-]+$/.test(value)
+      return isEmail || isLogin
+    }, "Неверный формат"),
   to: z
     .enum(["EMAIL", "PHONE"], { required_error: "Обязательное поле" })
 })
@@ -160,6 +170,5 @@ export type LoginWithPhoneDto = z.infer<typeof loginWithPhoneSchema>
 export type SendLoginWithPhoneCodeDto = z.infer<typeof sendLoginWithPhoneCodeSchema>
 export type CheckDto = z.infer<typeof checkSchema>
 export type RegisterDto = z.infer<typeof registerSchema>
-export type PasswordRecoveryIdentifyDto = z.infer<typeof passwordRecoveryIdentifySchema>
 export type SendPasswordRecoveryDto = z.infer<typeof sendPasswordRecoverySchema>
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>

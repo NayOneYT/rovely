@@ -452,12 +452,12 @@ model LoginWithPhoneRequest {
 
 model PasswordRecoveryRequest {
   token     String                    @unique
-  login     String
+  accountId String                    @map("account_id")
   to        PasswordRecoveryRequestTo
   updatedAt DateTime                  @default(now()) @updatedAt @map("updated_at")
-  account   Account                   @relation(fields: [login], references: [login])
+  account   Account                   @relation(fields: [accountId], references: [id])
 
-  @@id([login, to])
+  @@id([accountId, to])
   @@map("password_recovery_requests")
 }
 

@@ -8,12 +8,12 @@ import { emailVerificationService } from "@/modules/verification/email/service.j
 import { phoneVerificationService } from "@/modules/verification/phone/service.js"
 import { GrammyError } from "grammy"
 import { bot } from "@/lib/telegramBot.js"
-import { PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS } from "@/utils/constants.js"
+import { PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS } from "@/utils/constants.js"
 import { generateCode } from "@/utils/code.js"
 import { googleClient } from "@/lib/google.js"
 import crypto from "crypto"
 import { resend } from "@/lib/email.js"
-import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto, PasswordRecoveryIdentifyDto, IdentifiersDto, SendPasswordRecoveryDto, SendPasswordRecoveryResultDto, ResetPasswordDto } from "./schema.js"
+import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto, ContactsDto, SendPasswordRecoveryDto, SendPasswordRecoveryResultDto, ResetPasswordDto } from "./schema.js"
 
 const sendCode = async (name: string, telegramUserId: number, code: string) => {
   await bot.api.sendMessage(
@@ -343,15 +343,17 @@ export const authService = {
     return { statusCode, accessToken, refreshToken }
   },
 
-  passwordRecoveryIdentify: async (data: PasswordRecoveryIdentifyDto) => {
-    const login = data.login
-    const account = await prisma.account.findUnique({
+  passwordRecoveryContacts: async (identifier: string): Promise<ContactsDto> => {
+    const account = await prisma.account.findFirst({
       where: {
-        login
+        OR: [
+          { login: identifier },
+          { lowercaseEmail: identifier }
+        ]
       }
     })
-    if (!account) throw new AppError(404, { login: "Аккаунт не найден" })
-    let identifiers: IdentifiersDto = {}
+    if (!account) throw new AppError(404, { identifier: "Аккаунт не найден" })
+    let contacts: ContactsDto = {}
     if (account.email) {
       const email = account.email
       const atPosition = email.indexOf("@")
@@ -361,29 +363,31 @@ export const authService = {
         ? local.slice(0, 2) + "***" + local.slice(-2)
         : local[0] + "***"
       const blurredEmail = blurredLocal + domain
-      identifiers.email = blurredEmail
+      contacts.email = blurredEmail
     }
     if (account.phone) {
       const phone = account.phone
       const blurredPhone = "+" + "*".repeat(phone.length - 3) + phone.slice(-2)
-      identifiers.phone = blurredPhone
+      contacts.phone = blurredPhone
     }
-    return identifiers
+    return contacts
   },
 
   sendPasswordRecovery: async (data: SendPasswordRecoveryDto): Promise<SendPasswordRecoveryResultDto> => {
     try {
-      const login = data.login
       const to = data.to
-      const account = await prisma.account.findUnique({
+      const account = await prisma.account.findFirst({
         where: {
-          login
+          OR: [
+            { login: data.identifier },
+            { lowercaseEmail: data.identifier }
+          ]
         },
         include: {
           profile: true
         }
       })
-      if (!account) throw new AppError(404, { login: "Аккаунт не найден" })
+      if (!account) throw new AppError(404, { identifier: "Аккаунт не найден" })
       if (to === "EMAIL" && account.email === null) throw new AppError(422, { message: "К этому аккаунту не привязана почта" })
       let telegramUserId: number
       if (to === "PHONE") {
@@ -397,8 +401,8 @@ export const authService = {
       }
       const request = await prisma.passwordRecoveryRequest.findUnique({
         where: {
-          login_to: {
-            login,
+          accountId_to: {
+            accountId: account.id,
             to
           }
         }
@@ -417,8 +421,8 @@ export const authService = {
       request
         ? await prisma.passwordRecoveryRequest.update({
           where: {
-            login_to: {
-              login,
+            accountId_to: {
+              accountId: account.id,
               to
             }
           },
@@ -429,7 +433,7 @@ export const authService = {
         : await prisma.passwordRecoveryRequest.create({
           data: {
             token,
-            login,
+            accountId: account.id,
             to
           }
         })
@@ -452,7 +456,7 @@ export const authService = {
     await prisma.$transaction([
       prisma.account.update({
         where: {
-          login: request.login
+          id: request.accountId
         },
         data: {
           password: hashedPassword,
@@ -461,7 +465,7 @@ export const authService = {
       }),
       prisma.passwordRecoveryRequest.deleteMany({
         where: {
-          login: request.login
+          accountId: request.accountId
         }
       })
     ])
