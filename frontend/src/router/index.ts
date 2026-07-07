@@ -15,6 +15,12 @@ const router = createRouter({
       meta: { title: "Вход | ROVELY" }
     },
     {
+      path: "/password-recovery",
+      name: "PasswordRecovery",
+      component: () => import("@/pages/HomePage.vue"),
+      meta: { title: "Восстановление пароля | ROVELY" }
+    },
+    {
       path: "/registration",
       name: "Registration",
       component: () => import("@/pages/HomePage.vue"),

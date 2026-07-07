@@ -104,7 +104,8 @@ const isLoginWithPassword = ref(true)
           class="peer sr-only"
         >
         <div 
-          class="w-5 h-5 cursor-pointer bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center 
+          class="
+          w-5 h-5 cursor-pointer bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center 
           peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all
           "
         >
@@ -112,13 +113,14 @@ const isLoginWithPassword = ref(true)
         </div>
         <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
       </label>
-      <a 
-        :href="isProcessing ? undefined : '/'"
+      <router-link
+        :to="'/password-recovery'"
+        :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
         class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
       >
         Забыли пароль?
-      </a>
+      </router-link>
     </div>
     <button
       :disabled="isProcessing"
