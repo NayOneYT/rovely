@@ -444,6 +444,16 @@ export const authService = {
     }
   },
 
+  checkPasswordRecoveryToken: async (token: string) => {
+    const request = await prisma.passwordRecoveryRequest.findUnique({
+      where: {
+        token
+      }
+    })
+    const now = new Date()
+    if (!request || request.updatedAt.getTime() < now.getTime() - RESET_PASSWORD_TOKEN_EXPIRY_MS) throw new AppError(request ? 410 : 404, { token: "Токен истек" })
+  },
+
   resetPassword: async (data: ResetPasswordDto) => {
     const request = await prisma.passwordRecoveryRequest.findUnique({
       where: {

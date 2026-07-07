@@ -2,7 +2,7 @@ import { authService } from "./service.js"
 import { AppError } from "@/middlewares/error.middleware.js"
 import { setTokenCookie, removeTokenCookie } from "@/utils/cookie.js"
 import type { Request, Response, NextFunction } from "express"
-import type { CheckDto } from "./schema.js"
+import { checkPasswordRecoveryToken, type CheckDto } from "./schema.js"
 
 export const authController = {
   refresh: async (req: Request, res: Response, next: NextFunction) => {
@@ -92,6 +92,16 @@ export const authController = {
     try {
       const { statusCode, ...result } = await authService.sendPasswordRecovery(req.body)
       res.status(statusCode).json(result)
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  checkPasswordRecoveryToken: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = req.params.token
+      await authService.checkPasswordRecoveryToken(token as string)
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }

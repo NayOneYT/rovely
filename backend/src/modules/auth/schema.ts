@@ -153,6 +153,13 @@ export interface SendPasswordRecoveryResultDto {
   secondsLeft: number
 }
 
+export const checkPasswordRecoveryToken = z.object({
+  token: z
+    .string({ required_error: "Обязательное поле" })
+    .length(64, "Токен должен содержать ровно 64 символа")
+    .regex(/^[a-f0-9]{64}$/, 'Неверный формат токена')
+})
+
 export const resetPasswordSchema = z.object({
   token: z
     .string({ required_error: "Обязательное поле" })

@@ -95,11 +95,14 @@ export interface SendPasswordRecoveryResultDto {
   secondsLeft: number
 }
 
-export const resetPasswordSchema = z.object({
+export const checkPasswordRecoveryToken = z.object({
   token: z
     .string()
-    .length(64, "Запросите новую ссылку")
-    .regex(/^[a-f0-9]{64}$/, 'Запросите новую ссылку'),
+})
+
+export const resetPasswordSchema = z.object({
+  token: z
+    .string(),
   password: z
     .string({ required_error: "Обязательное поле" })
     .min(1, "Обязательное поле")

@@ -43,6 +43,10 @@ export default {
     return response.data as SendPasswordRecoveryResultDto
   },
 
+  checkPasswordRecoveryToken: async (token: string) => {
+    await axios.get(`/api/auth/password-recovery/check/${token}`)
+  },
+
   resetPassword: async (data: ResetPasswordDto) => {
     await axios.post("/api/auth/password-recovery/reset", data)
   },

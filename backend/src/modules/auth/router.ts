@@ -2,7 +2,8 @@ import { Router } from "express"
 import { validate } from "@/middlewares/validate.middleware.js"
 import {
   loginSchema, checkSchema, registerSchema, loginWithPhoneSchema, sendLoginWithPhoneCodeSchema,
-  passwordRecoveryContactsSchema, sendPasswordRecoverySchema, resetPasswordSchema
+  passwordRecoveryContactsSchema, sendPasswordRecoverySchema, resetPasswordSchema,
+  checkPasswordRecoveryToken
 } from "./schema.js"
 import { authController } from "./controller.js"
 import { authMiddleware } from "@/middlewares/auth.middleware.js"
@@ -18,6 +19,7 @@ router.post("/register", validate(registerSchema, "body"), authController.regist
 router.post("/google", authController.google)
 router.get("/password-recovery/contacts", validate(passwordRecoveryContactsSchema, "query"), authController.passwordRecoveryContacts)
 router.post("/password-recovery/send", validate(sendPasswordRecoverySchema, "body"), authController.sendPasswordRecovery)
+router.get("/password-recovery/check", validate(checkPasswordRecoveryToken, "params"), authController.checkPasswordRecoveryToken)
 router.post("/password-recovery/reset", validate(resetPasswordSchema, "body"), authController.resetPassword)
 router.get("/me", authMiddleware, authController.me)
 router.post("/logout", authController.logout)
