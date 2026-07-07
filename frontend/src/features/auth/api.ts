@@ -1,5 +1,5 @@
 import axios from "@/lib/axios"
-import type { LoginDto, LoginWithPhoneDto, RegistrationDto } from "./schema"
+import type { LoginDto, LoginWithPhoneDto, RegistrationDto, PasswordRecoveryContactsDto, ContactsDto, SendPasswordRecoveryDto, SendPasswordRecoveryResultDto, ResetPasswordDto } from "./schema"
 import type { MeDto } from "./types"
 
 export default {
@@ -31,6 +31,20 @@ export default {
 
   google: async (code: string) => {
     await axios.post("/api/auth/google", { code })
+  },
+
+  passwordRecoveryContacts: async (data: PasswordRecoveryContactsDto) => {
+    const response = await axios.get(`/api/auth/password-recovery/contacts?identifier=${data.identifier}`)
+    return response.data as ContactsDto
+  },
+
+  sendPasswordRecovery: async (data: SendPasswordRecoveryDto) => {
+    const response = await axios.post("/api/auth/password-recovery/send", data)
+    return response.data as SendPasswordRecoveryResultDto
+  },
+
+  resetPassword: async (data: ResetPasswordDto) => {
+    await axios.post("/api/auth/password-recovery/reset", data)
   },
 
   me: async () => {

@@ -64,6 +64,51 @@ export const registrationSchema = z.object({
     .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы")
 })
 
+export const passwordRecoveryContactsSchema = z.object({
+  identifier: z
+    .string({ required_error: "Обязательное поле" })
+    .min(1, "Обязательное поле")
+    .min(4, "Минимум 4 символа")
+    .refine((value) => {
+      const isEmail = z.string().email().safeParse(value).success
+      const isLogin = /^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/.test(value)
+      return isEmail || isLogin
+    }, "Неверный формат")
+})
+
+export interface ContactsDto {
+  email?: string,
+  phone?: string
+}
+
+const sendPasswordRecoverySchema = z.object({
+  identifier: z
+    .string(),
+  to: z
+    .enum(["EMAIL", "PHONE"], { required_error: "Обязательное поле" })
+})
+
+export interface SendPasswordRecoveryResultDto {
+  type: "success" | "info",
+  message: string,
+  secondsLeft: number
+}
+
+export const resetPasswordSchema = z.object({
+  token: z
+    .string()
+    .length(64, "Запросите новую ссылку")
+    .regex(/^[a-f0-9]{64}$/, 'Запросите новую ссылку'),
+  password: z
+    .string({ required_error: "Обязательное поле" })
+    .min(1, "Обязательное поле")
+    .min(6, "Минимум 6 символов")
+    .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы")
+})
+
 export type LoginDto = z.infer<typeof loginSchema>
 export type LoginWithPhoneDto = z.infer<typeof loginWithPhoneSchema>
 export type RegistrationDto = z.infer<typeof registrationSchema>
+export type PasswordRecoveryContactsDto = z.infer<typeof passwordRecoveryContactsSchema>
+export type SendPasswordRecoveryDto = z.infer<typeof sendPasswordRecoverySchema>
+export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>
