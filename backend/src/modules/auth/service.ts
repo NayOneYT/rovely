@@ -412,7 +412,7 @@ export const authService = {
         const timePassed = now.getTime() - request.updatedAt.getTime()
         const timeLeft = (to === "EMAIL" ? PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS : PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS) - timePassed
         const secondsLeft = Math.ceil(timeLeft / 1000)
-        return { statusCode: 429, type: "info", message: `${to === "EMAIL" ? "Письмо" : "Сообщение"} для восстановления недавно уже было отправлено`, secondsLeft }
+        return { statusCode: 429, type: "info", message: `${to === "EMAIL" ? "Письмо" : "Сообщение"} для восстановления недавно уже было отправлено`, to, secondsLeft }
       }
       const token = generateToken()
       to === "EMAIL"
@@ -437,7 +437,7 @@ export const authService = {
             to
           }
         })
-      return { statusCode: 200, type: "success", message: `${to === "EMAIL" ? "Письмо" : "Сообщение"} для восстановления отправленно`, secondsLeft: (to === "EMAIL" ? PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS / 1000 : PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS / 1000) }
+      return { statusCode: 200, type: "success", message: `${to === "EMAIL" ? "Письмо" : "Сообщение"} для восстановления отправленно`, to, secondsLeft: (to === "EMAIL" ? PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS / 1000 : PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS / 1000) }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, { message: "Сначала разблокируйте бота" })
       throw error

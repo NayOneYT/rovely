@@ -91,6 +91,7 @@ const sendPasswordRecoverySchema = z.object({
 export interface SendPasswordRecoveryResultDto {
   type: "success" | "info",
   message: string,
+  to: "EMAIL" | "PHONE",
   secondsLeft: number
 }
 
