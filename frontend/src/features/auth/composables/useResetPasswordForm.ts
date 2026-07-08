@@ -62,6 +62,7 @@ export const useResetPasswordForm = (rawToken: string, isTokenValid: Ref<boolean
     onMutate: () => isProcessing.value = true,
     onSuccess: () => {
       toast.success("Пароль успешно изменен")
+      isTokenValid.value = false
     },
     onError: (error) => {
       if (error instanceof AxiosError) {
