@@ -1,4 +1,5 @@
 import { useForm, useField } from "vee-validate"
+import { useRoute } from "vue-router"
 import { toTypedSchema } from "@vee-validate/zod"
 import { resetPasswordSchema } from "../schema"
 import { ref, watch } from "vue"
@@ -6,10 +7,13 @@ import { useMutation } from "@tanstack/vue-query"
 import api from "../api"
 import { toast } from "vue-sonner"
 import { AxiosError } from "axios"
-import type { Ref } from "vue"
 import type { ResponseErrorDto } from "@/types"
 
-export const useResetPasswordForm = (rawToken: string, isTokenValid: Ref<boolean>, isProcessing: Ref<boolean>) => {
+export const useResetPasswordForm = () => {
+  const isTokenValid = ref<boolean>(false)
+  const isProcessing = ref<boolean>(true)
+  const route = useRoute()
+
   const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(resetPasswordSchema)
   })
@@ -19,7 +23,7 @@ export const useResetPasswordForm = (rawToken: string, isTokenValid: Ref<boolean
     validate: tokenValidate
   } = useField<string>("token")
 
-  token.value = rawToken
+  token.value = route.params.token as string
 
   const {
     value: password,
@@ -83,6 +87,6 @@ export const useResetPasswordForm = (rawToken: string, isTokenValid: Ref<boolean
 
   return {
     password, passwordClientError, onPasswordBlur,
-    checkPasswordRecoveryToken, resetPassword
+    isTokenValid, isProcessing, checkPasswordRecoveryToken, resetPassword
   }
 }
