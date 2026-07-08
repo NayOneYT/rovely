@@ -75,6 +75,10 @@ export const passwordRecoveryContactsSchema = z.object({
       const isPhone = parsePhoneNumberFromString(value)?.isValid()
       return isEmail || isLogin || isPhone
     }, "Неверный формат")
+    .transform((value) => {
+      const phone = parsePhoneNumberFromString(value)
+      return phone?.isValid() ? phone.number as string : value
+    })
 })
 
 export interface ContactsDto {

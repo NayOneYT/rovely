@@ -146,11 +146,7 @@ export const sendPasswordRecoverySchema = z.object({
       const isLogin = /^[a-zа-яё0-9._-]+$/.test(value)
       const isPhone = parsePhoneNumberFromString(value)?.isValid()
       return isEmail || isLogin || isPhone
-    }, "Неверный формат")
-    .transform((value) => {
-      const phone = parsePhoneNumberFromString(value)
-      return phone?.isValid() ? phone.number as string : value
-    }),
+    }, "Неверный формат"),
   to: z
     .enum(["EMAIL", "PHONE"], { required_error: "Обязательное поле" })
 })
