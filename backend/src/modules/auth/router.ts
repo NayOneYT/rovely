@@ -19,7 +19,7 @@ router.post("/register", validate(registerSchema, "body"), authController.regist
 router.post("/google", authController.google)
 router.get("/password-recovery/contacts", validate(passwordRecoveryContactsSchema, "query"), authController.passwordRecoveryContacts)
 router.post("/password-recovery/send", validate(sendPasswordRecoverySchema, "body"), authController.sendPasswordRecovery)
-router.get("/password-recovery/check", validate(checkPasswordRecoveryToken, "params"), authController.checkPasswordRecoveryToken)
+router.get("/password-recovery/check/:token", validate(checkPasswordRecoveryToken, "params"), authController.checkPasswordRecoveryToken)
 router.post("/password-recovery/reset", validate(resetPasswordSchema, "body"), authController.resetPassword)
 router.get("/me", authMiddleware, authController.me)
 router.post("/logout", authController.logout)
