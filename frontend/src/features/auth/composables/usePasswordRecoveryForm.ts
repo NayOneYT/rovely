@@ -1,7 +1,7 @@
 import { ref, watch, computed, onUnmounted } from "vue"
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { passwordRecoveryContactsSchema } from "../schema"
+import { passwordRecoveryContactsSchema, type SendPasswordRecoveryResultDto } from "../schema"
 import { useMutation } from "@tanstack/vue-query"
 import api from "../api"
 import { AxiosError } from "axios"
@@ -10,15 +10,16 @@ import usePasswordRecoveryTimer from "./usePasswordRecoveryTimer"
 import { AsYouType } from "libphonenumber-js"
 import type { Ref } from "vue"
 import type { ResponseErrorDto } from "@/types"
+import type { SendPasswordRecoveryResponseErrorDataDto } from "../types"
 
 export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
   const { startTimer, formattedTime, clearAllTimers } = usePasswordRecoveryTimer()
   const sendPasswordRecoveryEmailCooldown = computed(() => {
-    if (typeof (email.value) === "string") return formattedTime("EMAIL", email.value.toLowerCase())
+    if (typeof (email.value) === "string") return formattedTime("EMAIL", identifier.value.toLowerCase())
     return null
   })
   const sendPasswordRecoveryMessageCooldown = computed(() => {
-    if (typeof (phone.value) === "string") return formattedTime("PHONE", phone.value)
+    if (typeof (phone.value) === "string") return formattedTime("PHONE", identifier.value.toLowerCase())
     return null
   })
   const step = ref<1 | 2>(1)
@@ -99,13 +100,18 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
     onMutate: () => isProcessing.value = true,
     onSuccess: (data) => {
       toast[data.type](data.message)
-      startTimer(data.to, data.to === "EMAIL" ? email.value! : phone.value!, data.secondsLeft)
+      startTimer(data.to, identifier.value.toLowerCase(), data.secondsLeft)
     },
     onError: (error) => {
       if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
+        const data = error.response?.data as SendPasswordRecoveryResponseErrorDataDto
         if (data.errors) {
           if (data.errors.message) toast.warning(data.errors.message)
+          return
+        }
+        if (error.response?.status === 429) {
+          startTimer(data.to, identifier.value.toLowerCase(), data.secondsLeft)
+          toast[data.type](data.message)
           return
         }
         toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
@@ -116,9 +122,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
 
   const sendPasswordRecovery = (to: "EMAIL" | "PHONE") => {
     sendPasswordRecoveryMutation.mutate({
-      identifier: to === "EMAIL"
-        ? email.value!
-        : phone.value!,
+      identifier: identifier.value,
       to
     })
   }
