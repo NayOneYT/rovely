@@ -18,7 +18,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
     return null
   })
   const sendPasswordRecoveryMessageCooldown = computed(() => {
-    if (typeof (phone.value) === "string") return formattedTime("PHONE", phone.value.toLowerCase())
+    if (typeof (phone.value) === "string") return formattedTime("PHONE", phone.value)
     return null
   })
   const step = ref<1 | 2>(1)
@@ -128,6 +128,6 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
   return {
     identifierString, onIdentifierInput, identifierClientError, identifierServerError, onIdentifierBlur,
     passwordRecoveryContacts, sendPasswordRecovery,
-    step, sendPasswordRecoveryEmailCooldown, sendPasswordRecoveryMessageCooldown
+    step, email, phone, sendPasswordRecoveryEmailCooldown, sendPasswordRecoveryMessageCooldown
   }
 }
