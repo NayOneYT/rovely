@@ -18,7 +18,7 @@
 
 Rovely is an ambitious next-generation social platform designed to surpass existing messengers and social networks in every aspect. Built with modern technologies and innovative features, Rovely aims to create the ultimate social experience for users of all ages.
 
-**Current Status**: 🚧 **In Development** — Only authentication (login & registration) is implemented at this time.
+**Current Status**: 🚧 **In Development** — Authentication system (login, registration, verification, password recovery) is implemented.
 
 ---
 
@@ -64,8 +64,10 @@ Access communities through a unique tilde-based URL system (e.g., `~flowname`). 
 - Email registration with verification
 - Phone number verification via Telegram
 - Google OAuth integration
+- Password recovery via email and phone
 - Two-factor authentication support
 - JWT-based session management
+- Password change tracking
 
 ### 📱 Additional Features
 - Telegram bot integration for phone verification
@@ -232,6 +234,7 @@ VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 - [x] Email verification system
 - [x] Phone verification via Telegram
 - [x] Google OAuth integration
+- [x] Password recovery (email & phone)
 - [x] Database schema design
 
 ### 🚧 In Progress
