@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { parsePhoneNumberFromString } from "libphonenumber-js"
+import { parsePhoneNumberFromString, PhoneNumber } from "libphonenumber-js"
 
 export const loginSchema = z.object({
   identifier: z
@@ -119,8 +119,13 @@ export const passwordRecoveryContactsSchema = z.object({
     .refine((value) => {
       const isEmail = z.string().email().safeParse(value).success
       const isLogin = /^[a-zа-яё0-9._-]+$/.test(value)
-      return isEmail || isLogin
+      const isPhone = parsePhoneNumberFromString(value)?.isValid()
+      return isEmail || isLogin || isPhone
     }, "Неверный формат")
+    .transform((value) => {
+      const phone = parsePhoneNumberFromString(value)
+      return phone?.isValid() ? phone.number as string : value
+    }),
 })
 
 export interface ContactsDto {
@@ -139,8 +144,13 @@ export const sendPasswordRecoverySchema = z.object({
     .refine((value) => {
       const isEmail = z.string().email().safeParse(value).success
       const isLogin = /^[a-zа-яё0-9._-]+$/.test(value)
-      return isEmail || isLogin
-    }, "Неверный формат"),
+      const isPhone = parsePhoneNumberFromString(value)?.isValid()
+      return isEmail || isLogin || isPhone
+    }, "Неверный формат")
+    .transform((value) => {
+      const phone = parsePhoneNumberFromString(value)
+      return phone?.isValid() ? phone.number as string : value
+    }),
   to: z
     .enum(["EMAIL", "PHONE"], { required_error: "Обязательное поле" })
 })

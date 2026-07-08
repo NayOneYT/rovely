@@ -7,6 +7,7 @@ import api from "../api"
 import { AxiosError } from "axios"
 import { toast } from "vue-sonner"
 import usePasswordRecoveryTimer from "./usePasswordRecoveryTimer"
+import { AsYouType } from "libphonenumber-js"
 import type { Ref } from "vue"
 import type { ResponseErrorDto } from "@/types"
 
@@ -33,10 +34,26 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
     errorMessage: identifierClientError,
     validate: identifierValidate,
     meta: identifierMeta,
-    handleBlur: identifierHandleBlur
+    handleBlur: identifierHandleBlur,
+    handleChange: identifierHandleChange
   } = useField<string>("identifier", undefined, {
     validateOnValueUpdate: false
   })
+
+  const identifierString = ref<string>("")
+  const onIdentifierInput = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    if (!input.value.startsWith("+")) {
+      identifierString.value = input.value
+      identifierHandleChange(input.value, false)
+      return
+    }
+    let raw = input.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')
+    const formatted = new AsYouType().input(raw)
+    input.value = formatted
+    identifierString.value = formatted
+    identifierHandleChange(formatted, false)
+  }
 
   const identifierServerError = ref<undefined | string>(undefined)
 
@@ -109,7 +126,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
   onUnmounted(clearAllTimers)
 
   return {
-    identifier, identifierClientError, identifierServerError, onIdentifierBlur,
+    identifierString, onIdentifierInput, identifierClientError, identifierServerError, onIdentifierBlur,
     passwordRecoveryContacts, sendPasswordRecovery,
     step, sendPasswordRecoveryEmailCooldown, sendPasswordRecoveryMessageCooldown
   }

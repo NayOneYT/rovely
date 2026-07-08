@@ -348,7 +348,8 @@ export const authService = {
       where: {
         OR: [
           { login: identifier },
-          { lowercaseEmail: identifier }
+          { lowercaseEmail: identifier },
+          { phone: identifier }
         ]
       }
     })
@@ -380,7 +381,8 @@ export const authService = {
         where: {
           OR: [
             { login: data.identifier },
-            { lowercaseEmail: data.identifier }
+            { lowercaseEmail: data.identifier },
+            { phone: data.identifier }
           ]
         },
         include: {

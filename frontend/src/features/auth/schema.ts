@@ -72,7 +72,8 @@ export const passwordRecoveryContactsSchema = z.object({
     .refine((value) => {
       const isEmail = z.string().email().safeParse(value).success
       const isLogin = /^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/.test(value)
-      return isEmail || isLogin
+      const isPhone = parsePhoneNumberFromString(value)?.isValid()
+      return isEmail || isLogin || isPhone
     }, "Неверный формат")
 })
 
