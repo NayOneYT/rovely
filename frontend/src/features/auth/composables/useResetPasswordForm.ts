@@ -15,7 +15,8 @@ export const useResetPasswordForm = (rawToken: string, isTokenValid: Ref<boolean
   })
 
   const {
-    value: token
+    value: token,
+    validate: tokenValidate
   } = useField<string>("token")
 
   token.value = rawToken
@@ -43,13 +44,17 @@ export const useResetPasswordForm = (rawToken: string, isTokenValid: Ref<boolean
 
   const checkPasswordRecoveryTokenMutation = useMutation({
     mutationFn: api.checkPasswordRecoveryToken,
-    onMutate: () => isProcessing.value = true,
     onSuccess: () => isTokenValid.value = true,
     onSettled: () => isProcessing.value = false
   })
 
-  const checkPasswordRecoveryToken = () => {
-    checkPasswordRecoveryTokenMutation.mutate(token.value)
+  const checkPasswordRecoveryToken = async () => {
+    const tokenResult = await tokenValidate()
+    if (!tokenResult.valid) {
+      isProcessing.value = false
+      return
+    }
+    checkPasswordRecoveryTokenMutation.mutateAsync(token.value)
   }
 
   const resetPasswordMutation = useMutation({

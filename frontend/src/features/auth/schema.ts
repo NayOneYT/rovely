@@ -102,7 +102,9 @@ export const checkPasswordRecoveryToken = z.object({
 
 export const resetPasswordSchema = z.object({
   token: z
-    .string(),
+    .string()
+    .length(64)
+    .regex(/^[a-f0-9]{64}$/),
   password: z
     .string({ required_error: "Обязательное поле" })
     .min(1, "Обязательное поле")
