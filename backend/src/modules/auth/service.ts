@@ -1,4 +1,4 @@
-import { AppError } from "@/middlewares/error.middleware.js"
+import { AppError } from "@/middlewares/error.js"
 import { prisma } from "@/prisma/client.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"

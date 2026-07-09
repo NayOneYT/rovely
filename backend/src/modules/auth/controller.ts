@@ -1,5 +1,5 @@
 import { authService } from "./service.js"
-import { AppError } from "@/middlewares/error.middleware.js"
+import { AppError } from "@/middlewares/error.js"
 import { setTokenCookie, removeTokenCookie } from "@/utils/cookie.js"
 import type { Request, Response, NextFunction } from "express"
 import type { CheckDto } from "./schema.js"

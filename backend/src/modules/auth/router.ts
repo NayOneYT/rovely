@@ -1,12 +1,11 @@
 import { Router } from "express"
-import { validate } from "@/middlewares/validate.middleware.js"
+import validate from "@/middlewares/validate.js"
 import {
-  loginSchema, checkSchema, registerSchema, loginWithPhoneSchema, sendLoginWithPhoneCodeSchema,
-  passwordRecoveryContactsSchema, sendPasswordRecoverySchema, resetPasswordSchema,
-  checkPasswordRecoveryToken
+  loginSchema, loginWithPhoneSchema, sendLoginWithPhoneCodeSchema, checkSchema, registerSchema,
+  passwordRecoveryContactsSchema, sendPasswordRecoverySchema, checkPasswordRecoveryToken, resetPasswordSchema
 } from "./schema.js"
 import { authController } from "./controller.js"
-import { authMiddleware } from "@/middlewares/auth.middleware.js"
+import { authMiddleware } from "@/middlewares/auth.js"
 
 const router = Router()
 

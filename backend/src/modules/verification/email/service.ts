@@ -1,5 +1,5 @@
 import { prisma } from "@/prisma/client.js"
-import { AppError } from "@/middlewares/error.middleware.js"
+import { AppError } from "@/middlewares/error.js"
 import crypto from "crypto"
 import { resend } from "@/lib/email.js"
 import { config } from "@/config/index.js"

@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { validate } from "@/middlewares/validate.middleware.js"
-import { checkRegistrationPhoneVerificationSchema, sendVerificationCodeSchema, verifyPhoneSchema } from "./schema.js"
+import validate from "@/middlewares/validate.js"
+import { verifyPhoneSchema, checkRegistrationPhoneVerificationSchema, sendVerificationCodeSchema } from "./schema.js"
 import { phoneVerificationController } from "./controller.js"
 
 const router = Router()

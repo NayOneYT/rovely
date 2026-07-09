@@ -1,6 +1,6 @@
 import express from "express"
 import authRouter from "./modules/auth/router.js"
-import { errorHandler } from "./middlewares/error.middleware.js"
+import { errorHandler } from "./middlewares/error.js"
 import cookieParser from "cookie-parser"
 import emailVerificationRouter from "./modules/verification/email/router.js"
 import phoneVerificationRouter from "./modules/verification/phone/router.js"

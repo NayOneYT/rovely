@@ -1,5 +1,5 @@
 import { prisma } from "@/prisma/client.js"
-import { AppError } from "@/middlewares/error.middleware.js"
+import { AppError } from "@/middlewares/error.js"
 import { bot } from "@/lib/telegramBot.js"
 import { GrammyError } from "grammy"
 import { PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS } from "@/utils/constants.js"

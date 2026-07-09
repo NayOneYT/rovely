@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { emailVerificationController } from "./controller.js"
-import { validate } from "@/middlewares/validate.middleware.js"
-import { checkRegistrationEmailVerificationSchema, sendVerificationEmailSchema, verifyEmailSchema } from "./schema.js"
+import validate from "@/middlewares/validate.js"
+import { verifyEmailSchema, checkRegistrationEmailVerificationSchema, sendVerificationEmailSchema } from "./schema.js"
 
 const router = Router()
 
