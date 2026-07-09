@@ -118,8 +118,7 @@ export const authController = {
 
   me: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (!req.accountId) throw new AppError(401, { message: "Не авторизован" })
-      const account = await authService.me(req.accountId)
+      const account = await authService.me(req.accountId!)
       res.status(200).json(account)
     } catch (error) {
       next(error)
