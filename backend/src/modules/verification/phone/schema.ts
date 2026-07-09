@@ -27,6 +27,7 @@ export const checkRegistrationPhoneVerificationSchema = z.object({
     .string({ required_error: "Обязательное поле" })
     .transform((value) => parsePhoneNumberFromString(value))
     .refine((value) => value?.isValid(), "Неверный формат")
+    .transform((value) => value?.number as string)
 })
 
 export const sendVerificationCodeSchema = z.object({

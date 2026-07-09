@@ -2,7 +2,7 @@ import { authService } from "./service.js"
 import { AppError } from "@/middlewares/error.middleware.js"
 import { setTokenCookie, removeTokenCookie } from "@/utils/cookie.js"
 import type { Request, Response, NextFunction } from "express"
-import { checkPasswordRecoveryToken, type CheckDto } from "./schema.js"
+import type { CheckDto } from "./schema.js"
 
 export const authController = {
   refresh: async (req: Request, res: Response, next: NextFunction) => {
@@ -80,8 +80,7 @@ export const authController = {
 
   passwordRecoveryContacts: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const identifier = req.query.identifier as string
-      const result = await authService.passwordRecoveryContacts(identifier.toLowerCase())
+      const result = await authService.passwordRecoveryContacts(req.query.identifier as string)
       res.status(200).json(result)
     } catch (error) {
       next(error)
@@ -99,8 +98,7 @@ export const authController = {
 
   checkPasswordRecoveryToken: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.params.token
-      await authService.checkPasswordRecoveryToken(token as string)
+      await authService.checkPasswordRecoveryToken(req.params.token as string)
       res.sendStatus(200)
     } catch (error) {
       next(error)

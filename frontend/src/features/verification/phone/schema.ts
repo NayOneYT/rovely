@@ -5,9 +5,7 @@ import { removeEmptyValues } from "@/utils/removeEmptyValues"
 export const verifyPhoneSchema = z.object({
   phone: z
     .string({ required_error: "Обязательное поле" })
-    .transform((value) => parsePhoneNumberFromString(value))
-    .refine((value) => value?.isValid(), "Неверный формат")
-    .transform((value) => value?.number as string),
+    .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат"),
   code: z
     .string({ required_error: "Введите код" })
     .min(1, "Введите код")
@@ -26,9 +24,7 @@ export const verifyPhoneSchema = z.object({
 export const sendVerificationCodeSchema = z.object({
   phone: z
     .string({ required_error: "Обязательное поле" })
-    .transform((value) => parsePhoneNumberFromString(value))
-    .refine((value) => value?.isValid(), "Неверный формат")
-    .transform((value) => value?.number as string),
+    .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат"),
   name: removeEmptyValues.pipe(z
     .string()
     .optional()),

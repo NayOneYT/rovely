@@ -7,7 +7,6 @@ export const sendVerificationEmailSchema = z.object({
     .optional()),
   email: z
     .string({ required_error: "Обязательное поле" })
-    .trim()
     .email("Неверный формат"),
   accountId: z
     .union([

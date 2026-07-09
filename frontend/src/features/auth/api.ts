@@ -35,9 +35,7 @@ export default {
 
   passwordRecoveryContacts: async (data: PasswordRecoveryContactsDto) => {
     const response = await axios.get("/api/auth/password-recovery/contacts", {
-      params: {
-        identifier: data.identifier
-      }
+      params: data
     })
     return response.data as ContactsDto
   },

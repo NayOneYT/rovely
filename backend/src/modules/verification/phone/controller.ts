@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from "express"
 import { phoneVerificationService } from "./service.js"
-import parsePhoneNumberFromString from "libphonenumber-js"
 
 export const phoneVerificationController = {
   verifyPhone: async (req: Request, res: Response, next: NextFunction) => {
@@ -14,9 +13,7 @@ export const phoneVerificationController = {
 
   checkRegistrationPhoneVerification: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const phone = req.query.phone as string
-      const parsedPhone = parsePhoneNumberFromString(phone)!.number
-      const result = await phoneVerificationService.checkRegistrationPhoneVerification(parsedPhone)
+      const result = await phoneVerificationService.checkRegistrationPhoneVerification(req.query.phone as string)
       res.status(200).json(result)
     } catch (error) {
       next(error)
