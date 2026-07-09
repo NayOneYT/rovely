@@ -14,7 +14,15 @@ export const validate = (schema: ZodSchema, target: ValidateTarget) => {
       res.status(400).json({ errors: firstErrors })
       return
     }
-    if (target === "body") req[target] = result.data
+    if (target === "body") {
+      req.body = result.data
+    } else {
+      Object.defineProperty(req, target, {
+        value: { ...result.data },
+        writable: true,
+        configurable: true
+      })
+    }
     next()
   }
 }
