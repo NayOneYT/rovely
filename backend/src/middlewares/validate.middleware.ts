@@ -1,3 +1,4 @@
+import { AppError } from "@/types/index.js"
 import type { Request, Response, NextFunction } from "express"
 import type { ZodSchema } from "zod"
 
@@ -7,12 +8,13 @@ export const validate = (schema: ZodSchema, target: ValidateTarget) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req[target])
     if (!result.success) {
-      const errors = result.error.flatten().fieldErrors
-      const firstErrors = Object.fromEntries(
-        Object.entries(errors).map(([key, value]) => [key, value?.[0]])
-      )
-      res.status(400).json({ errors: firstErrors })
-      return
+      const rawFieldErrors = result.error.flatten().fieldErrors
+      const fieldErrors = Object.fromEntries(
+        Object.entries(rawFieldErrors).map(([key, value]) => [key, value![0]])
+      ) as Record<string, string>
+      throw new AppError(422, {
+        fieldErrors
+      })
     }
     if (target === "body") {
       req.body = result.data
