@@ -1,4 +1,4 @@
-import { AppError } from "./error.middleware.js"
+import { AppError } from "@/types/index.js"
 import jwt from "jsonwebtoken"
 import { config } from "@/config/index.js"
 import type { Request, Response, NextFunction } from "express"
@@ -11,12 +11,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     req.accountId = payload.id
     next()
   } catch (error) {
-    if (error instanceof AppError) {
-      return next(error)
-    }
-    if (error instanceof jwt.TokenExpiredError) {
-      return next(new AppError(401, { message: "Токен истек" }))
-    }
-    next(new AppError(401, { message: "Невалидный токен" }))
+    if (error instanceof AppError) next(error)
+    else if (error instanceof jwt.TokenExpiredError) next(new AppError(401, { message: "Токен истек" }))
+    else next(new AppError(401, { message: "Невалидный токен" }))
   }
 }
