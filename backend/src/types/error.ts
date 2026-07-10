@@ -1,4 +1,4 @@
-export interface AppErrorData {
+interface AppErrorData {
   message?: string
   fieldErrors?: Record<string, string>
   [key: string]: any
