@@ -128,7 +128,7 @@ export const passwordRecoveryContactsSchema = z.object({
     }),
 })
 
-export interface ContactsDto {
+export type ContactsDto = {
   email?: string,
   phone?: string
 }
@@ -155,7 +155,7 @@ export const sendPasswordRecoverySchema = z.object({
     .enum(["EMAIL", "PHONE"], { required_error: "Обязательное поле" })
 })
 
-export interface SendPasswordRecoveryResultDto {
+export type SendPasswordRecoveryResultDto = {
   statusCode: number,
   type: "success" | "info",
   message: string,

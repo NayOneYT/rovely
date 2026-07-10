@@ -1,4 +1,4 @@
-interface AppErrorData {
+type AppErrorData = {
   message?: string
   fieldErrors?: Record<string, string>
   [key: string]: any

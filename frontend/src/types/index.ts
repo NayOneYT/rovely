@@ -1,9 +1,9 @@
-export interface ResponseErrorDto {
+export type ResponseErrorDto = {
   message?: string
   errors?: Record<string, string>
 }
 
-export interface ResponseMessageDto {
+export type ResponseMessageDto = {
   type: "success" | "info" | "warning" | "error"
   message: string
   secondsLeft?: number

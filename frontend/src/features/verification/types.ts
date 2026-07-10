@@ -1,3 +1,3 @@
-export interface CheckResponseDto {
+export type CheckResponseDto = {
   verified: boolean
 }

@@ -1,4 +1,4 @@
-interface LegalSection {
+type LegalSection = {
   id: string,
   title: string,
   intro?: string,

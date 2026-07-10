@@ -1,10 +1,10 @@
-export interface MeDto {
+export type MeDto = {
   profile: {
     username: string
   }
 }
 
-export interface SendPasswordRecoveryResponseErrorDataDto {
+export type SendPasswordRecoveryResponseErrorDataDto = {
   errors?: Record<string, string>,
   type: "info",
   message: string,
