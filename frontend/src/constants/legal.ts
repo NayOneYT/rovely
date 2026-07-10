@@ -1,8 +1,8 @@
 type LegalSection = {
-  id: string,
-  title: string,
-  intro?: string,
-  subsections?: Array<string>,
+  id: string
+  title: string
+  intro?: string
+  subsections?: Array<string>
   tables?: Array<Record<string, string | Array<string>>>
 }
 

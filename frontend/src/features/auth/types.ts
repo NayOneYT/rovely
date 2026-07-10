@@ -5,9 +5,9 @@ export type MeDto = {
 }
 
 export type SendPasswordRecoveryResponseErrorDataDto = {
-  errors?: Record<string, string>,
-  type: "info",
-  message: string,
-  to: "EMAIL" | "PHONE",
+  errors?: Record<string, string>
+  type: "info"
+  message: string
+  to: "EMAIL" | "PHONE"
   secondsLeft: number
 }

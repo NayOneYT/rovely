@@ -129,7 +129,7 @@ export const passwordRecoveryContactsSchema = z.object({
 })
 
 export type ContactsDto = {
-  email?: string,
+  email?: string
   phone?: string
 }
 
@@ -156,10 +156,10 @@ export const sendPasswordRecoverySchema = z.object({
 })
 
 export type SendPasswordRecoveryResultDto = {
-  statusCode: number,
-  type: "success" | "info",
-  message: string,
-  to: "EMAIL" | "PHONE",
+  statusCode: number
+  type: "success" | "info"
+  message: string
+  to: "EMAIL" | "PHONE"
   secondsLeft: number
 }
 
