@@ -12,6 +12,7 @@ export const checkRegistrationEmailVerificationSchema = z.object({
     .string({ required_error: "Обязательное поле" })
     .trim()
     .email("Неверный формат")
+    .toLowerCase()
 })
 
 export const sendVerificationEmailSchema = z.object({
