@@ -48,9 +48,9 @@ export const authController = {
 
   check: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const query = req.query as CheckDto
-      const field = query.field
-      const value = query.value.toLowerCase()
+      const body = req.body as CheckDto
+      const field = body.field
+      const value = body.value.toLowerCase()
       await authService.check(field, value)
       res.sendStatus(200)
     } catch (error) {
@@ -80,7 +80,7 @@ export const authController = {
 
   passwordRecoveryContacts: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await authService.passwordRecoveryContacts(req.query.identifier as string)
+      const result = await authService.passwordRecoveryContacts(req.body.identifier as string)
       res.status(200).json(result)
     } catch (error) {
       next(error)

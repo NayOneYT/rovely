@@ -6,7 +6,8 @@ import { verifyEmailSchema, checkRegistrationEmailVerificationSchema, sendVerifi
 const router = Router()
 
 router.post("/verify/:token", validate(verifyEmailSchema, "params"), emailVerificationController.verifyEmail)
-router.get("/check", validate(checkRegistrationEmailVerificationSchema, "query"), emailVerificationController.checkRegistrationEmailVerification)
+// the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
+router.post("/check", validate(checkRegistrationEmailVerificationSchema, "body"), emailVerificationController.checkRegistrationEmailVerification)
 router.post("/send", validate(sendVerificationEmailSchema, "body"), emailVerificationController.sendVerificationEmail)
 
 export default router

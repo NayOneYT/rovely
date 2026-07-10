@@ -13,7 +13,7 @@ export const emailVerificationController = {
 
   checkRegistrationEmailVerification: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await emailVerificationService.checkRegistrationEmailVerification(req.query.email as string)
+      const result = await emailVerificationService.checkRegistrationEmailVerification(req.body.email as string)
       res.status(200).json(result)
     } catch (error) {
       next(error)

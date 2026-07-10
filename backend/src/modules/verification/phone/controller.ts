@@ -13,7 +13,7 @@ export const phoneVerificationController = {
 
   checkRegistrationPhoneVerification: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await phoneVerificationService.checkRegistrationPhoneVerification(req.query.phone as string)
+      const result = await phoneVerificationService.checkRegistrationPhoneVerification(req.body.phone as string)
       res.status(200).json(result)
     } catch (error) {
       next(error)
