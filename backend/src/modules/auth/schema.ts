@@ -128,11 +128,6 @@ export const passwordRecoveryContactsSchema = z.object({
     }),
 })
 
-export type ContactsDto = {
-  email?: string
-  phone?: string
-}
-
 export const sendPasswordRecoverySchema = z.object({
   identifier: z
     .string({ required_error: "Обязательное поле" })
@@ -154,14 +149,6 @@ export const sendPasswordRecoverySchema = z.object({
   to: z
     .enum(["EMAIL", "PHONE"], { required_error: "Обязательное поле" })
 })
-
-export type SendPasswordRecoveryResultDto = {
-  statusCode: number
-  type: "success" | "info"
-  message: string
-  to: "EMAIL" | "PHONE"
-  secondsLeft: number
-}
 
 export const checkPasswordRecoveryToken = z.object({
   token: z

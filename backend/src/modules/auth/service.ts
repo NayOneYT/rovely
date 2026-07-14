@@ -13,7 +13,8 @@ import { generateCode } from "@/utils/code.js"
 import { googleClient } from "@/lib/google.js"
 import crypto from "crypto"
 import { resend } from "@/lib/email.js"
-import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto, ContactsDto, SendPasswordRecoveryDto, SendPasswordRecoveryResultDto, ResetPasswordDto } from "./schema.js"
+import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto, SendPasswordRecoveryDto, ResetPasswordDto } from "./schema.js"
+import type { ContactsDto, SendPasswordRecoveryResultDto } from "./types.js"
 
 const sendCode = async (name: string, telegramUserId: number, code: string) => {
   await bot.api.sendMessage(
