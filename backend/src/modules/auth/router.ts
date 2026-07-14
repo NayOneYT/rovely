@@ -14,11 +14,11 @@ router.post("/login", validate(loginSchema, "body"), authController.login)
 router.post("/login-with-phone", validate(loginWithPhoneSchema, "body"), authController.loginWithPhone)
 router.post("/login-with-phone/send", validate(sendLoginWithPhoneCodeSchema, "body"), authController.sendLoginWithPhoneCode)
 // the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
-router.get("/check", validate(checkSchema, "body"), authController.check)
+router.post("/check", validate(checkSchema, "body"), authController.check)
 router.post("/register", validate(registerSchema, "body"), authController.register)
 router.post("/google", authController.google)
 // the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
-router.get("/password-recovery/contacts", validate(passwordRecoveryContactsSchema, "body"), authController.passwordRecoveryContacts)
+router.post("/password-recovery/contacts", validate(passwordRecoveryContactsSchema, "body"), authController.passwordRecoveryContacts)
 router.post("/password-recovery/send", validate(sendPasswordRecoverySchema, "body"), authController.sendPasswordRecovery)
 router.get("/password-recovery/check/:token", validate(checkPasswordRecoveryToken, "params"), authController.checkPasswordRecoveryToken)
 router.post("/password-recovery/reset", validate(resetPasswordSchema, "body"), authController.resetPassword)
