@@ -7,13 +7,12 @@ export enum ErrorCode {
 }
 
 type AppErrorData = {
-  code?: ErrorCode
   fieldErrors?: Record<string, string>
   [key: string]: any
 }
 
 export class AppError extends Error {
-  constructor(public statusCode: number, public data: AppErrorData) {
+  constructor(public statusCode: number, public errorCode: ErrorCode, public data?: AppErrorData) {
     super()
     this.name = "AppError"
   }
