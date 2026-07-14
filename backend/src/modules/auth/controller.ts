@@ -1,14 +1,13 @@
 import { authService } from "./service.js"
-import { AppError } from "@/middlewares/error.js"
+import { AppError, ErrorCode } from "@/types/index.js"
 import { setTokenCookie, removeTokenCookie } from "@/utils/cookie.js"
 import type { Request, Response, NextFunction } from "express"
-import type { CheckDto } from "./schema.js"
 
 export const authController = {
   refresh: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies.refreshToken
-      if (!refreshToken) throw new AppError(401, { message: "Не авторизован" })
+      if (!refreshToken) throw new AppError(401, ErrorCode.UNAUTHORIZED)
       const { accessToken, newRefreshToken, rememberMe } = await authService.refresh(refreshToken)
       setTokenCookie(res, accessToken, newRefreshToken, rememberMe)
       res.sendStatus(200)
@@ -46,13 +45,10 @@ export const authController = {
     }
   },
 
-  check: async (req: Request, res: Response, next: NextFunction) => {
+  checkAvailability: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const body = req.body as CheckDto
-      const field = body.field
-      const value = body.value.toLowerCase()
-      await authService.check(field, value)
-      res.sendStatus(200)
+      await authService.checkAvailability(req.body)
+      res.sendStatus(204)
     } catch (error) {
       next(error)
     }
@@ -67,10 +63,9 @@ export const authController = {
     }
   },
 
-  google: async (req: Request, res: Response, next: NextFunction) => {
+  googleAuth: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const code = req.body.code
-      const { statusCode, accessToken, refreshToken } = await authService.google(code)
+      const { statusCode, accessToken, refreshToken } = await authService.googleAuth(req.body)
       setTokenCookie(res, accessToken, refreshToken, true)
       res.sendStatus(statusCode)
     } catch (error) {
@@ -80,7 +75,7 @@ export const authController = {
 
   passwordRecoveryContacts: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await authService.passwordRecoveryContacts(req.body.identifier as string)
+      const result = await authService.passwordRecoveryContacts(req.body)
       res.status(200).json(result)
     } catch (error) {
       next(error)
@@ -89,8 +84,8 @@ export const authController = {
 
   sendPasswordRecovery: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { statusCode, ...result } = await authService.sendPasswordRecovery(req.body)
-      res.status(statusCode).json(result)
+      const result = await authService.sendPasswordRecovery(req.body)
+      res.status(200).json(result)
     } catch (error) {
       next(error)
     }
@@ -98,8 +93,8 @@ export const authController = {
 
   checkPasswordRecoveryToken: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await authService.checkPasswordRecoveryToken(req.params.token as string)
-      res.sendStatus(200)
+      await authService.checkPasswordRecoveryToken(req.params)
+      res.sendStatus(204)
     } catch (error) {
       next(error)
     }
@@ -108,7 +103,7 @@ export const authController = {
   resetPassword: async (req: Request, res: Response, next: NextFunction) => {
     try {
       await authService.resetPassword(req.body)
-      res.sendStatus(200)
+      res.sendStatus(204)
     } catch (error) {
       next(error)
     }
@@ -126,7 +121,7 @@ export const authController = {
   logout: async (req: Request, res: Response, next: NextFunction) => {
     try {
       removeTokenCookie(res)
-      res.sendStatus(200)
+      res.sendStatus(204)
     } catch (error) {
       next(error)
     }

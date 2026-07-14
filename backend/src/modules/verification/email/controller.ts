@@ -4,7 +4,7 @@ import { emailVerificationService } from "./service.js"
 export const emailVerificationController = {
   verifyEmail: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await emailVerificationService.verifyEmail(req.params.token as string)
+      const result = await emailVerificationService.verifyEmail(req.params)
       res.status(200).json(result)
     } catch (error) {
       next(error)
@@ -13,7 +13,7 @@ export const emailVerificationController = {
 
   checkRegistrationEmailVerification: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await emailVerificationService.checkRegistrationEmailVerification(req.body.email as string)
+      const result = await emailVerificationService.checkRegistrationEmailVerification(req.body)
       res.status(200).json(result)
     } catch (error) {
       next(error)
