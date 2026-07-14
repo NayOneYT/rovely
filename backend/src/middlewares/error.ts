@@ -1,4 +1,4 @@
-import { AppError } from "@/types/index.js"
+import { AppError, ErrorCode } from "@/types/index.js"
 import type { Request, Response, NextFunction } from "express"
 
 export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
@@ -7,5 +7,5 @@ export const errorHandler = (error: Error, req: Request, res: Response, next: Ne
     return
   }
   console.error(error.stack)
-  res.status(500).json({ message: "Произошла ошибка сервера, попробуйте позже" })
+  res.status(500).json({ code: ErrorCode.INTERNAL_ERROR })
 }

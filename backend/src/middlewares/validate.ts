@@ -1,4 +1,4 @@
-import { AppError } from "@/types/index.js"
+import { AppError, ErrorCode } from "@/types/index.js"
 import type { Request, Response, NextFunction } from "express"
 import type { ZodSchema } from "zod"
 
@@ -13,6 +13,7 @@ export default (schema: ZodSchema, target: ValidateTarget) => {
         Object.entries(rawFieldErrors).map(([key, value]) => [key, value![0]])
       ) as Record<string, string>
       throw new AppError(422, {
+        code: ErrorCode.VALIDATION_ERROR,
         fieldErrors
       })
     }
