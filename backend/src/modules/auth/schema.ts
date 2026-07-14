@@ -89,6 +89,14 @@ export const registerSchema = z.object({
   }
 })
 
+export const googleAuthSchema = z.object({
+  code: z
+    .string()
+    .min(40)
+    .max(250)
+    .regex(/^4\/[0-9A-Za-z_-]+$/)
+})
+
 export const passwordRecoveryContactsSchema = z.object({
   identifier: identifierSchema,
 })
@@ -113,5 +121,6 @@ export type LoginWithPhoneDto = z.infer<typeof loginWithPhoneSchema>
 export type SendLoginWithPhoneCodeDto = z.infer<typeof sendLoginWithPhoneCodeSchema>
 export type CheckAvailabilityDto = z.infer<typeof checkAvailabilitySchema>
 export type RegisterDto = z.infer<typeof registerSchema>
+export type GoogleAuthDto = z.infer<typeof googleAuthSchema>
 export type SendPasswordRecoveryDto = z.infer<typeof sendPasswordRecoverySchema>
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>
