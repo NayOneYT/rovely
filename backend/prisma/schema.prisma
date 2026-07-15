@@ -411,7 +411,7 @@ model Report {
   @@map("reports")
 }
 
-model VerificationEmailRequest {
+model EmailVerificationRequest {
   token          String   @unique
   email          String   @unique
   lowercaseEmail String   @map("lowercase_email")
@@ -420,10 +420,10 @@ model VerificationEmailRequest {
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@id([lowercaseEmail, accountId])
-  @@map("verification_email_requests")
+  @@map("email_verification_requests")
 }
 
-model VerificationPhoneRequest {
+model PhoneVerificationRequest {
   code        String
   phone       String
   accountId   String   @default("none") @map("account_id")
@@ -431,7 +431,7 @@ model VerificationPhoneRequest {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@id([phone, accountId])
-  @@map("verification_phone_requests")
+  @@map("phone_verification_requests")
 }
 
 model TelegramLink {
