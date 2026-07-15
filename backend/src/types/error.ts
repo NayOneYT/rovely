@@ -1,10 +1,4 @@
-export enum ErrorCode {
-  INTERNAL_ERROR = "INTERNAL_ERROR",
-  VALIDATION_ERROR = "VALIDATION_ERROR",
-  UNAUTHORIZED = "UNAUTHORIZED",
-  TOKEN_EXPIRED = "TOKEN_EXPIRED",
-  TOKEN_INVALID = "TOKEN_INVALID"
-}
+import { ErrorCode } from "./index.js"
 
 type AppErrorData = {
   fieldErrors?: Record<string, string>
