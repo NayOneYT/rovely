@@ -1,10 +1,10 @@
 import { prisma } from "@/prisma/client.js"
-import { AppError } from "@/middlewares/error.js"
+import { AppError, ErrorCode } from "@/types/index.js"
 import crypto from "crypto"
 import { resend } from "@/lib/email.js"
 import { config } from "@/config/index.js"
 import { EMAIL_RATE_LIMIT_MS, EMAIL_TOKEN_EXPIRY_MS } from "@/utils/constants.js"
-import type { SendVerificationEmailDto } from "./schema.js"
+import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema.js"
 
 const generateToken = () => crypto.randomBytes(32).toString("hex")
 
@@ -22,27 +22,28 @@ const sendEmail = async (name: string, to: string, accountId: string, token: str
 }
 
 export const emailVerificationService = {
-  verifyEmail: async (token: string) => {
-    const request = await prisma.verificationEmailRequest.findUnique({
+  verify: async (data: VerifyDto) => {
+    const request = await prisma.emailVerificationRequest.findUnique({
       where: {
-        token
+        token: data.token
       }
     })
-    const now = new Date()
-    if (!request || request.updatedAt.getTime() < now.getTime() - EMAIL_TOKEN_EXPIRY_MS) throw new AppError(!request ? 404 : 410, { token: "Ссылка недействительна" })
-    if (request.isConfirmed) return { message: "Эта почта уже подтверждена" }
+    if (!request) throw new AppError(404, ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
+    const now = Date.now()
+    if (request.updatedAt.getTime() < now - EMAIL_TOKEN_EXPIRY_MS) throw new AppError(410, ErrorCode.EMAIL_VERIFICATION_REQUEST_EXPIRED)
+    if (request.isConfirmed) throw new AppError(409, ErrorCode.EMAIL_ALREADY_VERIFIED)
     if (request.accountId === "none") {
-      await prisma.verificationEmailRequest.update({
+      await prisma.emailVerificationRequest.update({
         where: {
-          token
+          token: data.token
         },
         data: {
           isConfirmed: true
         }
       })
-      return { message: "Почта успешно подтверждена, можете продолжать регистрацию" }
+      return
     }
-    await Promise.all([
+    await prisma.$transaction([
       prisma.account.update({
         where: {
           id: request.accountId
@@ -52,7 +53,7 @@ export const emailVerificationService = {
           lowercaseEmail: request.lowercaseEmail
         }
       }),
-      prisma.verificationEmailRequest.deleteMany({
+      prisma.emailVerificationRequest.deleteMany({
         where: {
           OR: [
             { accountId: request.accountId },
@@ -61,52 +62,59 @@ export const emailVerificationService = {
         }
       })
     ])
-    return { message: "Почта успешно привязана" }
   },
 
-  checkRegistrationEmailVerification: async (email: string) => {
-    const request = await prisma.verificationEmailRequest.findUnique({
+  checkRegistration: async (data: CheckRegistrationDto) => {
+    const request = await prisma.emailVerificationRequest.findUnique({
       where: {
         lowercaseEmail_accountId: {
-          lowercaseEmail: email,
+          lowercaseEmail: data.email,
           accountId: "none"
         }
       }
     })
-    return { verified: !!request?.isConfirmed && request.updatedAt.getTime() > new Date().getTime() - EMAIL_TOKEN_EXPIRY_MS }
+    if (!request) throw new AppError(404, ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
+    if (request.updatedAt.getTime() < Date.now() - EMAIL_TOKEN_EXPIRY_MS) {
+      const errorCode = request.isConfirmed
+        ? ErrorCode.EMAIL_VERIFICATION_EXPIRED
+        : ErrorCode.EMAIL_VERIFICATION_REQUEST_EXPIRED
+      throw new AppError(410, errorCode)
+    }
+    if (!request.isConfirmed) throw new AppError(422, ErrorCode.EMAIL_NOT_VERIFIED)
   },
 
-  sendVerificationEmail: async (data: SendVerificationEmailDto) => {
-    const account = await prisma.account.findUnique({
-      where: {
-        lowercaseEmail: data.email.toLowerCase()
-      }
-    })
-    if (account) throw new AppError(409, { email: "Это значение уже используется" })
-    const request = await prisma.verificationEmailRequest.findUnique({
-      where: {
-        lowercaseEmail_accountId: {
-          lowercaseEmail: data.email.toLowerCase(),
-          accountId: data.accountId
+  send: async (data: SendDto) => {
+    const [account, request] = await Promise.all([
+      prisma.account.findUnique({
+        where: {
+          lowercaseEmail: data.email.toLowerCase()
         }
-      }
-    })
-    const now = new Date()
+      }),
+      prisma.emailVerificationRequest.findUnique({
+        where: {
+          lowercaseEmail_accountId: {
+            lowercaseEmail: data.email.toLowerCase(),
+            accountId: data.accountId
+          }
+        }
+      })
+    ])
+    if (account) throw new AppError(409, ErrorCode.EMAIL_TAKEN)
+    const now = Date.now()
     const token = generateToken()
-    if (request && !request.isConfirmed && request.updatedAt.getTime() > now.getTime() - EMAIL_RATE_LIMIT_MS) {
-      const timePassed = now.getTime() - request.updatedAt.getTime()
-      const timeLeft = EMAIL_RATE_LIMIT_MS - timePassed
-      const secondsLeft = Math.ceil(timeLeft / 1000)
-      return { type: "info", message: "На эту почту недавно уже было отправлено письмо", secondsLeft }
+    if (request && !request.isConfirmed && request.updatedAt.getTime() > now - EMAIL_RATE_LIMIT_MS) {
+      const timePassedMs = now - request.updatedAt.getTime()
+      const timeLeftMs = EMAIL_RATE_LIMIT_MS - timePassedMs
+      throw new AppError(429, ErrorCode.SEND_EMAIL_COOLDOWN, { timeLeftMs })
     }
-    if (request?.isConfirmed && request.updatedAt.getTime() > now.getTime() - EMAIL_TOKEN_EXPIRY_MS) throw new AppError(409, { email: "Эта почта уже подтверждена" })
-    const updateData = (request?.isConfirmed && request.updatedAt.getTime() < now.getTime() - EMAIL_TOKEN_EXPIRY_MS)
+    if (request?.isConfirmed && request.updatedAt.getTime() > now - EMAIL_TOKEN_EXPIRY_MS) throw new AppError(409, ErrorCode.EMAIL_ALREADY_VERIFIED)
+    const updateData = request?.isConfirmed
       ? { token, isConfirmed: false }
       : { token }
     await Promise.all([
       sendEmail(data.name, data.email, data.accountId, token),
       request
-        ? prisma.verificationEmailRequest.update({
+        ? prisma.emailVerificationRequest.update({
           where: {
             lowercaseEmail_accountId: {
               lowercaseEmail: data.email.toLowerCase(),
@@ -115,7 +123,7 @@ export const emailVerificationService = {
           },
           data: updateData
         })
-        : prisma.verificationEmailRequest.create({
+        : prisma.emailVerificationRequest.create({
           data: {
             token,
             email: data.email,
@@ -124,6 +132,6 @@ export const emailVerificationService = {
           }
         })
     ])
-    return { type: "success", message: "Письмо для подтверждения отправлено", secondsLeft: EMAIL_RATE_LIMIT_MS / 1000 }
+    return { timeLeftMs: EMAIL_RATE_LIMIT_MS }
   }
 }

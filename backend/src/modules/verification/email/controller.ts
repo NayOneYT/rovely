@@ -1,28 +1,29 @@
 import type { Request, Response, NextFunction } from "express"
 import { emailVerificationService } from "./service.js"
+import type { VerifyDto } from "./schema.js"
 
 export const emailVerificationController = {
-  verifyEmail: async (req: Request, res: Response, next: NextFunction) => {
+  verify: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await emailVerificationService.verifyEmail(req.params)
-      res.status(200).json(result)
+      await emailVerificationService.verify(req.params as VerifyDto)
+      res.sendStatus(204)
     } catch (error) {
       next(error)
     }
   },
 
-  checkRegistrationEmailVerification: async (req: Request, res: Response, next: NextFunction) => {
+  checkRegistration: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await emailVerificationService.checkRegistrationEmailVerification(req.body)
-      res.status(200).json(result)
+      await emailVerificationService.checkRegistration(req.body)
+      res.sendStatus(204)
     } catch (error) {
       next(error)
     }
   },
 
-  sendVerificationEmail: async (req: Request, res: Response, next: NextFunction) => {
+  send: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await emailVerificationService.sendVerificationEmail(req.body)
+      const result = await emailVerificationService.send(req.body)
       res.status(200).json(result)
     } catch (error) {
       next(error)

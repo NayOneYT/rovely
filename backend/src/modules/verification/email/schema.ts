@@ -1,20 +1,21 @@
 import { z } from "zod"
 import { tokenSchema, emailSchema, nameSchema, accountIdSchema } from "@/schemas/index.js"
 
-export const verifyEmailSchema = z.object({
+export const verifySchema = z.object({
   token: tokenSchema
 })
 
-export const checkRegistrationEmailVerificationSchema = z.object({
+export const checkRegistrationSchema = z.object({
   email: emailSchema
     .toLowerCase()
 })
 
-export const sendVerificationEmailSchema = z.object({
+export const sendSchema = z.object({
   name: nameSchema,
   email: emailSchema,
   accountId: accountIdSchema
 })
 
-export type VerifyEmailDto = z.infer<typeof verifyEmailSchema>
-export type SendVerificationEmailDto = z.infer<typeof sendVerificationEmailSchema>
+export type VerifyDto = z.infer<typeof verifySchema>
+export type CheckRegistrationDto = z.infer<typeof checkRegistrationSchema>
+export type SendDto = z.infer<typeof sendSchema>

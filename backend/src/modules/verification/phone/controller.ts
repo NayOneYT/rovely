@@ -2,27 +2,27 @@ import type { Request, Response, NextFunction } from "express"
 import { phoneVerificationService } from "./service.js"
 
 export const phoneVerificationController = {
-  verifyPhone: async (req: Request, res: Response, next: NextFunction) => {
+  verify: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await phoneVerificationService.verifyPhone(req.body)
-      res.status(200).json(result)
+      await phoneVerificationService.verify(req.body)
+      res.sendStatus(204)
     } catch (error) {
       next(error)
     }
   },
 
-  checkRegistrationPhoneVerification: async (req: Request, res: Response, next: NextFunction) => {
+  checkRegistration: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await phoneVerificationService.checkRegistrationPhoneVerification(req.body)
-      res.status(200).json(result)
+      await phoneVerificationService.checkRegistration(req.body)
+      res.sendStatus(204)
     } catch (error) {
       next(error)
     }
   },
 
-  sendVerificationCode: async (req: Request, res: Response, next: NextFunction) => {
+  send: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await phoneVerificationService.sendVerificationCode(req.body)
+      const result = await phoneVerificationService.send(req.body)
       res.status(200).json(result)
     } catch (error) {
       next(error)

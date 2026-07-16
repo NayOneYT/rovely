@@ -2,6 +2,7 @@ import { authService } from "./service.js"
 import { AppError, ErrorCode } from "@/types/index.js"
 import { setTokenCookie, removeTokenCookie } from "@/utils/cookie.js"
 import type { Request, Response, NextFunction } from "express"
+import type { CheckPasswordRecoveryTokenDto } from "./schema.js"
 
 export const authController = {
   refresh: async (req: Request, res: Response, next: NextFunction) => {
@@ -65,17 +66,17 @@ export const authController = {
 
   googleAuth: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { statusCode, accessToken, refreshToken } = await authService.googleAuth(req.body)
+      const { isNewUser, accessToken, refreshToken } = await authService.googleAuth(req.body)
       setTokenCookie(res, accessToken, refreshToken, true)
-      res.sendStatus(statusCode)
+      res.sendStatus(isNewUser ? 201 : 200)
     } catch (error) {
       next(error)
     }
   },
 
-  passwordRecoveryContacts: async (req: Request, res: Response, next: NextFunction) => {
+  getPasswordRecoveryContacts: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await authService.passwordRecoveryContacts(req.body)
+      const result = await authService.getPasswordRecoveryContacts(req.body)
       res.status(200).json(result)
     } catch (error) {
       next(error)
@@ -93,7 +94,7 @@ export const authController = {
 
   checkPasswordRecoveryToken: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await authService.checkPasswordRecoveryToken(req.params)
+      await authService.checkPasswordRecoveryToken(req.params as CheckPasswordRecoveryTokenDto)
       res.sendStatus(204)
     } catch (error) {
       next(error)

@@ -18,7 +18,7 @@ router.post("/check-availability", validate(checkAvailabilitySchema, "body"), au
 router.post("/register", validate(registerSchema, "body"), authController.register)
 router.post("/google-auth", validate(googleAuthSchema, "body"), authController.googleAuth)
 // the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
-router.post("/password-recovery/contacts", validate(passwordRecoveryContactsSchema, "body"), authController.passwordRecoveryContacts)
+router.post("/password-recovery/contacts", validate(passwordRecoveryContactsSchema, "body"), authController.getPasswordRecoveryContacts)
 router.post("/password-recovery/send", validate(sendPasswordRecoverySchema, "body"), authController.sendPasswordRecovery)
 router.get("/password-recovery/check-token/:token", validate(checkPasswordRecoveryToken, "params"), authController.checkPasswordRecoveryToken)
 router.post("/password-recovery/reset", validate(resetPasswordSchema, "body"), authController.resetPassword)

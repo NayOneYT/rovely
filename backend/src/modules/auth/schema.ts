@@ -8,8 +8,8 @@ const identifierSchema = z
   .max(254)
   .toLowerCase()
   .refine((value) => {
-    const isEmail = z.string().email().safeParse(value).success
     const isLogin = /^[a-zа-яё0-9._-]+$/.test(value)
+    const isEmail = z.string().email().safeParse(value).success
     const isPhone = parsePhoneNumberFromString(value)?.isValid()
     return isEmail || isLogin || isPhone
   }, "Invalid format")
@@ -122,5 +122,7 @@ export type SendLoginWithPhoneCodeDto = z.infer<typeof sendLoginWithPhoneCodeSch
 export type CheckAvailabilityDto = z.infer<typeof checkAvailabilitySchema>
 export type RegisterDto = z.infer<typeof registerSchema>
 export type GoogleAuthDto = z.infer<typeof googleAuthSchema>
+export type PasswordRecoveryContactsDto = z.infer<typeof passwordRecoveryContactsSchema>
 export type SendPasswordRecoveryDto = z.infer<typeof sendPasswordRecoverySchema>
+export type CheckPasswordRecoveryTokenDto = z.infer<typeof checkPasswordRecoveryToken>
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>

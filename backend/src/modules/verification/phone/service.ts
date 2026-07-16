@@ -1,10 +1,10 @@
 import { prisma } from "@/prisma/client.js"
-import { AppError } from "@/middlewares/error.js"
+import { AppError, ErrorCode } from "@/types/index.js"
 import { bot } from "@/lib/telegramBot.js"
 import { GrammyError } from "grammy"
 import { PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS } from "@/utils/constants.js"
 import { generateCode } from "@/utils/code.js"
-import type { SendVerificationCodeDto, VerifyPhoneDto } from "./schema.js"
+import type { SendDto, CheckRegistrationDto, VerifyDto } from "./schema.js"
 
 const sendCode = async (name: string, telegramUserId: number, code: string, accountId: string) => {
   await bot.api.sendMessage(
@@ -16,8 +16,8 @@ const sendCode = async (name: string, telegramUserId: number, code: string, acco
 }
 
 export const phoneVerificationService = {
-  verifyPhone: async (data: VerifyPhoneDto) => {
-    const request = await prisma.verificationPhoneRequest.findUnique({
+  verify: async (data: VerifyDto) => {
+    const request = await prisma.phoneVerificationRequest.findUnique({
       where: {
         phone_accountId: {
           phone: data.phone,
@@ -25,68 +25,72 @@ export const phoneVerificationService = {
         }
       }
     })
-    const now = new Date()
-    if (!request || request.updatedAt.getTime() < now.getTime() - PHONE_CODE_EXPIRY_MS) throw new AppError(!request ? 404 : 410, { code: "Запросите новый код" })
-    if (request.isConfirmed) return { type: "info", message: "Этот номер телефона уже подтвержден" }
-    if (request.code === data.code) {
-      if (request.accountId === "none") {
-        await prisma.verificationPhoneRequest.update({
-          where: {
-            phone_accountId: {
-              phone: data.phone,
-              accountId: data.accountId
-            }
-          },
-          data: {
-            isConfirmed: true
+    if (!request) throw new AppError(404, ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
+    const now = Date.now()
+    if (request.updatedAt.getTime() < now - PHONE_CODE_EXPIRY_MS) throw new AppError(410, ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED)
+    if (request.isConfirmed) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
+    if (request.code !== data.code) throw new AppError(422, ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
+    if (request.accountId === "none") {
+      return await prisma.phoneVerificationRequest.update({
+        where: {
+          phone_accountId: {
+            phone: data.phone,
+            accountId: data.accountId
           }
-        })
-        return { type: "success", message: "Номер телефона успешно подтвержден" }
-      }
-      await Promise.all([
-        prisma.account.update({
-          where: {
-            id: data.accountId
-          },
-          data: {
-            phone: data.phone
-          }
-        }),
-        prisma.verificationPhoneRequest.deleteMany({
-          where: {
-            OR: [
-              { accountId: data.accountId },
-              { phone: data.phone }
-            ]
-          }
-        })
-      ])
+        },
+        data: {
+          isConfirmed: true
+        }
+      })
     }
-    throw new AppError(400, { code: "Неверный код" })
+    await prisma.$transaction([
+      prisma.account.update({
+        where: {
+          id: data.accountId
+        },
+        data: {
+          phone: data.phone
+        }
+      }),
+      prisma.phoneVerificationRequest.deleteMany({
+        where: {
+          OR: [
+            { accountId: data.accountId },
+            { phone: data.phone }
+          ]
+        }
+      })
+    ])
   },
 
-  checkRegistrationPhoneVerification: async (phone: string) => {
-    const request = await prisma.verificationPhoneRequest.findUnique({
+  checkRegistration: async (data: CheckRegistrationDto) => {
+    const request = await prisma.phoneVerificationRequest.findUnique({
       where: {
         phone_accountId: {
-          phone,
+          phone: data.phone,
           accountId: "none"
         }
       }
     })
-    return { verified: !!request?.isConfirmed && request.updatedAt.getTime() > new Date().getTime() - PHONE_CODE_EXPIRY_MS }
+    if (!request) throw new AppError(404, ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
+    if (request.updatedAt.getTime() < Date.now() - PHONE_CODE_EXPIRY_MS) {
+      const errorCode = request.isConfirmed
+        ? ErrorCode.PHONE_VERIFICATION_EXPIRED
+        : ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED
+      throw new AppError(410, errorCode)
+    }
+    if (!request.isConfirmed) throw new AppError(422, ErrorCode.PHONE_NOT_VERIFIED)
   },
 
-  sendVerificationCode: async (data: SendVerificationCodeDto) => {
+  send: async (data: SendDto) => {
     try {
-      const account = await prisma.account.findUnique({
-        where: {
-          phone: data.phone
-        }
-      })
-      if (account) throw new AppError(409, { phone: "Это значение уже используется" })
-      const [request, link] = await Promise.all([
-        prisma.verificationPhoneRequest.findUnique({
+      const [account, request, link] = await Promise.all([
+        prisma.account.findUnique({
+          where: {
+            phone: data.phone
+          }
+        }),
+        prisma.phoneVerificationRequest.findUnique({
           where: {
             phone_accountId: {
               phone: data.phone,
@@ -100,42 +104,42 @@ export const phoneVerificationService = {
           }
         })
       ])
-      if (!link) return { type: "warning", message: "Сначала отправьте свой номер телефона боту" }
-      const now = new Date()
-      if (request && !request.isConfirmed && request.updatedAt.getTime() > now.getTime() - PHONE_CODE_RATE_LIMIT_MS) {
-        const timePassed = now.getTime() - request.updatedAt.getTime()
-        const timeLeft = PHONE_CODE_RATE_LIMIT_MS - timePassed
-        const secondsLeft = Math.ceil(timeLeft / 1000)
-        return { type: "info", message: "Код подтверждения недавно уже был отправлен", secondsLeft }
+      if (account) throw new AppError(409, ErrorCode.PHONE_TAKEN)
+      if (!link) throw new AppError(404, ErrorCode.TELEGRAM_LINK_NOT_FOUND)
+      const now = Date.now()
+      if (request && !request.isConfirmed && request.updatedAt.getTime() > now - PHONE_CODE_RATE_LIMIT_MS) {
+        const timePassedMs = now - request.updatedAt.getTime()
+        const timeLeftMs = PHONE_CODE_RATE_LIMIT_MS - timePassedMs
+        throw new AppError(429, ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
       }
-      if (request?.isConfirmed && request.updatedAt.getTime() > now.getTime() - PHONE_CODE_EXPIRY_MS) throw new AppError(409, { phone: "Этот номер телефона уже подтвержден" })
+      if (request?.isConfirmed && request.updatedAt.getTime() > now - PHONE_CODE_EXPIRY_MS) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateCode()
-      await sendCode(data.name, link.telegramUserId, code, data.accountId)
-      const updateData = (request?.isConfirmed && request.updatedAt.getTime() < now.getTime() - PHONE_CODE_EXPIRY_MS)
+      const updateData = request?.isConfirmed
         ? { code, isConfirmed: false }
         : { code }
-      if (request) {
-        await prisma.verificationPhoneRequest.update({
-          where: {
-            phone_accountId: {
+      await Promise.all([
+        sendCode(data.name, link.telegramUserId, code, data.accountId),
+        request
+          ? prisma.phoneVerificationRequest.update({
+            where: {
+              phone_accountId: {
+                phone: data.phone,
+                accountId: data.accountId
+              }
+            },
+            data: updateData
+          })
+          : prisma.phoneVerificationRequest.create({
+            data: {
+              code,
               phone: data.phone,
               accountId: data.accountId
             }
-          },
-          data: updateData
-        })
-      } else {
-        await prisma.verificationPhoneRequest.create({
-          data: {
-            code,
-            phone: data.phone,
-            accountId: data.accountId
-          }
-        })
-      }
-      return { type: "success", message: "Код подтверждения отправлен", secondsLeft: PHONE_CODE_RATE_LIMIT_MS / 1000 }
+          })
+      ])
+      return { timeLeftMs: PHONE_CODE_RATE_LIMIT_MS }
     } catch (error) {
-      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, { message: "Сначала разблокируйте бота" })
+      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
     }
   },
