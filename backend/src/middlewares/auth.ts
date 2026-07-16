@@ -1,4 +1,4 @@
-import { AppError, ErrorCode } from "@/types/index.js"
+import { AppError, ErrorCode, type AccessTokenPayload } from "@/types/index.js"
 import jwt from "jsonwebtoken"
 import { config } from "@/config/index.js"
 import type { Request, Response, NextFunction } from "express"
@@ -7,8 +7,9 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   try {
     const token = req.cookies.accessToken
     if (!token) throw new AppError(401, ErrorCode.UNAUTHORIZED)
-    const payload = jwt.verify(token, config.jwtAccessSecret) as { id: string }
+    const payload = jwt.verify(token, config.jwtAccessSecret) as AccessTokenPayload
     req.accountId = payload.id
+    req.accountRole = payload.role
     next()
   } catch (error) {
     if (error instanceof AppError) next(error)
