@@ -7,13 +7,13 @@ import { generateFromEmail, generateUsername } from "unique-username-generator"
 import { emailVerificationService } from "@/modules/verification/email/service.js"
 import { phoneVerificationService } from "@/modules/verification/phone/service.js"
 import { GrammyError } from "grammy"
-import { sendMessage } from "@/modules/bot/service.js"
+import { sendEmail } from "../mailer/service.js"
+import { sendMessage } from "../bot/service.js"
 import {
   generateSecureCode, generateSecureToken,
   PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS
 } from "@/utils/index.js"
 import { googleClient } from "@/lib/google.js"
-import { resend } from "@/lib/email.js"
 import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneDto, CheckAvailabilityDto, ResetPasswordDto, GoogleAuthDto, PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto } from "./schema.js"
 import type { PasswordRecoveryTarget, ContactsDto } from "./types.js"
 import type { AccessTokenPayload, RefreshTokenPayload } from "@/types/index.js"
@@ -36,18 +36,8 @@ const generatePasswordRecoveryUrl = (token: string) => `${config.clientUrl}/rese
 
 const sendPasswordRecoveryUrl = async (target: PasswordRecoveryTarget, name: string, token: string) => {
   const url = generatePasswordRecoveryUrl(token)
-  if (target.to === "EMAIL") {
-    await resend.emails.send({
-      to: target.email,
-      template: {
-        id: "reset-password",
-        variables: {
-          name,
-          url
-        }
-      }
-    })
-  } else {
+  if (target.to === "EMAIL") await sendEmail(target.email, "reset-password", { name, url })
+  else {
     const messageRows = [
       `Здравствуйте, ${name}\n`,
       "Был запрошен сброс пароля для привязанного к этому номеру телефона аккаунта в ROVELY.",
