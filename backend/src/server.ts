@@ -1,6 +1,6 @@
 import app from "./app.js"
 import { config } from "./config/index.js"
-import { bot } from "./lib/bot.js"
+import { bot } from "./modules/bot/client.js"
 import "./modules/verification/phone/bot/handler.js"
 
 try {
