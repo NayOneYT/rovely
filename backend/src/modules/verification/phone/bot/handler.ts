@@ -1,4 +1,4 @@
-import { bot } from "@/lib/telegramBot.js"
+import { bot } from "@/lib/bot.js"
 import { phoneVerificationService } from "../service.js"
 import { Keyboard } from "grammy"
 

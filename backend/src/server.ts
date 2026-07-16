@@ -1,7 +1,7 @@
 import app from "./app.js"
 import { config } from "./config/index.js"
-import { bot } from "./lib/telegramBot.js"
-import "./modules/verification/phone/telegramBot/handler.js"
+import { bot } from "./lib/bot.js"
+import "./modules/verification/phone/bot/handler.js"
 
 try {
   bot.start().catch((error) => {

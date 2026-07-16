@@ -7,7 +7,7 @@ import { generateFromEmail, generateUsername } from "unique-username-generator"
 import { emailVerificationService } from "@/modules/verification/email/service.js"
 import { phoneVerificationService } from "@/modules/verification/phone/service.js"
 import { GrammyError } from "grammy"
-import { bot } from "@/lib/telegramBot.js"
+import { bot } from "@/lib/bot.js"
 import {
   generateSecureCode, generateSecureToken,
   PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS

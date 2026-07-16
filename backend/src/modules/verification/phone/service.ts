@@ -1,6 +1,6 @@
 import { prisma } from "@/prisma/client.js"
 import { AppError, ErrorCode } from "@/types/index.js"
-import { bot } from "@/lib/telegramBot.js"
+import { bot } from "@/lib/bot.js"
 import { GrammyError } from "grammy"
 import {
   generateSecureCode,

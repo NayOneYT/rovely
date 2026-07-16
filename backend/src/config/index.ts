@@ -10,7 +10,7 @@ export const config = {
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET as string,
   resendApiKey: process.env.RESEND_API_KEY as string,
-  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN as string,
+  botToken: process.env.BOT_TOKEN as string,
   googleClientId: process.env.GOOGLE_CLIENT_ID as string,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET as string
 } 
