@@ -144,23 +144,5 @@ export const phoneVerificationService = {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
     }
-  },
-
-  checkTelegramLink: async (telegramUserId: number) => {
-    const link = await prisma.telegramLink.findUnique({
-      where: {
-        telegramUserId
-      }
-    })
-    return !!link
-  },
-
-  saveTelegramLink: async (phone: string, telegramUserId: number) => {
-    await prisma.telegramLink.create({
-      data: {
-        phone,
-        telegramUserId
-      }
-    })
   }
 }

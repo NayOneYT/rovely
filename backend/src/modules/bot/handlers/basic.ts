@@ -1,9 +1,10 @@
-import { bot } from "@/lib/bot.js"
-import { phoneVerificationService } from "../service.js"
-import { Keyboard } from "grammy"
+import { Composer, Keyboard } from "grammy"
+import { telegramLinkService } from "../service.js"
 
-bot.command("start", async (ctx) => {
-  const isPhoneLinked = await phoneVerificationService.checkTelegramLink(ctx.from!.id)
+export const basicComposer = new Composer()
+
+basicComposer.command("start", async (ctx) => {
+  const isPhoneLinked = await telegramLinkService.check(ctx.from!.id)
   if (!isPhoneLinked) {
     const keyboard = new Keyboard()
     keyboard.requestContact("📱Отправить номер телефона").resized()
@@ -16,13 +17,16 @@ bot.command("start", async (ctx) => {
   }
 })
 
-bot.on("message:contact", async (ctx) => {
-  const isPhoneLinked = await phoneVerificationService.checkTelegramLink(ctx.from.id)
+basicComposer.on("message:contact", async (ctx) => {
+  const isPhoneLinked = await telegramLinkService.check(ctx.from.id)
   if (!isPhoneLinked) {
     if (ctx.from.id === ctx.message.contact.user_id) {
-      await phoneVerificationService.saveTelegramLink(`+${ctx.message.contact.phone_number}`, ctx.from.id)
+      const phone = ctx.message.contact.phone_number.startsWith("+")
+        ? ctx.message.contact.phone_number
+        : `+${ctx.message.contact.phone_number}`
+      await telegramLinkService.save(phone, ctx.from.id)
       ctx.reply(
-        `Теперь номер телефона +${ctx.message.contact.phone_number} привязан к этому чату.`,
+        `Теперь номер телефона ${phone} привязан к этому чату.`,
         { reply_markup: { remove_keyboard: true } }
       )
     } else {
