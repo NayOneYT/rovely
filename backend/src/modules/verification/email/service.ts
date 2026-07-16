@@ -1,12 +1,12 @@
 import { prisma } from "@/prisma/client.js"
 import { AppError, ErrorCode } from "@/types/index.js"
-import crypto from "crypto"
 import { resend } from "@/lib/email.js"
 import { config } from "@/config/index.js"
-import { EMAIL_RATE_LIMIT_MS, EMAIL_TOKEN_EXPIRY_MS } from "@/utils/index.js"
+import {
+  generateSecureToken,
+  EMAIL_RATE_LIMIT_MS, EMAIL_TOKEN_EXPIRY_MS
+} from "@/utils/index.js"
 import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema.js"
-
-const generateToken = () => crypto.randomBytes(32).toString("hex")
 
 const sendEmail = async (name: string, to: string, accountId: string, token: string) => {
   await resend.emails.send({
@@ -101,7 +101,7 @@ export const emailVerificationService = {
     ])
     if (account) throw new AppError(409, ErrorCode.EMAIL_TAKEN)
     const now = Date.now()
-    const token = generateToken()
+    const token = generateSecureToken()
     if (request && !request.isConfirmed && request.updatedAt.getTime() > now - EMAIL_RATE_LIMIT_MS) {
       const timePassedMs = now - request.updatedAt.getTime()
       const timeLeftMs = EMAIL_RATE_LIMIT_MS - timePassedMs

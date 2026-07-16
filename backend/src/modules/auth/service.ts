@@ -8,9 +8,11 @@ import { emailVerificationService } from "@/modules/verification/email/service.j
 import { phoneVerificationService } from "@/modules/verification/phone/service.js"
 import { GrammyError } from "grammy"
 import { bot } from "@/lib/telegramBot.js"
-import { generateCode, PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS } from "@/utils/index.js"
+import {
+  generateCode, generateSecureToken,
+  PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS
+} from "@/utils/index.js"
 import { googleClient } from "@/lib/google.js"
-import crypto from "crypto"
 import { resend } from "@/lib/email.js"
 import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto, CheckAvailabilityDto, ResetPasswordDto, GoogleAuthDto, PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto } from "./schema.js"
 import type { ContactsDto } from "./types.js"
@@ -43,8 +45,6 @@ const generateUniqueUsername = async (email?: string | null) => {
     if (triedUsernames.size > 20) throw new AppError(500, ErrorCode.USERNAME_GENERATION_ERROR)
   }
 }
-
-const generateToken = () => crypto.randomBytes(32).toString("hex")
 
 const generateResetPasswordUrl = (token: string) => {
   const baseUrl = config.nodeEnv === "development"
@@ -437,7 +437,7 @@ export const authService = {
         const timeLeftMs = rateLimitMs - timePassedMs
         throw new AppError(429, errorCode, { timeLeftMs })
       }
-      const token = generateToken()
+      const token = generateSecureToken()
       to === "EMAIL"
         ? await sendPasswordRecoveryEmail(account.email!, account.profile!.name, token)
         : await sendPasswordRecoveryMessage(telegramUserId!, account.profile!.name, token)
