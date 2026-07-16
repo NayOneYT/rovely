@@ -8,14 +8,16 @@ import {
 } from "@/utils/index.js"
 import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema.js"
 
-const sendEmail = async (name: string, to: string, accountId: string, token: string) => {
+const generateEmailVerificationUrl = (token: string) => `${config.clientUrl}/verification/email/verify/${token}`
+
+const sendEmail = async (to: string, accountId: string, name: string, token: string) => {
   await resend.emails.send({
     to,
     template: {
       id: accountId === "none" ? "registration-email" : "binding-email",
       variables: {
         name,
-        confirm_url: config.nodeEnv === "development" ? `http://localhost:5173/verification/email/verify/${token}` : `https://rovely.org/verification/email/verify/${token}`
+        confirm_url: generateEmailVerificationUrl(token)
       }
     }
   })
@@ -112,7 +114,7 @@ export const emailVerificationService = {
       ? { token, isConfirmed: false }
       : { token }
     await Promise.all([
-      sendEmail(data.name, data.email, data.accountId, token),
+      sendEmail(data.email, data.accountId, data.name, token),
       request
         ? prisma.emailVerificationRequest.update({
           where: {

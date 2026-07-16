@@ -1,4 +1,7 @@
+import { bot } from "@/lib/bot.js"
 import { prisma } from "@/prisma/client.js"
+
+export const sendMessage = async (telegramUserId: number, message: string) => await bot.api.sendMessage(telegramUserId, message, { parse_mode: "HTML" })
 
 export const telegramLinkService = {
   check: async (telegramUserId: number) => {

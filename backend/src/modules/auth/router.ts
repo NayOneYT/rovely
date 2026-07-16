@@ -1,7 +1,7 @@
 import { Router } from "express"
 import validate from "@/middlewares/validate.js"
 import {
-  loginSchema, loginWithPhoneSchema, sendLoginWithPhoneCodeSchema, checkAvailabilitySchema, registerSchema, googleAuthSchema,
+  loginSchema, loginWithPhoneSchema, sendLoginWithPhoneSchema, checkAvailabilitySchema, registerSchema, googleAuthSchema,
   passwordRecoveryContactsSchema, sendPasswordRecoverySchema, checkPasswordRecoveryToken, resetPasswordSchema,
 } from "./schema.js"
 import { authController } from "./controller.js"
@@ -12,7 +12,7 @@ const router = Router()
 router.post("/refresh", authController.refresh)
 router.post("/login", validate(loginSchema, "body"), authController.login)
 router.post("/login-with-phone", validate(loginWithPhoneSchema, "body"), authController.loginWithPhone)
-router.post("/login-with-phone/send", validate(sendLoginWithPhoneCodeSchema, "body"), authController.sendLoginWithPhoneCode)
+router.post("/login-with-phone/send", validate(sendLoginWithPhoneSchema, "body"), authController.sendLoginWithPhone)
 // the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
 router.post("/check-availability", validate(checkAvailabilitySchema, "body"), authController.checkAvailability)
 router.post("/register", validate(registerSchema, "body"), authController.register)

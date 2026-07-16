@@ -1,20 +1,23 @@
 import { prisma } from "@/prisma/client.js"
 import { AppError, ErrorCode } from "@/types/index.js"
-import { bot } from "@/lib/bot.js"
 import { GrammyError } from "grammy"
+import { sendMessage } from "@/modules/bot/service.js"
 import {
   generateSecureCode,
   PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS
 } from "@/utils/index.js"
 import type { SendDto, CheckRegistrationDto, VerifyDto } from "./schema.js"
 
-const sendCode = async (name: string, telegramUserId: number, code: string, accountId: string) => {
-  await bot.api.sendMessage(
-    telegramUserId,
-    `Здравствуйте, ${name}\n\nВаш код подтверждения: ${code}\n\n<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)` + (accountId === "none"
-      ? `, после подтверждения номер телефона будет считаться подтвержденным также <b>1 час</b>.</i>`
-      : ".</i>"),
-    { parse_mode: "HTML" })
+const sendCode = async (telegramUserId: number, name: string, code: string, isNewAccount: boolean) => {
+  const messageRows = [
+    `Здравствуйте, ${name}\n`,
+    `Ваш код подтверждения: ${code}\n`,
+    `<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)${isNewAccount
+      ? ", после подтверждения номер телефона будет считаться подтвержденным также <b>1 час</b>"
+      : ""
+    }.</i>`
+  ]
+  await sendMessage(telegramUserId, messageRows.join("\n"))
 }
 
 export const phoneVerificationService = {
@@ -116,29 +119,27 @@ export const phoneVerificationService = {
       }
       if (request?.isConfirmed && request.updatedAt.getTime() > now - PHONE_CODE_EXPIRY_MS) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateSecureCode()
+      await sendCode(link.telegramUserId, data.name, code, data.accountId === "none")
       const updateData = request?.isConfirmed
         ? { code, isConfirmed: false }
         : { code }
-      await Promise.all([
-        sendCode(data.name, link.telegramUserId, code, data.accountId),
-        request
-          ? prisma.phoneVerificationRequest.update({
-            where: {
-              phone_accountId: {
-                phone: data.phone,
-                accountId: data.accountId
-              }
-            },
-            data: updateData
-          })
-          : prisma.phoneVerificationRequest.create({
-            data: {
-              code,
+      request
+        ? await prisma.phoneVerificationRequest.update({
+          where: {
+            phone_accountId: {
               phone: data.phone,
               accountId: data.accountId
             }
-          })
-      ])
+          },
+          data: updateData
+        })
+        : await prisma.phoneVerificationRequest.create({
+          data: {
+            code,
+            phone: data.phone,
+            accountId: data.accountId
+          }
+        })
       return { timeLeftMs: PHONE_CODE_RATE_LIMIT_MS }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)

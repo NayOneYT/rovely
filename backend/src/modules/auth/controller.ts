@@ -37,9 +37,9 @@ export const authController = {
     }
   },
 
-  sendLoginWithPhoneCode: async (req: Request, res: Response, next: NextFunction) => {
+  sendLoginWithPhone: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await authService.sendLoginWithPhoneCode(req.body)
+      const result = await authService.sendLoginWithPhone(req.body)
       res.status(200).json(result)
     } catch (error) {
       next(error)

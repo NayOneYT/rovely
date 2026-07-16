@@ -40,7 +40,7 @@ export const loginWithPhoneSchema = z.object({
   rememberMe: rememberMeSchema
 })
 
-export const sendLoginWithPhoneCodeSchema = z.object({
+export const sendLoginWithPhoneSchema = z.object({
   phone: phoneSchema,
 })
 
@@ -118,7 +118,7 @@ export const resetPasswordSchema = z.object({
 
 export type LoginDto = z.infer<typeof loginSchema>
 export type LoginWithPhoneDto = z.infer<typeof loginWithPhoneSchema>
-export type SendLoginWithPhoneCodeDto = z.infer<typeof sendLoginWithPhoneCodeSchema>
+export type SendLoginWithPhoneDto = z.infer<typeof sendLoginWithPhoneSchema>
 export type CheckAvailabilityDto = z.infer<typeof checkAvailabilitySchema>
 export type RegisterDto = z.infer<typeof registerSchema>
 export type GoogleAuthDto = z.infer<typeof googleAuthSchema>
