@@ -16,6 +16,8 @@ import { resend } from "@/lib/email.js"
 import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto, CheckAvailabilityDto, ResetPasswordDto, GoogleAuthDto, PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto } from "./schema.js"
 import type { ContactsDto } from "./types.js"
 
+const hashPassword = async (password: string) => await bcrypt.hash(password, 10)
+
 const sendCode = async (name: string, telegramUserId: number, code: string) => {
   await bot.api.sendMessage(
     telegramUserId,
@@ -262,7 +264,7 @@ export const authService = {
     if (lowercaseEmail) await emailVerificationService.checkRegistration({ email: lowercaseEmail })
     if (data.phone) await phoneVerificationService.checkRegistration({ phone: data.phone })
     const username = data.username ?? await generateUniqueUsername(data.email)
-    const hashedPassword = await bcrypt.hash(data.password, 10)
+    const hashedPassword = await hashPassword(data.password)
     await prisma.account.create({
       data: {
         phone: data.phone,
@@ -480,7 +482,7 @@ export const authService = {
 
   resetPassword: async (data: ResetPasswordDto) => {
     const request = await authService.checkPasswordRecoveryToken({ token: data.token })
-    const hashedPassword = await bcrypt.hash(data.password, 10)
+    const hashedPassword = await hashPassword(data.password)
     await prisma.$transaction([
       prisma.account.update({
         where: {
