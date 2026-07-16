@@ -2,8 +2,7 @@ import { prisma } from "@/prisma/client.js"
 import { AppError, ErrorCode } from "@/types/index.js"
 import { bot } from "@/lib/telegramBot.js"
 import { GrammyError } from "grammy"
-import { PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS } from "@/utils/constants.js"
-import { generateCode } from "@/utils/code.js"
+import { generateCode, PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS } from "@/utils/index.js"
 import type { SendDto, CheckRegistrationDto, VerifyDto } from "./schema.js"
 
 const sendCode = async (name: string, telegramUserId: number, code: string, accountId: string) => {

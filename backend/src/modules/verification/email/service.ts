@@ -3,7 +3,7 @@ import { AppError, ErrorCode } from "@/types/index.js"
 import crypto from "crypto"
 import { resend } from "@/lib/email.js"
 import { config } from "@/config/index.js"
-import { EMAIL_RATE_LIMIT_MS, EMAIL_TOKEN_EXPIRY_MS } from "@/utils/constants.js"
+import { EMAIL_RATE_LIMIT_MS, EMAIL_TOKEN_EXPIRY_MS } from "@/utils/index.js"
 import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema.js"
 
 const generateToken = () => crypto.randomBytes(32).toString("hex")
