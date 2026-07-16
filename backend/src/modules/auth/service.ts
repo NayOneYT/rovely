@@ -341,9 +341,9 @@ export const authService = {
         ]
       }
     })
-    let isNewUser = false
+    let isNewAccount = false
     if (!account) {
-      isNewUser = true
+      isNewAccount = true
       const username = await generateUniqueUsername(email)
       const lowercaseUsername = username.toLowerCase(); // The ";" here is mandatory so that the engine doesn't merge this line with the next one
       [account] = await prisma.$transaction([
@@ -387,7 +387,7 @@ export const authService = {
       rememberMe: true,
       passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
     })
-    return { isNewUser, accessToken, refreshToken }
+    return { isNewAccount, accessToken, refreshToken }
   },
 
   getPasswordRecoveryContacts: async (data: PasswordRecoveryContactsDto) => {

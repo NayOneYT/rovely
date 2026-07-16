@@ -66,9 +66,9 @@ export const authController = {
 
   googleAuth: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { isNewUser, accessToken, refreshToken } = await authService.googleAuth(req.body)
+      const { isNewAccount, accessToken, refreshToken } = await authService.googleAuth(req.body)
       setTokenCookie(res, accessToken, refreshToken, true)
-      res.sendStatus(isNewUser ? 201 : 200)
+      res.sendStatus(isNewAccount ? 201 : 200)
     } catch (error) {
       next(error)
     }
