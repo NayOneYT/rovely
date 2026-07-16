@@ -2,7 +2,10 @@ import { prisma } from "@/prisma/client.js"
 import { AppError, ErrorCode } from "@/types/index.js"
 import { bot } from "@/lib/telegramBot.js"
 import { GrammyError } from "grammy"
-import { generateCode, PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS } from "@/utils/index.js"
+import {
+  generateSecureCode,
+  PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS
+} from "@/utils/index.js"
 import type { SendDto, CheckRegistrationDto, VerifyDto } from "./schema.js"
 
 const sendCode = async (name: string, telegramUserId: number, code: string, accountId: string) => {
@@ -112,7 +115,7 @@ export const phoneVerificationService = {
         throw new AppError(429, ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
       }
       if (request?.isConfirmed && request.updatedAt.getTime() > now - PHONE_CODE_EXPIRY_MS) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
-      const code = generateCode()
+      const code = generateSecureCode()
       const updateData = request?.isConfirmed
         ? { code, isConfirmed: false }
         : { code }

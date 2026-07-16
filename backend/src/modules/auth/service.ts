@@ -9,7 +9,7 @@ import { phoneVerificationService } from "@/modules/verification/phone/service.j
 import { GrammyError } from "grammy"
 import { bot } from "@/lib/telegramBot.js"
 import {
-  generateCode, generateSecureToken,
+  generateSecureCode, generateSecureToken,
   PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS
 } from "@/utils/index.js"
 import { googleClient } from "@/lib/google.js"
@@ -172,7 +172,7 @@ export const authService = {
         const timeLeftMs = PHONE_CODE_RATE_LIMIT_MS - timePassedMs
         throw new AppError(429, ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
       }
-      const code = generateCode()
+      const code = generateSecureCode()
       await Promise.all([
         request
           ? prisma.loginWithPhoneRequest.update({
