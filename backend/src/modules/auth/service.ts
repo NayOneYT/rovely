@@ -16,8 +16,12 @@ import { googleClient } from "@/lib/google.js"
 import { resend } from "@/lib/email.js"
 import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneCodeDto, CheckAvailabilityDto, ResetPasswordDto, GoogleAuthDto, PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto } from "./schema.js"
 import type { ContactsDto } from "./types.js"
+import type { AccessTokenPayload, RefreshTokenPayload } from "@/types/index.js"
 
 const hashPassword = async (password: string) => await bcrypt.hash(password, 10)
+
+const generateAccessToken = (payload: AccessTokenPayload) => jwt.sign({ id: payload.id, role: payload.role }, config.jwtAccessSecret, { expiresIn: "5m" })
+const generateRefreshToken = (payload: RefreshTokenPayload) => jwt.sign({ id: payload.id, rememberMe: payload.rememberMe, passwordChangedAt: payload.passwordChangedAt }, config.jwtRefreshSecret, { expiresIn: "1y" })
 
 const sendCode = async (name: string, telegramUserId: number, code: string) => {
   await bot.api.sendMessage(
@@ -77,7 +81,7 @@ const sendPasswordRecoveryMessage = async (telegramUserId: number, name: string,
 export const authService = {
   refresh: async (refreshToken: string) => {
     try {
-      const payload = jwt.verify(refreshToken, config.jwtRefreshSecret) as { id: string, rememberMe: boolean, passwordChangedAt: number }
+      const payload = jwt.verify(refreshToken, config.jwtRefreshSecret) as RefreshTokenPayload
       const account = await prisma.account.findUnique({
         where: {
           id: payload.id
@@ -86,8 +90,15 @@ export const authService = {
       if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
       const actualPasswordChangedAt = account.passwordChangedAt?.getTime() ?? 0
       if (payload.passwordChangedAt !== actualPasswordChangedAt) throw new AppError(401, ErrorCode.TOKEN_INVALID)
-      const accessToken = jwt.sign({ id: payload.id, role: account.role }, config.jwtAccessSecret, { expiresIn: "5m" })
-      const newRefreshToken = jwt.sign({ id: payload.id, rememberMe: payload.rememberMe, passwordChangedAt: payload.passwordChangedAt }, config.jwtRefreshSecret, { expiresIn: "1y" })
+      const accessToken = generateAccessToken({
+        id: account.id,
+        role: account.role
+      })
+      const newRefreshToken = generateRefreshToken({
+        id: account.id,
+        rememberMe: payload.rememberMe,
+        passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
+      })
       return { accessToken, newRefreshToken, rememberMe: payload.rememberMe }
     } catch (error) {
       if (error instanceof AppError) throw error
@@ -110,8 +121,15 @@ export const authService = {
     if (!account.password) throw new AppError(422, ErrorCode.PASSWORD_NOT_SET)
     const isPasswordValid = await bcrypt.compare(data.password, account.password)
     if (!isPasswordValid) throw new AppError(401, ErrorCode.PASSWORD_INVALID)
-    const accessToken = jwt.sign({ id: account.id, role: account.role }, config.jwtAccessSecret, { expiresIn: "5m" })
-    const refreshToken = jwt.sign({ id: account.id, rememberMe: data.rememberMe, passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0 }, config.jwtRefreshSecret, { expiresIn: "1y" })
+    const accessToken = generateAccessToken({
+      id: account.id,
+      role: account.role
+    })
+    const refreshToken = generateRefreshToken({
+      id: account.id,
+      rememberMe: data.rememberMe,
+      passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
+    })
     return { accessToken, refreshToken, rememberMe: data.rememberMe }
   },
 
@@ -136,8 +154,15 @@ export const authService = {
         phone: data.phone
       }
     })
-    const accessToken = jwt.sign({ id: account.id, role: account.role }, config.jwtAccessSecret, { expiresIn: "5m" })
-    const refreshToken = jwt.sign({ id: account.id, rememberMe: data.rememberMe, passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0 }, config.jwtRefreshSecret, { expiresIn: "1y" })
+    const accessToken = generateAccessToken({
+      id: account.id,
+      role: account.role
+    })
+    const refreshToken = generateRefreshToken({
+      id: account.id,
+      rememberMe: data.rememberMe,
+      passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
+    })
     return { accessToken, refreshToken, rememberMe: data.rememberMe }
   },
 
@@ -353,8 +378,15 @@ export const authService = {
         }
       })
     }
-    const accessToken = jwt.sign({ id: account.id, role: account.role }, config.jwtAccessSecret, { expiresIn: "5m" })
-    const refreshToken = jwt.sign({ id: account.id, rememberMe: true, passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0 }, config.jwtRefreshSecret, { expiresIn: "1y" })
+    const accessToken = generateAccessToken({
+      id: account.id,
+      role: account.role
+    })
+    const refreshToken = generateRefreshToken({
+      id: account.id,
+      rememberMe: true,
+      passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
+    })
     return { isNewUser, accessToken, refreshToken }
   },
 
