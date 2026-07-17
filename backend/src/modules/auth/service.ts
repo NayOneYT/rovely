@@ -13,7 +13,7 @@ import {
   generateSecureCode, generateSecureToken,
   PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS
 } from "@/utils/index.js"
-import { googleClient } from "@/lib/google.js"
+import { googleClient } from "./google.client.js"
 import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneDto, CheckAvailabilityDto, ResetPasswordDto, GoogleAuthDto, PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto } from "./schema.js"
 import type { PasswordRecoveryTarget, ContactsDto } from "./types.js"
 import type { AccessTokenPayload, RefreshTokenPayload } from "@/types/index.js"
