@@ -1,11 +1,10 @@
 import { Router } from "express"
-import { validate } from "@/middlewares/validate.js"
+import { validate, authMiddleware } from "@/middlewares/index.js"
 import {
   loginSchema, loginWithPhoneSchema, sendLoginWithPhoneSchema, checkAvailabilitySchema, registerSchema, googleAuthSchema,
   passwordRecoveryContactsSchema, sendPasswordRecoverySchema, checkPasswordRecoveryToken, resetPasswordSchema,
 } from "./schema.js"
 import { authController } from "./controller.js"
-import { authMiddleware } from "@/middlewares/auth.js"
 
 export const authRouter = Router()
 

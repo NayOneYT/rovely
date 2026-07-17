@@ -2,7 +2,7 @@ import express from "express"
 import cookieParser from "cookie-parser"
 import { authRouter } from "./modules/auth/router.js"
 import { verificationRouter } from "./modules/verification/router.js"
-import { errorHandler } from "./middlewares/error.js"
+import { errorHandler } from "./middlewares/index.js"
 
 export const app = express()
 

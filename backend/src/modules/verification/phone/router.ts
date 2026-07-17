@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { validate } from "@/middlewares/validate.js"
+import { validate } from "@/middlewares/index.js"
 import { verifySchema, checkRegistrationSchema, sendSchema } from "./schema.js"
 import { phoneVerificationController } from "./controller.js"
 
