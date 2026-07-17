@@ -1,10 +1,10 @@
 import express from "express"
 import cookieParser from "cookie-parser"
-import authRouter from "./modules/auth/router.js"
-import verificationRouter from "./modules/verification/router.js"
+import { authRouter } from "./modules/auth/router.js"
+import { verificationRouter } from "./modules/verification/router.js"
 import { errorHandler } from "./middlewares/error.js"
 
-const app = express()
+export const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
@@ -12,5 +12,3 @@ app.use(cookieParser())
 app.use("/api/auth", authRouter)
 app.use("/api/verification", verificationRouter)
 app.use(errorHandler)
-
-export default app

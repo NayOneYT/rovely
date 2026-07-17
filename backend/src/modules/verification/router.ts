@@ -1,10 +1,8 @@
 import { Router } from "express"
-import emailRouter from "./email/router.js"
-import phoneRouter from "./phone/router.js"
+import { emailVerificationRouter } from "./email/router.js"
+import { phoneVerificationRouter } from "./phone/router.js"
 
-const router = Router()
+export const verificationRouter = Router()
 
-router.use("/email", emailRouter)
-router.use("/phone", phoneRouter)
-
-export default router
+verificationRouter.use("/email", emailVerificationRouter)
+verificationRouter.use("/phone", phoneVerificationRouter)
