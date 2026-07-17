@@ -307,7 +307,7 @@ export const authService = {
     })
   },
 
-  googleAuth: async (data: GoogleAuthDto) => {
+  google: async (data: GoogleAuthDto) => {
     const googleResponse = await googleClient.getToken(data.code)
     const idToken = googleResponse.tokens.id_token
     if (!idToken) throw new AppError(422, ErrorCode.GOOGLE_AUTH_FAILED)

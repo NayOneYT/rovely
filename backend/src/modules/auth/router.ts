@@ -16,7 +16,7 @@ router.post("/login-with-phone/send", validate(sendLoginWithPhoneSchema, "body")
 // the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
 router.post("/check-availability", validate(checkAvailabilitySchema, "body"), authController.checkAvailability)
 router.post("/register", validate(registerSchema, "body"), authController.register)
-router.post("/google-auth", validate(googleAuthSchema, "body"), authController.googleAuth)
+router.post("/google", validate(googleAuthSchema, "body"), authController.google)
 // the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
 router.post("/password-recovery/contacts", validate(passwordRecoveryContactsSchema, "body"), authController.getPasswordRecoveryContacts)
 router.post("/password-recovery/send", validate(sendPasswordRecoverySchema, "body"), authController.sendPasswordRecovery)
