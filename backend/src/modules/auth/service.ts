@@ -9,10 +9,7 @@ import { phoneVerificationService } from "@/modules/verification/phone/service.j
 import { GrammyError } from "grammy"
 import { sendEmail } from "../mailer/service.js"
 import { sendMessage } from "../bot/service.js"
-import {
-  generateSecureCode, generateSecureToken,
-  PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS, PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS, PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS, RESET_PASSWORD_TOKEN_EXPIRY_MS
-} from "@/utils/index.js"
+import { generateSecureCode, generateSecureToken } from "@/utils/index.js"
 import { googleClient } from "./google.client.js"
 import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneDto, CheckAvailabilityDto, ResetPasswordDto, GoogleAuthDto, PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto } from "./schema.js"
 import type { PasswordRecoveryTarget, ContactsDto } from "./types.js"
@@ -125,39 +122,6 @@ export const authService = {
     return { accessToken, refreshToken, rememberMe: data.rememberMe }
   },
 
-  loginWithPhone: async (data: LoginWithPhoneDto) => {
-    const account = await prisma.account.findUnique({
-      where: {
-        phone: data.phone
-      }
-    })
-    if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
-    const request = await prisma.loginWithPhoneRequest.findUnique({
-      where: {
-        phone: data.phone
-      }
-    })
-    if (!request) throw new AppError(404, ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
-    const now = Date.now()
-    if (request.updatedAt.getTime() < now - PHONE_CODE_EXPIRY_MS) throw new AppError(410, ErrorCode.CODE_EXPIRED)
-    if (data.code !== request.code) throw new AppError(422, ErrorCode.CODE_INVALID)
-    await prisma.loginWithPhoneRequest.delete({
-      where: {
-        phone: data.phone
-      }
-    })
-    const accessToken = generateAccessToken({
-      id: account.id,
-      role: account.role
-    })
-    const refreshToken = generateRefreshToken({
-      id: account.id,
-      rememberMe: data.rememberMe,
-      passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
-    })
-    return { accessToken, refreshToken, rememberMe: data.rememberMe }
-  },
-
   sendLoginWithPhone: async (data: SendLoginWithPhoneDto) => {
     try {
       const phone = data.phone
@@ -184,9 +148,9 @@ export const authService = {
       ])
       if (!link) throw new AppError(404, ErrorCode.TELEGRAM_LINK_NOT_FOUND)
       const now = Date.now()
-      if (request && request.updatedAt.getTime() > now - PHONE_CODE_RATE_LIMIT_MS) {
+      if (request && request.updatedAt.getTime() > now - config.auth.loginWithPhoneCooldownMs) {
         const timePassedMs = now - request.updatedAt.getTime()
-        const timeLeftMs = PHONE_CODE_RATE_LIMIT_MS - timePassedMs
+        const timeLeftMs = config.auth.loginWithPhoneCooldownMs - timePassedMs
         throw new AppError(429, ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
       }
       const code = generateSecureCode()
@@ -206,11 +170,44 @@ export const authService = {
             phone
           }
         })
-      return { timeLeftMs: PHONE_CODE_RATE_LIMIT_MS }
+      return { timeLeftMs: config.auth.loginWithPhoneCooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
     }
+  },
+
+  loginWithPhone: async (data: LoginWithPhoneDto) => {
+    const account = await prisma.account.findUnique({
+      where: {
+        phone: data.phone
+      }
+    })
+    if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
+    const request = await prisma.loginWithPhoneRequest.findUnique({
+      where: {
+        phone: data.phone
+      }
+    })
+    if (!request) throw new AppError(404, ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
+    const now = Date.now()
+    if (request.updatedAt.getTime() < now - config.auth.loginWithPhoneCodeTtlMs) throw new AppError(410, ErrorCode.CODE_EXPIRED)
+    if (data.code !== request.code) throw new AppError(422, ErrorCode.CODE_INVALID)
+    await prisma.loginWithPhoneRequest.delete({
+      where: {
+        phone: data.phone
+      }
+    })
+    const accessToken = generateAccessToken({
+      id: account.id,
+      role: account.role
+    })
+    const refreshToken = generateRefreshToken({
+      id: account.id,
+      rememberMe: data.rememberMe,
+      passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
+    })
+    return { accessToken, refreshToken, rememberMe: data.rememberMe }
   },
 
   checkAvailability: async (data: CheckAvailabilityDto) => {
@@ -448,15 +445,15 @@ export const authService = {
         }
       })
       const now = Date.now()
-      const rateLimitMs = to === "EMAIL"
-        ? PASSWORD_RECOVERY_EMAIL_RATE_LIMIT_MS
-        : PASSWORD_RECOVERY_MESSAGE_RATE_LIMIT_MS
-      if (request && request.updatedAt.getTime() > now - rateLimitMs) {
+      const cooldownMs = to === "EMAIL"
+        ? config.auth.passwordRecoveryEmailCooldownMs
+        : config.auth.passwordRecoveryMessageCooldownMs
+      if (request && request.updatedAt.getTime() > now - cooldownMs) {
         const errorCode = to === "EMAIL"
           ? ErrorCode.SEND_EMAIL_COOLDOWN
           : ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN
         const timePassedMs = now - request.updatedAt.getTime()
-        const timeLeftMs = rateLimitMs - timePassedMs
+        const timeLeftMs = cooldownMs - timePassedMs
         throw new AppError(429, errorCode, { timeLeftMs })
       }
       const token = generateSecureToken()
@@ -483,7 +480,7 @@ export const authService = {
             to
           }
         })
-      return { to, timeLeftMs: rateLimitMs }
+      return { to, timeLeftMs: cooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
@@ -498,7 +495,7 @@ export const authService = {
     })
     if (!request) throw new AppError(404, ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
     const now = Date.now()
-    if (request.updatedAt.getTime() < now - RESET_PASSWORD_TOKEN_EXPIRY_MS) throw new AppError(410, ErrorCode.PASSWORD_RECOVERY_TOKEN_EXPIRED)
+    if (request.updatedAt.getTime() < now - config.auth.passwordRecoveryTokenTtlMs) throw new AppError(410, ErrorCode.PASSWORD_RECOVERY_TOKEN_EXPIRED)
     return request
   },
 

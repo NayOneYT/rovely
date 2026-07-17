@@ -14,5 +14,22 @@ export const config = {
   resendApiKey: process.env.RESEND_API_KEY as string,
   botToken: process.env.BOT_TOKEN as string,
   googleClientId: process.env.GOOGLE_CLIENT_ID as string,
-  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+  auth: {
+    loginWithPhoneCodeTtlMs: 60 * 60 * 1000, // 1 hour
+    loginWithPhoneCooldownMs: 60 * 1000, // 1 minute
+    passwordRecoveryEmailCooldownMs: 5 * 60 * 1000, // 5 minutes
+    passwordRecoveryMessageCooldownMs: 60 * 1000, // 1 minute
+    passwordRecoveryTokenTtlMs: 60 * 60 * 1000 // 1 hour
+  },
+  verification: {
+    email: {
+      cooldownMs: 5 * 60 * 1000, // 5 minutes
+      tokenTtlMs: 60 * 60 * 1000, // 1 hour
+    },
+    phone: {
+      cooldownMs: 60 * 1000, // 1 minute
+      codeTtlMs: 60 * 60 * 1000 // 1 hour
+    }
+  }
 } 

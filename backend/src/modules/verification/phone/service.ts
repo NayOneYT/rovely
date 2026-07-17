@@ -1,11 +1,9 @@
 import { prisma } from "@/prisma/client.js"
 import { AppError, ErrorCode } from "@/types/index.js"
+import { config } from "@/config/index.js"
 import { GrammyError } from "grammy"
 import { sendMessage } from "@/modules/bot/service.js"
-import {
-  generateSecureCode,
-  PHONE_CODE_RATE_LIMIT_MS, PHONE_CODE_EXPIRY_MS
-} from "@/utils/index.js"
+import { generateSecureCode } from "@/utils/index.js"
 import type { SendDto, CheckRegistrationDto, VerifyDto } from "./schema.js"
 
 const sendCode = async (telegramUserId: number, name: string, code: string, isNewAccount: boolean) => {
@@ -32,7 +30,7 @@ export const phoneVerificationService = {
     })
     if (!request) throw new AppError(404, ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
     const now = Date.now()
-    if (request.updatedAt.getTime() < now - PHONE_CODE_EXPIRY_MS) throw new AppError(410, ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED)
+    if (request.updatedAt.getTime() < now - config.verification.phone.codeTtlMs) throw new AppError(410, ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED)
     if (request.isConfirmed) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
     if (request.code !== data.code) throw new AppError(422, ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
     if (request.accountId === "none") {
@@ -78,7 +76,7 @@ export const phoneVerificationService = {
       }
     })
     if (!request) throw new AppError(404, ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
-    if (request.updatedAt.getTime() < Date.now() - PHONE_CODE_EXPIRY_MS) {
+    if (request.updatedAt.getTime() < Date.now() - config.verification.phone.codeTtlMs) {
       const errorCode = request.isConfirmed
         ? ErrorCode.PHONE_VERIFICATION_EXPIRED
         : ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED
@@ -112,12 +110,12 @@ export const phoneVerificationService = {
       if (account) throw new AppError(409, ErrorCode.PHONE_TAKEN)
       if (!link) throw new AppError(404, ErrorCode.TELEGRAM_LINK_NOT_FOUND)
       const now = Date.now()
-      if (request && !request.isConfirmed && request.updatedAt.getTime() > now - PHONE_CODE_RATE_LIMIT_MS) {
+      if (request && !request.isConfirmed && request.updatedAt.getTime() > now - config.verification.phone.cooldownMs) {
         const timePassedMs = now - request.updatedAt.getTime()
-        const timeLeftMs = PHONE_CODE_RATE_LIMIT_MS - timePassedMs
+        const timeLeftMs = config.verification.phone.cooldownMs - timePassedMs
         throw new AppError(429, ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
       }
-      if (request?.isConfirmed && request.updatedAt.getTime() > now - PHONE_CODE_EXPIRY_MS) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
+      if (request?.isConfirmed && request.updatedAt.getTime() > now - config.verification.phone.codeTtlMs) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateSecureCode()
       await sendCode(link.telegramUserId, data.name, code, data.accountId === "none")
       const updateData = request?.isConfirmed
@@ -140,7 +138,7 @@ export const phoneVerificationService = {
             accountId: data.accountId
           }
         })
-      return { timeLeftMs: PHONE_CODE_RATE_LIMIT_MS }
+      return { timeLeftMs: config.verification.phone.cooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
