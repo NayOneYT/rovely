@@ -1,0 +1,7 @@
+{
+  "watch": [
+    "src"
+  ],
+  "ext": "ts",
+  "exec": "cp src/types/error-codes.ts ../frontend/src/types && tsx src/server.ts"
+}
