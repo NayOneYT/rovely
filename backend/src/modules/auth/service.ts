@@ -78,7 +78,7 @@ export const authService = {
       })
       if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
       const actualPasswordChangedAt = account.passwordChangedAt?.getTime() ?? 0
-      if (payload.passwordChangedAt !== actualPasswordChangedAt) throw new AppError(401, ErrorCode.TOKEN_INVALID)
+      if (payload.passwordChangedAt !== actualPasswordChangedAt) throw new AppError(401, ErrorCode.REFRESH_TOKEN_INVALID)
       const accessToken = generateAccessToken({
         id: account.id,
         role: account.role
@@ -90,9 +90,9 @@ export const authService = {
       })
       return { accessToken, newRefreshToken, rememberMe: payload.rememberMe }
     } catch (error) {
-      if (error instanceof AppError) throw error
-      if (error instanceof jwt.TokenExpiredError) throw new AppError(401, ErrorCode.TOKEN_EXPIRED)
-      throw new AppError(401, ErrorCode.TOKEN_INVALID)
+      if (error instanceof jwt.TokenExpiredError) throw new AppError(401, ErrorCode.REFRESH_TOKEN_EXPIRED)
+      if (error instanceof jwt.JsonWebTokenError) throw new AppError(401, ErrorCode.REFRESH_TOKEN_INVALID)
+      throw error
     }
   },
 

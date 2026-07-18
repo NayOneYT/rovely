@@ -12,8 +12,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     req.accountRole = payload.role
     next()
   } catch (error) {
-    if (error instanceof AppError) next(error)
-    else if (error instanceof jwt.TokenExpiredError) next(new AppError(401, ErrorCode.TOKEN_EXPIRED))
-    else next(new AppError(401, ErrorCode.TOKEN_INVALID))
+    if (error instanceof jwt.TokenExpiredError) next(new AppError(401, ErrorCode.ACCESS_TOKEN_EXPIRED))
+    else if (error instanceof jwt.JsonWebTokenError) next(new AppError(401, ErrorCode.ACCESS_TOKEN_INVALID))
+    else next(error)
   }
 }
