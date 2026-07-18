@@ -52,6 +52,10 @@ export const checkAvailabilitySchema = z.object({
     .min(1)
     .max(254)
     .toLowerCase()
+    .transform((value) => {
+      const phone = parsePhoneNumberFromString(value)
+      return phone?.isValid() ? phone.number as string : value
+    })
 })
 
 export const registerSchema = z.object({
