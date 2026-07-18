@@ -413,7 +413,7 @@ model Report {
 
 model EmailVerificationRequest {
   token          String   @unique
-  email          String   @unique
+  email          String
   lowercaseEmail String   @map("lowercase_email")
   accountId      String   @default("none") @map("account_id")
   isConfirmed    Boolean  @default(false) @map("is_confirmed")
