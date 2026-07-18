@@ -1,9 +1,10 @@
-import { AppError, ErrorCode } from "@/types/index.js"
+import { AppError, ErrorCode, errorStatusMap } from "@/types/index.js"
 import type { Request, Response, NextFunction } from "express"
 
 export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
   if (error instanceof AppError) {
-    res.status(error.statusCode).json({ сode: error.errorCode, ...error.data })
+    const code = error.errorCode
+    res.status(errorStatusMap[code]).json({ code, ...error.data })
     return
   }
   console.error(error.stack)

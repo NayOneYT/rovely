@@ -14,10 +14,10 @@ export const emailVerificationService = {
         token: data.token
       }
     })
-    if (!request) throw new AppError(404, ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
+    if (!request) throw new AppError(ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
     const now = Date.now()
-    if (request.updatedAt.getTime() < now - config.verification.email.tokenTtlMs) throw new AppError(410, ErrorCode.EMAIL_VERIFICATION_REQUEST_EXPIRED)
-    if (request.isConfirmed) throw new AppError(409, ErrorCode.EMAIL_ALREADY_VERIFIED)
+    if (request.updatedAt.getTime() < now - config.verification.email.tokenTtlMs) throw new AppError(ErrorCode.EMAIL_VERIFICATION_REQUEST_EXPIRED)
+    if (request.isConfirmed) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
     if (request.accountId === "none") {
       await prisma.emailVerificationRequest.update({
         where: {
@@ -59,14 +59,14 @@ export const emailVerificationService = {
         }
       }
     })
-    if (!request) throw new AppError(404, ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
+    if (!request) throw new AppError(ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
     if (request.updatedAt.getTime() < Date.now() - config.verification.email.tokenTtlMs) {
       const errorCode = request.isConfirmed
         ? ErrorCode.EMAIL_VERIFICATION_EXPIRED
         : ErrorCode.EMAIL_VERIFICATION_REQUEST_EXPIRED
-      throw new AppError(410, errorCode)
+      throw new AppError(errorCode)
     }
-    if (!request.isConfirmed) throw new AppError(422, ErrorCode.EMAIL_NOT_VERIFIED)
+    if (!request.isConfirmed) throw new AppError(ErrorCode.EMAIL_NOT_VERIFIED)
   },
 
   send: async (data: SendDto) => {
@@ -85,15 +85,15 @@ export const emailVerificationService = {
         }
       })
     ])
-    if (account) throw new AppError(409, ErrorCode.EMAIL_TAKEN)
+    if (account) throw new AppError(ErrorCode.EMAIL_TAKEN)
     const now = Date.now()
     const token = generateSecureToken()
     if (request && !request.isConfirmed && request.updatedAt.getTime() > now - config.verification.email.cooldownMs) {
       const timePassedMs = now - request.updatedAt.getTime()
       const timeLeftMs = config.verification.email.cooldownMs - timePassedMs
-      throw new AppError(429, ErrorCode.SEND_EMAIL_COOLDOWN, { timeLeftMs })
+      throw new AppError(ErrorCode.SEND_EMAIL_COOLDOWN, { timeLeftMs })
     }
-    if (request?.isConfirmed && request.updatedAt.getTime() > now - config.verification.email.tokenTtlMs) throw new AppError(409, ErrorCode.EMAIL_ALREADY_VERIFIED)
+    if (request?.isConfirmed && request.updatedAt.getTime() > now - config.verification.email.tokenTtlMs) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
     const templateId = data.accountId === "none"
       ? "registration-email"
       : "binding-email"

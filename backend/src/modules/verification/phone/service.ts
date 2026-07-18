@@ -28,11 +28,11 @@ export const phoneVerificationService = {
         }
       }
     })
-    if (!request) throw new AppError(404, ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
+    if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
     const now = Date.now()
-    if (request.updatedAt.getTime() < now - config.verification.phone.codeTtlMs) throw new AppError(410, ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED)
-    if (request.isConfirmed) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
-    if (request.code !== data.code) throw new AppError(422, ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
+    if (request.updatedAt.getTime() < now - config.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED)
+    if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
+    if (request.code !== data.code) throw new AppError(ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
     if (request.accountId === "none") {
       return await prisma.phoneVerificationRequest.update({
         where: {
@@ -75,14 +75,14 @@ export const phoneVerificationService = {
         }
       }
     })
-    if (!request) throw new AppError(404, ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
+    if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
     if (request.updatedAt.getTime() < Date.now() - config.verification.phone.codeTtlMs) {
       const errorCode = request.isConfirmed
         ? ErrorCode.PHONE_VERIFICATION_EXPIRED
         : ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED
-      throw new AppError(410, errorCode)
+      throw new AppError(errorCode)
     }
-    if (!request.isConfirmed) throw new AppError(422, ErrorCode.PHONE_NOT_VERIFIED)
+    if (!request.isConfirmed) throw new AppError(ErrorCode.PHONE_NOT_VERIFIED)
   },
 
   send: async (data: SendDto) => {
@@ -107,15 +107,15 @@ export const phoneVerificationService = {
           }
         })
       ])
-      if (account) throw new AppError(409, ErrorCode.PHONE_TAKEN)
-      if (!link) throw new AppError(404, ErrorCode.TELEGRAM_LINK_NOT_FOUND)
+      if (account) throw new AppError(ErrorCode.PHONE_TAKEN)
+      if (!link) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
       const now = Date.now()
       if (request && !request.isConfirmed && request.updatedAt.getTime() > now - config.verification.phone.cooldownMs) {
         const timePassedMs = now - request.updatedAt.getTime()
         const timeLeftMs = config.verification.phone.cooldownMs - timePassedMs
-        throw new AppError(429, ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
+        throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
       }
-      if (request?.isConfirmed && request.updatedAt.getTime() > now - config.verification.phone.codeTtlMs) throw new AppError(409, ErrorCode.PHONE_ALREADY_VERIFIED)
+      if (request?.isConfirmed && request.updatedAt.getTime() > now - config.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateSecureCode()
       await sendCode(link.telegramUserId, data.name, code, data.accountId === "none")
       const updateData = request?.isConfirmed
@@ -140,7 +140,7 @@ export const phoneVerificationService = {
         })
       return { timeLeftMs: config.verification.phone.cooldownMs }
     } catch (error) {
-      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)
+      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
     }
   }

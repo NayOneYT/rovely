@@ -8,7 +8,7 @@ export const authController = {
   refresh: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies.refreshToken
-      if (!refreshToken) throw new AppError(401, ErrorCode.UNAUTHORIZED)
+      if (!refreshToken) throw new AppError(ErrorCode.UNAUTHORIZED)
       const { accessToken, newRefreshToken, rememberMe } = await authService.refresh(refreshToken)
       setTokenCookie(res, accessToken, newRefreshToken, rememberMe)
       res.sendStatus(200)

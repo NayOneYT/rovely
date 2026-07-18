@@ -63,7 +63,7 @@ const generateUniqueUsername = async (email?: string | null) => {
     })
     if (!account) return username
     triedUsernames.add(lowercaseUsername)
-    if (triedUsernames.size > 20) throw new AppError(500, ErrorCode.USERNAME_GENERATION_ERROR)
+    if (triedUsernames.size > 20) throw new AppError(ErrorCode.USERNAME_GENERATION_ERROR)
   }
 }
 
@@ -76,9 +76,9 @@ export const authService = {
           id: payload.id
         }
       })
-      if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
+      if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
       const actualPasswordChangedAt = account.passwordChangedAt?.getTime() ?? 0
-      if (payload.passwordChangedAt !== actualPasswordChangedAt) throw new AppError(401, ErrorCode.REFRESH_TOKEN_INVALID)
+      if (payload.passwordChangedAt !== actualPasswordChangedAt) throw new AppError(ErrorCode.REFRESH_TOKEN_INVALID)
       const accessToken = generateAccessToken({
         id: account.id,
         role: account.role
@@ -90,8 +90,8 @@ export const authService = {
       })
       return { accessToken, newRefreshToken, rememberMe: payload.rememberMe }
     } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) throw new AppError(401, ErrorCode.REFRESH_TOKEN_EXPIRED)
-      if (error instanceof jwt.JsonWebTokenError) throw new AppError(401, ErrorCode.REFRESH_TOKEN_INVALID)
+      if (error instanceof jwt.TokenExpiredError) throw new AppError(ErrorCode.REFRESH_TOKEN_EXPIRED)
+      if (error instanceof jwt.JsonWebTokenError) throw new AppError(ErrorCode.REFRESH_TOKEN_INVALID)
       throw error
     }
   },
@@ -106,10 +106,10 @@ export const authService = {
         ]
       }
     })
-    if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
-    if (!account.password) throw new AppError(422, ErrorCode.PASSWORD_NOT_SET)
+    if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
+    if (!account.password) throw new AppError(ErrorCode.PASSWORD_NOT_SET)
     const isPasswordValid = await bcrypt.compare(data.password, account.password)
-    if (!isPasswordValid) throw new AppError(401, ErrorCode.PASSWORD_INVALID)
+    if (!isPasswordValid) throw new AppError(ErrorCode.PASSWORD_INVALID)
     const accessToken = generateAccessToken({
       id: account.id,
       role: account.role
@@ -133,7 +133,7 @@ export const authService = {
           profile: true
         }
       })
-      if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
+      if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
       const [request, link] = await Promise.all([
         prisma.loginWithPhoneRequest.findUnique({
           where: {
@@ -146,12 +146,12 @@ export const authService = {
           }
         })
       ])
-      if (!link) throw new AppError(404, ErrorCode.TELEGRAM_LINK_NOT_FOUND)
+      if (!link) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
       const now = Date.now()
       if (request && request.updatedAt.getTime() > now - config.auth.loginWithPhoneCooldownMs) {
         const timePassedMs = now - request.updatedAt.getTime()
         const timeLeftMs = config.auth.loginWithPhoneCooldownMs - timePassedMs
-        throw new AppError(429, ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
+        throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
       }
       const code = generateSecureCode()
       await sendLoginWithPhoneCode(link.telegramUserId, account.profile!.name, code)
@@ -172,7 +172,7 @@ export const authService = {
         })
       return { timeLeftMs: config.auth.loginWithPhoneCooldownMs }
     } catch (error) {
-      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)
+      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
     }
   },
@@ -183,16 +183,16 @@ export const authService = {
         phone: data.phone
       }
     })
-    if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
+    if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
     const request = await prisma.loginWithPhoneRequest.findUnique({
       where: {
         phone: data.phone
       }
     })
-    if (!request) throw new AppError(404, ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
+    if (!request) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
     const now = Date.now()
-    if (request.updatedAt.getTime() < now - config.auth.loginWithPhoneCodeTtlMs) throw new AppError(410, ErrorCode.CODE_EXPIRED)
-    if (data.code !== request.code) throw new AppError(422, ErrorCode.CODE_INVALID)
+    if (request.updatedAt.getTime() < now - config.auth.loginWithPhoneCodeTtlMs) throw new AppError(ErrorCode.CODE_EXPIRED)
+    if (data.code !== request.code) throw new AppError(ErrorCode.CODE_INVALID)
     await prisma.loginWithPhoneRequest.delete({
       where: {
         phone: data.phone
@@ -248,7 +248,7 @@ export const authService = {
         errorCode = ErrorCode.LOGIN_TAKEN
         break
     }
-    if (exists) throw new AppError(409, errorCode!)
+    if (exists) throw new AppError(errorCode!)
   },
 
   register: async (data: RegisterDto) => {
@@ -267,10 +267,10 @@ export const authService = {
       }
     })
     if (candidate) {
-      if (data.username && candidate.profile!.lowercaseUsername === data.username.toLowerCase()) throw new AppError(409, ErrorCode.USERNAME_TAKEN)
-      if (data.email && candidate.lowercaseEmail === lowercaseEmail) throw new AppError(409, ErrorCode.EMAIL_TAKEN)
-      if (data.phone && candidate.phone === data.phone) throw new AppError(409, ErrorCode.PHONE_TAKEN)
-      if (data.login && candidate.login === data.login) throw new AppError(409, ErrorCode.LOGIN_TAKEN)
+      if (data.username && candidate.profile!.lowercaseUsername === data.username.toLowerCase()) throw new AppError(ErrorCode.USERNAME_TAKEN)
+      if (data.email && candidate.lowercaseEmail === lowercaseEmail) throw new AppError(ErrorCode.EMAIL_TAKEN)
+      if (data.phone && candidate.phone === data.phone) throw new AppError(ErrorCode.PHONE_TAKEN)
+      if (data.login && candidate.login === data.login) throw new AppError(ErrorCode.LOGIN_TAKEN)
     }
     if (lowercaseEmail) await emailVerificationService.checkRegistration({ email: lowercaseEmail })
     if (data.phone) await phoneVerificationService.checkRegistration({ phone: data.phone })
@@ -307,15 +307,15 @@ export const authService = {
   google: async (data: GoogleAuthDto) => {
     const googleResponse = await googleClient.getToken(data.code)
     const idToken = googleResponse.tokens.id_token
-    if (!idToken) throw new AppError(422, ErrorCode.GOOGLE_AUTH_FAILED)
+    if (!idToken) throw new AppError(ErrorCode.GOOGLE_AUTH_FAILED)
     const ticket = await googleClient.verifyIdToken({
       idToken,
       audience: config.googleClientId
     })
     const payload = ticket.getPayload()
-    if (!payload) throw new AppError(422, ErrorCode.GOOGLE_AUTH_FAILED)
+    if (!payload) throw new AppError(ErrorCode.GOOGLE_AUTH_FAILED)
     const email = payload.email
-    if (!email) throw new AppError(422, ErrorCode.GOOGLE_AUTH_FAILED)
+    if (!email) throw new AppError(ErrorCode.GOOGLE_AUTH_FAILED)
     const googleId = payload.sub
     const lowercaseEmail = email.toLowerCase()
     const name = payload.name?.slice(0, 30) ?? "Некто"
@@ -387,7 +387,7 @@ export const authService = {
         ]
       }
     })
-    if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
+    if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
     let contacts: ContactsDto = {}
     if (account.email) {
       const email = account.email
@@ -423,17 +423,17 @@ export const authService = {
           profile: true
         }
       })
-      if (!account) throw new AppError(404, ErrorCode.ACCOUNT_NOT_FOUND)
-      if (to === "EMAIL" && !account.email) throw new AppError(422, ErrorCode.EMAIL_NOT_LINKED)
+      if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
+      if (to === "EMAIL" && !account.email) throw new AppError(ErrorCode.EMAIL_NOT_LINKED)
       let telegramUserId: number = 0
       if (to === "PHONE") {
-        if (!account.phone) throw new AppError(422, ErrorCode.PHONE_NOT_LINKED)
+        if (!account.phone) throw new AppError(ErrorCode.PHONE_NOT_LINKED)
         const link = await prisma.telegramLink.findUnique({
           where: {
             phone: account.phone
           }
         })
-        if (!link) throw new AppError(404, ErrorCode.TELEGRAM_LINK_NOT_FOUND)
+        if (!link) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
         telegramUserId = link.telegramUserId
       }
       const request = await prisma.passwordRecoveryRequest.findUnique({
@@ -454,7 +454,7 @@ export const authService = {
           : ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN
         const timePassedMs = now - request.updatedAt.getTime()
         const timeLeftMs = cooldownMs - timePassedMs
-        throw new AppError(429, errorCode, { timeLeftMs })
+        throw new AppError(errorCode, { timeLeftMs })
       }
       const token = generateSecureToken()
       const target: PasswordRecoveryTarget = to === "EMAIL"
@@ -482,7 +482,7 @@ export const authService = {
         })
       return { to, timeLeftMs: cooldownMs }
     } catch (error) {
-      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(403, ErrorCode.TELEGRAM_BOT_BLOCKED)
+      if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
     }
   },
@@ -493,9 +493,9 @@ export const authService = {
         token: data.token
       }
     })
-    if (!request) throw new AppError(404, ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
+    if (!request) throw new AppError(ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
     const now = Date.now()
-    if (request.updatedAt.getTime() < now - config.auth.passwordRecoveryTokenTtlMs) throw new AppError(410, ErrorCode.PASSWORD_RECOVERY_TOKEN_EXPIRED)
+    if (request.updatedAt.getTime() < now - config.auth.passwordRecoveryTokenTtlMs) throw new AppError(ErrorCode.PASSWORD_RECOVERY_TOKEN_EXPIRED)
     return request
   },
 
@@ -531,7 +531,7 @@ export const authService = {
         }
       }
     })
-    if (!account) throw new AppError(401, ErrorCode.UNAUTHORIZED)
+    if (!account) throw new AppError(ErrorCode.UNAUTHORIZED)
     return account
   }
 }

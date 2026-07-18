@@ -12,7 +12,7 @@ export const validate = (schema: ZodSchema, target: ValidateTarget) => {
       const fieldErrors = Object.fromEntries(
         Object.entries(rawFieldErrors).map(([key, value]) => [key, value![0]])
       ) as Record<string, string>
-      throw new AppError(422, ErrorCode.VALIDATION_ERROR, { fieldErrors })
+      throw new AppError(ErrorCode.VALIDATION_ERROR, { fieldErrors })
     }
     if (target === "body") {
       req.body = result.data
