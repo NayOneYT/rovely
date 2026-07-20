@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { parsePhoneNumberFromString } from "libphonenumber-js"
 import {
-  normalizePhoneNumber,
+  normalizePhoneNumber, valueOrNull,
   codeSchema, nameSchema, emailSchema, phoneSchema, tokenSchema
 } from "@/schemas/index.js"
 
@@ -62,12 +62,8 @@ export const registerSchema = z.object({
     .max(30)
     .regex(/^[a-zA-Z0-9]+$/)
     .optional(),
-  email: emailSchema
-    .nullish()
-    .transform((value) => value ?? null),
-  phone: phoneSchema
-    .nullish()
-    .transform((value) => value ?? null),
+  email: valueOrNull(emailSchema),
+  phone: valueOrNull(phoneSchema),
   login: z
     .string()
     .min(4)
