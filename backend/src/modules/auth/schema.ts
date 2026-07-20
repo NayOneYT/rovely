@@ -1,6 +1,9 @@
 import { z } from "zod"
 import { parsePhoneNumberFromString } from "libphonenumber-js"
-import { codeSchema, nameSchema, emailSchema, phoneSchema, tokenSchema } from "@/schemas/index.js"
+import {
+  normalizePhoneNumber,
+  codeSchema, nameSchema, emailSchema, phoneSchema, tokenSchema
+} from "@/schemas/index.js"
 
 const identifierSchema = z
   .string()
@@ -13,10 +16,7 @@ const identifierSchema = z
     const isPhone = parsePhoneNumberFromString(value)?.isValid()
     return isEmail || isLogin || isPhone
   }, "Invalid format")
-  .transform((value) => {
-    const phone = parsePhoneNumberFromString(value)
-    return phone?.isValid() ? phone.number as string : value
-  })
+  .transform(normalizePhoneNumber)
 
 const rememberMeSchema = z
   .boolean()
@@ -52,10 +52,7 @@ export const checkAvailabilitySchema = z.object({
     .min(1)
     .max(254)
     .toLowerCase()
-    .transform((value) => {
-      const phone = parsePhoneNumberFromString(value)
-      return phone?.isValid() ? phone.number as string : value
-    })
+    .transform(normalizePhoneNumber)
 })
 
 export const registerSchema = z.object({

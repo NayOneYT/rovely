@@ -1,6 +1,11 @@
 import { z } from "zod"
 import { parsePhoneNumberFromString } from "libphonenumber-js"
 
+export const normalizePhoneNumber = (value: string) => {
+  const phone = parsePhoneNumberFromString(value)
+  return phone?.isValid() ? phone.number as string : value
+}
+
 export const accountIdSchema = z
   .union([
     z.literal("none"),
