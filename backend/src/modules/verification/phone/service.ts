@@ -20,12 +20,10 @@ const sendCode = async (telegramUserId: number, name: string, code: string, isNe
 
 export const phoneVerificationService = {
   verify: async (data: VerifyDto) => {
-    const request = await prisma.phoneVerificationRequest.findUnique({
+    const request = await prisma.phoneVerificationRequest.findFirst({
       where: {
-        phone_accountId: {
-          phone: data.phone,
-          accountId: data.accountId
-        }
+        phone: data.phone,
+        accountId: data.accountId
       }
     })
     if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
@@ -33,23 +31,21 @@ export const phoneVerificationService = {
     if (request.updatedAt.getTime() < now - config.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED)
     if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
     if (request.code !== data.code) throw new AppError(ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
-    if (request.accountId === "none") {
-      return await prisma.phoneVerificationRequest.update({
+    if (!request.accountId) {
+      await prisma.phoneVerificationRequest.update({
         where: {
-          phone_accountId: {
-            phone: data.phone,
-            accountId: data.accountId
-          }
+          id: request.id
         },
         data: {
           isConfirmed: true
         }
       })
+      return
     }
     await prisma.$transaction([
       prisma.account.update({
         where: {
-          id: data.accountId
+          id: request.accountId
         },
         data: {
           phone: data.phone
@@ -58,8 +54,8 @@ export const phoneVerificationService = {
       prisma.phoneVerificationRequest.deleteMany({
         where: {
           OR: [
-            { accountId: data.accountId },
-            { phone: data.phone }
+            { accountId: request.accountId },
+            { phone: request.phone }
           ]
         }
       })
@@ -67,12 +63,10 @@ export const phoneVerificationService = {
   },
 
   checkRegistration: async (data: CheckRegistrationDto) => {
-    const request = await prisma.phoneVerificationRequest.findUnique({
+    const request = await prisma.phoneVerificationRequest.findFirst({
       where: {
-        phone_accountId: {
-          phone: data.phone,
-          accountId: "none"
-        }
+        phone: data.phone,
+        accountId: null
       }
     })
     if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
@@ -93,12 +87,10 @@ export const phoneVerificationService = {
             phone: data.phone
           }
         }),
-        prisma.phoneVerificationRequest.findUnique({
+        prisma.phoneVerificationRequest.findFirst({
           where: {
-            phone_accountId: {
-              phone: data.phone,
-              accountId: data.accountId
-            }
+            phone: data.phone,
+            accountId: data.accountId
           }
         }),
         prisma.telegramLink.findUnique({
@@ -117,17 +109,14 @@ export const phoneVerificationService = {
       }
       if (request?.isConfirmed && request.updatedAt.getTime() > now - config.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateSecureCode()
-      await sendCode(link.telegramUserId, data.name, code, data.accountId === "none")
+      await sendCode(link.telegramUserId, data.name, code, !data.accountId)
       const updateData = request?.isConfirmed
         ? { code, isConfirmed: false }
         : { code }
       request
         ? await prisma.phoneVerificationRequest.update({
           where: {
-            phone_accountId: {
-              phone: data.phone,
-              accountId: data.accountId
-            }
+            id: request.id
           },
           data: updateData
         })

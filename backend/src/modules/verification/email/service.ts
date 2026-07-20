@@ -18,10 +18,10 @@ export const emailVerificationService = {
     const now = Date.now()
     if (request.updatedAt.getTime() < now - config.verification.email.tokenTtlMs) throw new AppError(ErrorCode.EMAIL_VERIFICATION_REQUEST_EXPIRED)
     if (request.isConfirmed) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
-    if (request.accountId === "none") {
+    if (!request.accountId) {
       await prisma.emailVerificationRequest.update({
         where: {
-          token: data.token
+          id: request.id
         },
         data: {
           isConfirmed: true
@@ -51,12 +51,10 @@ export const emailVerificationService = {
   },
 
   checkRegistration: async (data: CheckRegistrationDto) => {
-    const request = await prisma.emailVerificationRequest.findUnique({
+    const request = await prisma.emailVerificationRequest.findFirst({
       where: {
-        lowercaseEmail_accountId: {
-          lowercaseEmail: data.email,
-          accountId: "none"
-        }
+        lowercaseEmail: data.email,
+        accountId: null
       }
     })
     if (!request) throw new AppError(ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
@@ -70,33 +68,32 @@ export const emailVerificationService = {
   },
 
   send: async (data: SendDto) => {
+    const lowercaseEmail = data.email.toLowerCase()
     const [account, request] = await Promise.all([
       prisma.account.findUnique({
         where: {
-          lowercaseEmail: data.email.toLowerCase()
+          lowercaseEmail
         }
       }),
-      prisma.emailVerificationRequest.findUnique({
+      prisma.emailVerificationRequest.findFirst({
         where: {
-          lowercaseEmail_accountId: {
-            lowercaseEmail: data.email.toLowerCase(),
-            accountId: data.accountId
-          }
+          lowercaseEmail,
+          accountId: data.accountId
         }
       })
     ])
     if (account) throw new AppError(ErrorCode.EMAIL_TAKEN)
     const now = Date.now()
-    const token = generateSecureToken()
     if (request && !request.isConfirmed && request.updatedAt.getTime() > now - config.verification.email.cooldownMs) {
       const timePassedMs = now - request.updatedAt.getTime()
       const timeLeftMs = config.verification.email.cooldownMs - timePassedMs
       throw new AppError(ErrorCode.SEND_EMAIL_COOLDOWN, { timeLeftMs })
     }
     if (request?.isConfirmed && request.updatedAt.getTime() > now - config.verification.email.tokenTtlMs) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
-    const templateId = data.accountId === "none"
-      ? "registration-email"
-      : "binding-email"
+    const templateId = data.accountId
+      ? "binding-email"
+      : "registration-email"
+    const token = generateSecureToken()
     const updateData = request?.isConfirmed
       ? { token, isConfirmed: false }
       : { token }
@@ -105,10 +102,7 @@ export const emailVerificationService = {
       request
         ? prisma.emailVerificationRequest.update({
           where: {
-            lowercaseEmail_accountId: {
-              lowercaseEmail: data.email.toLowerCase(),
-              accountId: data.accountId
-            }
+            id: request.id
           },
           data: updateData
         })
@@ -116,7 +110,7 @@ export const emailVerificationService = {
           data: {
             token,
             email: data.email,
-            lowercaseEmail: data.email.toLowerCase(),
+            lowercaseEmail,
             accountId: data.accountId
           }
         })

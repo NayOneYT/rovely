@@ -7,11 +7,8 @@ export const normalizePhoneNumber = (value: string) => {
 }
 
 export const accountIdSchema = z
-  .union([
-    z.literal("none"),
-    z.string().cuid()
-  ])
-  .default("none")
+  .string()
+  .cuid()
 
 export const nameSchema = z
   .string()
