@@ -1,4 +1,4 @@
-import { prisma } from "@/shared/prisma/client.js"
+import { prisma } from "@/shared/prisma.js"
 import { AppError, ErrorCode } from "@/shared/types/index.js"
 import { config } from "@/shared/config.js"
 import { sendEmail } from "@/shared/mailer/index.js"

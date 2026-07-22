@@ -1,5 +1,5 @@
 import { AppError, ErrorCode } from "@/shared/types/index.js"
-import { prisma } from "@/shared/prisma/client.js"
+import { prisma } from "@/shared/prisma.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { config } from "@/shared/config.js"

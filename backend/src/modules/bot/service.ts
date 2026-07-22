@@ -1,4 +1,4 @@
-import { prisma } from "@/shared/prisma/client.js"
+import { prisma } from "@/shared/prisma.js"
 
 export const telegramLinkService = {
   check: async (telegramUserId: number) => {
