@@ -1,4 +1,4 @@
 import { Bot } from "grammy"
-import { config } from "@/config/index.js"
+import { config } from "@/shared/config.js"
 
 export const bot = new Bot(config.botToken)

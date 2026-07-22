@@ -1,6 +1,6 @@
 import { prisma } from "@/shared/prisma/client.js"
 import { AppError, ErrorCode } from "@/shared/types/index.js"
-import { config } from "@/config/index.js"
+import { config } from "@/shared/config.js"
 import { sendEmail } from "@/shared/mailer/index.js"
 import { generateSecureToken } from "@/shared/utils/index.js"
 import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema.js"

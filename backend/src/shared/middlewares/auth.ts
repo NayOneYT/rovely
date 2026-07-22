@@ -1,6 +1,6 @@
 import { AppError, ErrorCode, type AccessTokenPayload } from "@/shared/types/index.js"
 import jwt from "jsonwebtoken"
-import { config } from "@/config/index.js"
+import { config } from "@/shared/config.js"
 import type { Request, Response, NextFunction } from "express"
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {

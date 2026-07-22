@@ -1,4 +1,4 @@
-import { config } from "@/config/index.js"
+import { config } from "@/shared/config.js"
 import { authService } from "./service.js"
 import { AppError, ErrorCode } from "@/shared/types/index.js"
 import type { Request, Response, NextFunction } from "express"

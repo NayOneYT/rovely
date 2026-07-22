@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { validate, authMiddleware } from "@/middlewares/index.js"
+import { validate, authMiddleware } from "@/shared/middlewares/index.js"
 import {
   loginSchema, loginWithPhoneSchema, sendLoginWithPhoneSchema, checkAvailabilitySchema, registerSchema, googleAuthSchema,
   passwordRecoveryContactsSchema, sendPasswordRecoverySchema, checkPasswordRecoveryToken, resetPasswordSchema,

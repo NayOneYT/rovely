@@ -1,5 +1,5 @@
 import { app } from "./app.js"
-import { config } from "./config/index.js"
+import { config } from "./shared/config.js"
 import { bot } from "./shared/bot/client.js"
 import { registerBotHandlers } from "./modules/bot/index.js"
 
