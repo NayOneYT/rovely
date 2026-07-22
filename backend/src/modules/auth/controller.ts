@@ -1,8 +1,30 @@
+import { config } from "@/config/index.js"
 import { authService } from "./service.js"
 import { AppError, ErrorCode } from "@/shared/types/index.js"
-import { setTokenCookie, removeTokenCookie } from "@/shared/utils/index.js"
 import type { Request, Response, NextFunction } from "express"
 import type { CheckPasswordRecoveryTokenDto } from "./schema.js"
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: config.nodeEnv === "production",
+  sameSite: config.nodeEnv === "production" ? ("strict" as const) : ("lax" as const)
+}
+
+const setCookie = (res: Response, accessToken: string, refreshToken: string, rememberMe: boolean) => {
+  res.cookie("accessToken", accessToken, {
+    ...cookieOptions,
+    ...(rememberMe ? { maxAge: 5 * 60 * 1000 } : {})
+  })
+  res.cookie("refreshToken", refreshToken, {
+    ...cookieOptions,
+    ...(rememberMe ? { maxAge: 365 * 24 * 60 * 60 * 1000 } : {})
+  })
+}
+
+const removeCookie = (res: Response) => {
+  res.clearCookie("accessToken", cookieOptions)
+  res.clearCookie("refreshToken", cookieOptions)
+}
 
 export const authController = {
   refresh: async (req: Request, res: Response, next: NextFunction) => {
@@ -10,7 +32,7 @@ export const authController = {
       const refreshToken = req.cookies.refreshToken
       if (!refreshToken) throw new AppError(ErrorCode.UNAUTHORIZED)
       const { accessToken, newRefreshToken, rememberMe } = await authService.refresh(refreshToken)
-      setTokenCookie(res, accessToken, newRefreshToken, rememberMe)
+      setCookie(res, accessToken, newRefreshToken, rememberMe)
       res.sendStatus(200)
     } catch (error) {
       next(error)
@@ -20,7 +42,7 @@ export const authController = {
   login: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { accessToken, refreshToken, rememberMe } = await authService.login(req.body)
-      setTokenCookie(res, accessToken, refreshToken, rememberMe)
+      setCookie(res, accessToken, refreshToken, rememberMe)
       res.sendStatus(200)
     } catch (error) {
       next(error)
@@ -30,7 +52,7 @@ export const authController = {
   loginWithPhone: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { accessToken, refreshToken, rememberMe } = await authService.loginWithPhone(req.body)
-      setTokenCookie(res, accessToken, refreshToken, rememberMe)
+      setCookie(res, accessToken, refreshToken, rememberMe)
       res.sendStatus(200)
     } catch (error) {
       next(error)
@@ -67,7 +89,7 @@ export const authController = {
   google: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { isNewAccount, accessToken, refreshToken } = await authService.google(req.body)
-      setTokenCookie(res, accessToken, refreshToken, true)
+      setCookie(res, accessToken, refreshToken, true)
       res.sendStatus(isNewAccount ? 201 : 200)
     } catch (error) {
       next(error)
@@ -121,7 +143,7 @@ export const authController = {
 
   logout: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      removeTokenCookie(res)
+      removeCookie(res)
       res.sendStatus(204)
     } catch (error) {
       next(error)
