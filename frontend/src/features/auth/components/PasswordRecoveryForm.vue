@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { usePasswordRecoveryForm } from "../composables/usePasswordRecoveryForm"
-import InputError from "@/components/InputError.vue"
-import SvgEmail from "@/components/SvgEmail.vue"
-import SvgTelegram from "@/components/SvgTelegram.vue"
+import InputError from "@/shared/components/ui/InputError.vue"
+import SvgEmail from "@/shared/components/icons/SvgEmail.vue"
+import SvgTelegram from "@/shared/components/icons/SvgTelegram.vue"
 
 const isProcessing = ref<boolean>(false)
 

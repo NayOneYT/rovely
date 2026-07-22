@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import authApi from '@/features/auth/api'
+import authApi from '../features/auth/api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

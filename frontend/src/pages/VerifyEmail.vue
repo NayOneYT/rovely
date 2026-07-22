@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
-import api from '@/features/verification/email/api'
-import SiteLogo from '@/components/SiteLogo.vue'
-import SvgLoading from '@/components/SvgLoading.vue'
 import { AxiosError } from 'axios'
-import type { ResponseErrorDto } from "@/types"
+import api from '../features/verification/email/api'
+import SiteLogo from '../shared/components/icons/SiteLogo.vue'
+import SvgLoading from '../shared/components/icons/SvgLoading.vue'
+import type { ResponseErrorDto } from "../shared/types"
 
 const route = useRoute()
 const message = ref<string | undefined>("")

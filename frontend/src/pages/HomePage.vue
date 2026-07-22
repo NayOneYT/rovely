@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import SiteLogo from '@/components/SiteLogo.vue'
-import AuthForm from '@/features/auth/components/AuthForm.vue'
+import SiteLogo from '../shared/components/ui/SiteLogo.vue'
+import AuthForm from '../features/auth/components/AuthForm.vue'
 
 const features = [
   {

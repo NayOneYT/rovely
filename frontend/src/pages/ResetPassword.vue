@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useResetPasswordForm } from '@/features/auth/composables/useResetPasswordForm'
-import SiteLogo from '@/components/SiteLogo.vue'
-import InputError from '@/components/InputError.vue';
 import { ref } from "vue"
-import SvgLoading from '@/components/SvgLoading.vue';
-import SvgEyeClosed from '@/components/SvgEyeClosed.vue';
-import SvgEyeOpen from '@/components/icons/SvgEyeOpen.vue';
+import { useResetPasswordForm } from '../features/auth/composables/useResetPasswordForm'
+import SiteLogo from '../shared/components/ui/SiteLogo.vue'
+import InputError from '../shared/components/icons/InputError.vue'
+import SvgLoading from '../shared/components/icons/SvgLoading.vue'
+import SvgEyeClosed from '../shared/components/icons/SvgEyeClosed.vue'
+import SvgEyeOpen from '../shared/components/icons/SvgEyeOpen.vue'
 
 const {
   password, passwordClientError, onPasswordBlur,

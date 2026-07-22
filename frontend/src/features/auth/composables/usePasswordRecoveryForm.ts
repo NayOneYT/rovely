@@ -1,7 +1,7 @@
 import { ref, watch, computed, onUnmounted } from "vue"
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { passwordRecoveryContactsSchema, type SendPasswordRecoveryResultDto } from "../schema"
+import { passwordRecoveryContactsSchema } from "../schema"
 import { useMutation } from "@tanstack/vue-query"
 import api from "../api"
 import { AxiosError } from "axios"
@@ -9,7 +9,7 @@ import { toast } from "vue-sonner"
 import usePasswordRecoveryTimer from "./usePasswordRecoveryTimer"
 import { AsYouType } from "libphonenumber-js"
 import type { Ref } from "vue"
-import type { ResponseErrorDto } from "@/types"
+import type { ResponseErrorDto } from "@/shared/types"
 import type { SendPasswordRecoveryResponseErrorDataDto } from "../types"
 
 export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {

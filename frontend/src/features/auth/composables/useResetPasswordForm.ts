@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/vue-query"
 import api from "../api"
 import { toast } from "vue-sonner"
 import { AxiosError } from "axios"
-import type { ResponseErrorDto } from "@/types"
+import type { ResponseErrorDto } from "@/shared/types"
 
 export const useResetPasswordForm = () => {
   const isTokenValid = ref<boolean>(false)

@@ -7,8 +7,8 @@ import api from "../api"
 import { AxiosError } from "axios"
 import useTimer from "./useTimer"
 import type { CheckResponseDto } from "../../types"
-import type { ResponseMessageDto } from "@/types"
-import type { ResponseErrorDto } from "@/types"
+import type { ResponseMessageDto } from "@/shared/types"
+import type { ResponseErrorDto } from "@/shared/types"
 import { toast } from "vue-sonner"
 
 export const useEmailVerification = (name: Ref | string, accountId?: string) => {

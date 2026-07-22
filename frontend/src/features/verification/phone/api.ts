@@ -1,4 +1,4 @@
-import axios from "@/lib/axios"
+import axios from "@/shared/lib/axios"
 import type { SendVerificationCodeDto, VerifyPhoneDto } from "./schema"
 
 export default {

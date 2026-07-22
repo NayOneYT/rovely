@@ -10,7 +10,7 @@ import { useRouter } from "vue-router"
 import { useEmailVerification } from "@/features/verification/email/composables/useEmailVerification"
 import { usePhoneVerification } from "@/features/verification/phone/usePhoneVerification"
 import { toast } from "vue-sonner"
-import type { ResponseErrorDto } from "@/types"
+import type { ResponseErrorDto } from "@/shared/types"
 
 export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const step = ref(1)

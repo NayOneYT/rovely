@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { removeEmptyValues } from "@/utils/removeEmptyValues"
+import { removeEmptyValues } from "@/shared/utils/removeEmptyValues"
 
 export const sendVerificationEmailSchema = z.object({
   name: removeEmptyValues.pipe(z

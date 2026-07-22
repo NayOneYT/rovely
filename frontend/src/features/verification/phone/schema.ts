@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { parsePhoneNumberFromString } from "libphonenumber-js"
-import { removeEmptyValues } from "@/utils/removeEmptyValues"
+import { removeEmptyValues } from "@/shared/utils/removeEmptyValues"
 
 export const verifyPhoneSchema = z.object({
   phone: z

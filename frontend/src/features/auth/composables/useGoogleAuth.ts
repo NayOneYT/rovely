@@ -1,4 +1,4 @@
-import { config } from "@/config"
+import { config } from "@/shared/config"
 import api from "../api"
 import { AxiosError } from "axios"
 import { toast } from "vue-sonner"

@@ -6,10 +6,10 @@ import { useMutation } from "@tanstack/vue-query"
 import api from "./api"
 import { AxiosError } from "axios"
 import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
-import useCodeTimer from "@/composables/useCodeTimer"
-import type { ResponseErrorDto } from "@/types"
+import useCodeTimer from "@/shared/composables/useCodeTimer"
+import type { ResponseErrorDto } from "@/shared/types"
 import type { CheckResponseDto } from "../types"
-import type { ResponseMessageDto } from "@/types"
+import type { ResponseMessageDto } from "@/shared/types"
 import { toast } from "vue-sonner"
 
 export const usePhoneVerification = (name: Ref | string, accountId?: string) => {

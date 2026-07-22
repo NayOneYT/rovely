@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { privacySections, termSections } from '@/constants/legal'
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { privacySections, termSections } from '../shared/constants/legal'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()

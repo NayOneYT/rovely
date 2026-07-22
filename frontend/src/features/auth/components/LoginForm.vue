@@ -5,12 +5,12 @@ import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { useLocalStorage } from "@vueuse/core"
 import InputError from "@/components/InputError.vue"
-import SvgLoading from "@/components/SvgLoading.vue"
-import SvgEyeOpen from "@/components/icons/SvgEyeOpen.vue"
-import SvgEyeClosed from "@/components/SvgEyeClosed.vue"
-import SvgCheck from "@/components/SvgCheck.vue"
-import SvgGoogle from "@/components/SvgGoogle.vue"
-import SvgTelegram from "@/components/SvgTelegram.vue"
+import SvgLoading from "@/shared/components/icons/SvgLoading.vue"
+import SvgEyeOpen from "@/shared/components/icons/SvgEyeOpen.vue"
+import SvgEyeClosed from "@/shared/components/icons/SvgEyeClosed.vue"
+import SvgCheck from "@/shared/components/icons/SvgCheck.vue"
+import SvgGoogle from "@/shared/components/icons/SvgGoogle.vue"
+import SvgTelegram from "@/shared/components/icons/SvgTelegram.vue"
 
 const isProcessing = ref<boolean>(false)
 

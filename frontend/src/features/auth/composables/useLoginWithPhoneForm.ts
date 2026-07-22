@@ -3,14 +3,14 @@ import { toTypedSchema } from "@vee-validate/zod"
 import { loginWithPhoneSchema } from "../schema"
 import { ref, computed, watch, onUnmounted, type Ref } from "vue"
 import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
-import useCodeTimer from "@/composables/useCodeTimer"
+import useCodeTimer from "@/shared/composables/useCodeTimer"
 import { useMutation } from "@tanstack/vue-query"
 import api from "../api"
 import { useRouter } from "vue-router"
 import { useLocalStorage } from "@vueuse/core"
 import { AxiosError } from "axios"
 import { toast } from "vue-sonner"
-import type { ResponseErrorDto, ResponseMessageDto } from "@/types"
+import type { ResponseErrorDto, ResponseMessageDto } from "@/shared/types"
 
 export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const { startTimer, formattedTime, clearAllTimers } = useCodeTimer()
