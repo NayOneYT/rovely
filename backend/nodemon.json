@@ -3,5 +3,5 @@
     "src"
   ],
   "ext": "ts",
-  "exec": "cp src/shared/types/error-codes.ts ../frontend/src/shared/types && tsx src/server.ts"
+  "exec": "cp src/shared/types/error-codes.ts ../frontend/src/shared/api/types && tsx src/server.ts"
 }
