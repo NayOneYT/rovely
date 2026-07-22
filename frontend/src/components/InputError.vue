@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-  clientError?: String,
-  serverError?: String
+  clientError?: string,
+  serverError?: string
 }>()
 </script>
 
