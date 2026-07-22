@@ -5,7 +5,7 @@ import InputError from '@/components/InputError.vue';
 import { ref } from "vue"
 import SvgLoading from '@/components/SvgLoading.vue';
 import SvgEyeClosed from '@/components/SvgEyeClosed.vue';
-import SvgEyeOpen from '@/components/SvgEyeOpen.vue';
+import SvgEyeOpen from '@/components/icons/SvgEyeOpen.vue';
 
 const {
   password, passwordClientError, onPasswordBlur,
