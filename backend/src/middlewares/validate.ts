@@ -1,4 +1,4 @@
-import { AppError, ErrorCode } from "@/types/index.js"
+import { AppError, ErrorCode } from "@/shared/types/index.js"
 import type { Request, Response, NextFunction } from "express"
 import type { ZodSchema } from "zod"
 

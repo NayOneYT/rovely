@@ -1,8 +1,10 @@
 import { app } from "./app.js"
 import { config } from "./config/index.js"
-import { bot } from "./modules/bot/client.js"
+import { bot } from "./shared/bot/client.js"
+import { registerBotHandlers } from "./modules/bot/index.js"
 
 try {
+  registerBotHandlers()
   bot.start().catch((error) => {
     console.error(`Critical error when launching the Telegram bot: ${error}`)
     process.exit(1)

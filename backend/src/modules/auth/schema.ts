@@ -3,7 +3,7 @@ import { parsePhoneNumberFromString } from "libphonenumber-js"
 import {
   normalizePhoneNumber, valueOrNull,
   codeSchema, nameSchema, emailSchema, phoneSchema, tokenSchema
-} from "@/schemas/index.js"
+} from "@/shared/schemas/index.js"
 
 const identifierSchema = z
   .string()

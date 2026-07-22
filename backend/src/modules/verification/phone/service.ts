@@ -1,9 +1,9 @@
-import { prisma } from "@/prisma/client.js"
-import { AppError, ErrorCode } from "@/types/index.js"
+import { prisma } from "@/shared/prisma/client.js"
+import { AppError, ErrorCode } from "@/shared/types/index.js"
 import { config } from "@/config/index.js"
 import { GrammyError } from "grammy"
-import { sendMessage } from "@/modules/bot/service.js"
-import { generateSecureCode } from "@/utils/index.js"
+import { sendMessage } from "@/shared/bot/index.js"
+import { generateSecureCode } from "@/shared/utils/index.js"
 import type { SendDto, CheckRegistrationDto, VerifyDto } from "./schema.js"
 
 const sendCode = async (telegramUserId: number, name: string, code: string, isNewAccount: boolean) => {

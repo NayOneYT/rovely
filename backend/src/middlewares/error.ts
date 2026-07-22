@@ -1,4 +1,4 @@
-import { AppError, ErrorCode, errorStatusMap } from "@/types/index.js"
+import { AppError, ErrorCode, errorStatusMap } from "@/shared/types/index.js"
 import type { Request, Response, NextFunction } from "express"
 
 export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {

@@ -1,6 +1,6 @@
 import { authService } from "./service.js"
-import { AppError, ErrorCode } from "@/types/index.js"
-import { setTokenCookie, removeTokenCookie } from "@/utils/index.js"
+import { AppError, ErrorCode } from "@/shared/types/index.js"
+import { setTokenCookie, removeTokenCookie } from "@/shared/utils/index.js"
 import type { Request, Response, NextFunction } from "express"
 import type { CheckPasswordRecoveryTokenDto } from "./schema.js"
 

@@ -1,4 +1,4 @@
-import { AppError, ErrorCode, type AccessTokenPayload } from "@/types/index.js"
+import { AppError, ErrorCode, type AccessTokenPayload } from "@/shared/types/index.js"
 import jwt from "jsonwebtoken"
 import { config } from "@/config/index.js"
 import type { Request, Response, NextFunction } from "express"

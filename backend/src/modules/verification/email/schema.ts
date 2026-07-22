@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { tokenSchema, emailSchema, nameSchema, accountIdSchema, valueOrNull } from "@/schemas/index.js"
+import { tokenSchema, emailSchema, nameSchema, accountIdSchema, valueOrNull } from "@/shared/schemas/index.js"
 
 export const verifySchema = z.object({
   token: tokenSchema

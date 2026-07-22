@@ -1,8 +1,8 @@
-import { prisma } from "@/prisma/client.js"
-import { AppError, ErrorCode } from "@/types/index.js"
+import { prisma } from "@/shared/prisma/client.js"
+import { AppError, ErrorCode } from "@/shared/types/index.js"
 import { config } from "@/config/index.js"
-import { sendEmail } from "@/modules/mailer/service.js"
-import { generateSecureToken } from "@/utils/index.js"
+import { sendEmail } from "@/shared/mailer/index.js"
+import { generateSecureToken } from "@/shared/utils/index.js"
 import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema.js"
 
 const generateUrl = (token: string) => `${config.clientUrl}/verification/email/verify/${token}`
