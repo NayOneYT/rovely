@@ -12,6 +12,140 @@ datasource db {
   provider = "postgresql"
 }
 
+enum AccountRole {
+  USER
+  MODERATOR
+  OWNER
+}
+
+enum FriendRequestStatus {
+  PENDING
+  REJECTED
+}
+
+enum ChatType {
+  PRIVATE
+  GROUP
+}
+
+enum ChatRole {
+  OWNER
+  MODERATOR
+  MEMBER
+  MUTED
+}
+
+enum ContentBlockEntityType {
+  POST
+  MESSAGE
+  COMMENT
+}
+
+enum ContentBlockType {
+  TEXT
+  VOICE
+  CIRCLE_VIDEO
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+  SHARED_POST
+  SHARED_MESSAGE
+  SHARED_COMMENT
+  SHARED_PHOTO
+}
+
+enum FlowType {
+  PUBLIC
+  PRIVATE
+}
+
+enum FlowMemberRole {
+  OWNER
+  MODERATOR
+  MEMBER
+}
+
+enum PostCreatorType {
+  USER
+  FLOW
+}
+
+enum PostVisibility {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
+enum LikeEntityType {
+  POST
+  COMMENT
+  PHOTO
+}
+
+enum CommentCreatorType {
+  USER
+  FLOW
+}
+
+enum CommentEntityType {
+  POST
+  COMMENT
+  PHOTO
+}
+
+enum NotificationSenderType {
+  USER
+  FLOW
+  SYSTEM
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  SHARE
+  REPLY_TO_COMMENT
+  FOLLOW
+  FRIEND_REQUEST
+  FRIEND_ACCEPTED
+  FLOW_INVITE
+  FLOW_JOIN
+}
+
+enum NotificationEntityType {
+  POST
+  COMMENT
+  PHOTO
+}
+
+enum ReportEntityType {
+  USER
+  FLOW
+  POST
+  PHOTO
+  COMMENT
+}
+
+enum ReportReason {
+  REASONS
+}
+
+enum ReportStatus {
+  PENDING
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum ReportModerationAction {
+  ACTIONS
+}
+
+enum PasswordRecoveryRequestTo {
+  EMAIL
+  PHONE
+}
+
 model Account {
   id                        String                     @id @default(cuid())
   googleId                  String?                    @unique @map("google_id")
@@ -468,138 +602,4 @@ model PasswordRecoveryRequest {
 
   @@id([accountId, to])
   @@map("password_recovery_requests")
-}
-
-enum AccountRole {
-  USER
-  MODERATOR
-  OWNER
-}
-
-enum FriendRequestStatus {
-  PENDING
-  REJECTED
-}
-
-enum ChatType {
-  PRIVATE
-  GROUP
-}
-
-enum ChatRole {
-  OWNER
-  MODERATOR
-  MEMBER
-  MUTED
-}
-
-enum ContentBlockEntityType {
-  POST
-  MESSAGE
-  COMMENT
-}
-
-enum ContentBlockType {
-  TEXT
-  VOICE
-  CIRCLE_VIDEO
-  IMAGE
-  VIDEO
-  AUDIO
-  FILE
-  SHARED_POST
-  SHARED_MESSAGE
-  SHARED_COMMENT
-  SHARED_PHOTO
-}
-
-enum FlowType {
-  PUBLIC
-  PRIVATE
-}
-
-enum FlowMemberRole {
-  OWNER
-  MODERATOR
-  MEMBER
-}
-
-enum PostCreatorType {
-  USER
-  FLOW
-}
-
-enum PostVisibility {
-  PUBLIC
-  FRIENDS
-  PRIVATE
-}
-
-enum LikeEntityType {
-  POST
-  COMMENT
-  PHOTO
-}
-
-enum CommentCreatorType {
-  USER
-  FLOW
-}
-
-enum CommentEntityType {
-  POST
-  COMMENT
-  PHOTO
-}
-
-enum NotificationSenderType {
-  USER
-  FLOW
-  SYSTEM
-}
-
-enum NotificationType {
-  LIKE
-  COMMENT
-  SHARE
-  REPLY_TO_COMMENT
-  FOLLOW
-  FRIEND_REQUEST
-  FRIEND_ACCEPTED
-  FLOW_INVITE
-  FLOW_JOIN
-}
-
-enum NotificationEntityType {
-  POST
-  COMMENT
-  PHOTO
-}
-
-enum ReportEntityType {
-  USER
-  FLOW
-  POST
-  PHOTO
-  COMMENT
-}
-
-enum ReportReason {
-  REASONS
-}
-
-enum ReportStatus {
-  PENDING
-  IN_REVIEW
-  RESOLVED
-  REJECTED
-}
-
-enum ReportModerationAction {
-  ACTIONS
-}
-
-enum PasswordRecoveryRequestTo {
-  EMAIL
-  PHONE
 }

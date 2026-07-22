@@ -6,18 +6,6 @@ import { sendMessage } from "@/shared/bot/index.js"
 import { generateSecureCode } from "@/shared/utils/index.js"
 import type { SendDto, CheckRegistrationDto, VerifyDto } from "./schema.js"
 
-const sendCode = async (telegramUserId: number, name: string, code: string, isNewAccount: boolean) => {
-  const messageRows = [
-    `Здравствуйте, ${name}\n`,
-    `Ваш код подтверждения: ${code}\n`,
-    `<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)${isNewAccount
-      ? ", после подтверждения номер телефона будет считаться подтвержденным также <b>1 час</b>"
-      : ""
-    }.</i>`
-  ]
-  await sendMessage(telegramUserId, messageRows.join("\n"))
-}
-
 export const phoneVerificationService = {
   verify: async (data: VerifyDto) => {
     const request = await prisma.phoneVerificationRequest.findFirst({
@@ -133,4 +121,16 @@ export const phoneVerificationService = {
       throw error
     }
   }
+}
+
+const sendCode = async (telegramUserId: number, name: string, code: string, isNewAccount: boolean) => {
+  const messageRows = [
+    `Здравствуйте, ${name}\n`,
+    `Ваш код подтверждения: ${code}\n`,
+    `<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)${isNewAccount
+      ? ", после подтверждения номер телефона будет считаться подтвержденным также <b>1 час</b>"
+      : ""
+    }.</i>`
+  ]
+  await sendMessage(telegramUserId, messageRows.join("\n"))
 }

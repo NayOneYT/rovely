@@ -4,28 +4,6 @@ import { AppError, ErrorCode } from "@/shared/types/index.js"
 import type { Request, Response, NextFunction } from "express"
 import type { CheckPasswordRecoveryTokenDto } from "./schema.js"
 
-const cookieOptions = {
-  httpOnly: true,
-  secure: config.nodeEnv === "production",
-  sameSite: config.nodeEnv === "production" ? ("strict" as const) : ("lax" as const)
-}
-
-const setCookie = (res: Response, accessToken: string, refreshToken: string, rememberMe: boolean) => {
-  res.cookie("accessToken", accessToken, {
-    ...cookieOptions,
-    ...(rememberMe ? { maxAge: 5 * 60 * 1000 } : {})
-  })
-  res.cookie("refreshToken", refreshToken, {
-    ...cookieOptions,
-    ...(rememberMe ? { maxAge: 365 * 24 * 60 * 60 * 1000 } : {})
-  })
-}
-
-const removeCookie = (res: Response) => {
-  res.clearCookie("accessToken", cookieOptions)
-  res.clearCookie("refreshToken", cookieOptions)
-}
-
 export const authController = {
   refresh: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -149,4 +127,26 @@ export const authController = {
       next(error)
     }
   }
+}
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: config.nodeEnv === "production",
+  sameSite: config.nodeEnv === "production" ? ("strict" as const) : ("lax" as const)
+}
+
+const setCookie = (res: Response, accessToken: string, refreshToken: string, rememberMe: boolean) => {
+  res.cookie("accessToken", accessToken, {
+    ...cookieOptions,
+    ...(rememberMe ? { maxAge: 5 * 60 * 1000 } : {})
+  })
+  res.cookie("refreshToken", refreshToken, {
+    ...cookieOptions,
+    ...(rememberMe ? { maxAge: 365 * 24 * 60 * 60 * 1000 } : {})
+  })
+}
+
+const removeCookie = (res: Response) => {
+  res.clearCookie("accessToken", cookieOptions)
+  res.clearCookie("refreshToken", cookieOptions)
 }

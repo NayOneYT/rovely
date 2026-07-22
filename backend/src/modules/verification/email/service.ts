@@ -5,8 +5,6 @@ import { sendEmail } from "@/shared/mailer/index.js"
 import { generateSecureToken } from "@/shared/utils/index.js"
 import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema.js"
 
-const generateUrl = (token: string) => `${config.clientUrl}/verification/email/verify/${token}`
-
 export const emailVerificationService = {
   verify: async (data: VerifyDto) => {
     const request = await prisma.emailVerificationRequest.findUnique({
@@ -118,3 +116,5 @@ export const emailVerificationService = {
     return { timeLeftMs: config.verification.email.cooldownMs }
   }
 }
+
+const generateUrl = (token: string) => `${config.clientUrl}/verification/email/verify/${token}`

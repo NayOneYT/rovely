@@ -15,58 +15,6 @@ import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneDto, C
 import type { PasswordRecoveryTarget, ContactsDto } from "./types.js"
 import type { AccessTokenPayload, RefreshTokenPayload } from "@/shared/types/index.js"
 
-const hashPassword = async (password: string) => await bcrypt.hash(password, 10)
-
-const generateAccessToken = (payload: AccessTokenPayload) => jwt.sign({ id: payload.id, role: payload.role }, config.jwtAccessSecret, { expiresIn: "5m" })
-const generateRefreshToken = (payload: RefreshTokenPayload) => jwt.sign({ id: payload.id, rememberMe: payload.rememberMe, passwordChangedAt: payload.passwordChangedAt }, config.jwtRefreshSecret, { expiresIn: "1y" })
-
-const sendLoginWithPhoneCode = async (telegramUserId: number, name: string, code: string) => {
-  const messageRows = [
-    `Здравствуйте, ${name}\n`,
-    `Ваш код для входа: ${code}\n`,
-    "<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)</i>"
-  ]
-  await sendMessage(telegramUserId, messageRows.join("\n"))
-}
-
-const generatePasswordRecoveryUrl = (token: string) => `${config.clientUrl}/reset-password/${token}`
-
-const sendPasswordRecoveryUrl = async (target: PasswordRecoveryTarget, name: string, token: string) => {
-  const url = generatePasswordRecoveryUrl(token)
-  if (target.to === "EMAIL") await sendEmail(target.email, "reset-password", { name, url })
-  else {
-    const messageRows = [
-      `Здравствуйте, ${name}\n`,
-      "Был запрошен сброс пароля для привязанного к этому номеру телефона аккаунта в ROVELY.",
-      "Для завершения перейдите по ссылке ниже и укажите новый пароль:\n",
-      `${url}\n`,
-      "<i>Эта ссылка будет считаться актуальной <b>1 час</b> (если не запрашивать новую)\n",
-      "Если вы не запрашивали сброс пароля — просто проигнорируйте это сообщение</i>"
-    ]
-    await sendMessage(target.telegramUserId, messageRows.join("\n"))
-  }
-}
-
-const generateUniqueUsername = async (email?: string | null) => {
-  let triedUsernames = new Set<string>()
-  while (true) {
-    let username = email
-      ? generateFromEmail(email.toLowerCase(), 3)
-      : generateUsername("", 3, 30)
-    if (username.length > 30) username = username.slice(0, 27) + username.slice(-3)
-    const lowercaseUsername = username.toLowerCase()
-    if (triedUsernames.has(lowercaseUsername)) continue
-    const account = await prisma.profile.findUnique({
-      where: {
-        lowercaseUsername
-      }
-    })
-    if (!account) return username
-    triedUsernames.add(lowercaseUsername)
-    if (triedUsernames.size > 20) throw new AppError(ErrorCode.USERNAME_GENERATION_ERROR)
-  }
-}
-
 export const authService = {
   refresh: async (refreshToken: string) => {
     try {
@@ -533,5 +481,57 @@ export const authService = {
     })
     if (!account) throw new AppError(ErrorCode.UNAUTHORIZED)
     return account
+  }
+}
+
+const hashPassword = async (password: string) => await bcrypt.hash(password, 10)
+
+const generateAccessToken = (payload: AccessTokenPayload) => jwt.sign({ id: payload.id, role: payload.role }, config.jwtAccessSecret, { expiresIn: "5m" })
+const generateRefreshToken = (payload: RefreshTokenPayload) => jwt.sign({ id: payload.id, rememberMe: payload.rememberMe, passwordChangedAt: payload.passwordChangedAt }, config.jwtRefreshSecret, { expiresIn: "1y" })
+
+const sendLoginWithPhoneCode = async (telegramUserId: number, name: string, code: string) => {
+  const messageRows = [
+    `Здравствуйте, ${name}\n`,
+    `Ваш код для входа: ${code}\n`,
+    "<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)</i>"
+  ]
+  await sendMessage(telegramUserId, messageRows.join("\n"))
+}
+
+const generatePasswordRecoveryUrl = (token: string) => `${config.clientUrl}/reset-password/${token}`
+
+const sendPasswordRecoveryUrl = async (target: PasswordRecoveryTarget, name: string, token: string) => {
+  const url = generatePasswordRecoveryUrl(token)
+  if (target.to === "EMAIL") await sendEmail(target.email, "reset-password", { name, url })
+  else {
+    const messageRows = [
+      `Здравствуйте, ${name}\n`,
+      "Был запрошен сброс пароля для привязанного к этому номеру телефона аккаунта в ROVELY.",
+      "Для завершения перейдите по ссылке ниже и укажите новый пароль:\n",
+      `${url}\n`,
+      "<i>Эта ссылка будет считаться актуальной <b>1 час</b> (если не запрашивать новую)\n",
+      "Если вы не запрашивали сброс пароля — просто проигнорируйте это сообщение</i>"
+    ]
+    await sendMessage(target.telegramUserId, messageRows.join("\n"))
+  }
+}
+
+const generateUniqueUsername = async (email?: string | null) => {
+  let triedUsernames = new Set<string>()
+  while (true) {
+    let username = email
+      ? generateFromEmail(email.toLowerCase(), 3)
+      : generateUsername("", 3, 30)
+    if (username.length > 30) username = username.slice(0, 27) + username.slice(-3)
+    const lowercaseUsername = username.toLowerCase()
+    if (triedUsernames.has(lowercaseUsername)) continue
+    const account = await prisma.profile.findUnique({
+      where: {
+        lowercaseUsername
+      }
+    })
+    if (!account) return username
+    triedUsernames.add(lowercaseUsername)
+    if (triedUsernames.size > 20) throw new AppError(ErrorCode.USERNAME_GENERATION_ERROR)
   }
 }

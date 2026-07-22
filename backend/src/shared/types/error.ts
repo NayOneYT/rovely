@@ -1,5 +1,17 @@
 import { ErrorCode } from "./index.js"
 
+type AppErrorData = {
+  fieldErrors?: Record<string, string>
+  [key: string]: any
+}
+
+export class AppError extends Error {
+  constructor(public errorCode: ErrorCode, public data?: AppErrorData) {
+    super()
+    this.name = "AppError"
+  }
+}
+
 export const errorStatusMap: Record<ErrorCode, number> = {
   [ErrorCode.INTERNAL_ERROR]: 500,
   [ErrorCode.VALIDATION_ERROR]: 422,
@@ -39,16 +51,4 @@ export const errorStatusMap: Record<ErrorCode, number> = {
   [ErrorCode.PHONE_NOT_VERIFIED]: 403,
   [ErrorCode.PHONE_VERIFICATION_CODE_INVALID]: 422,
   [ErrorCode.PHONE_VERIFICATION_EXPIRED]: 410
-}
-
-type AppErrorData = {
-  fieldErrors?: Record<string, string>
-  [key: string]: any
-}
-
-export class AppError extends Error {
-  constructor(public errorCode: ErrorCode, public data?: AppErrorData) {
-    super()
-    this.name = "AppError"
-  }
 }
