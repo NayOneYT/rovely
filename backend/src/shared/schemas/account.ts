@@ -7,6 +7,7 @@ export const accountIdSchema = z
 
 export const nameSchema = z
   .string()
+  .min(1)
   .max(30)
 
 export const nameWithDefaultSchema = nameSchema

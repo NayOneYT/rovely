@@ -20,7 +20,6 @@ const identifierSchema = z
 
 const rememberMeSchema = z
   .boolean()
-  .default(false)
 
 const passwordSchema = z
   .string()
