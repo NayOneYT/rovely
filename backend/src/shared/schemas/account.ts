@@ -13,6 +13,12 @@ export const nameSchema = z
 export const nameWithDefaultSchema = nameSchema
   .default("Некто")
 
+export const usernameSchema = z
+  .string()
+  .min(3)
+  .max(30)
+  .regex(/^[a-zA-Z0-9]+$/)
+
 export const emailSchema = z
   .string()
   .email()
