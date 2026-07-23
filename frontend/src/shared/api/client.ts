@@ -2,6 +2,7 @@ import axios from "axios"
 import { ApiError, ErrorCode } from "./types"
 
 export const api = axios.create({
+  baseURL: "/api",
   withCredentials: true
 })
 
@@ -13,7 +14,7 @@ api.interceptors.response.use(
       if (data.code === ErrorCode.ACCESS_TOKEN_EXPIRED) {
         const originalRequest = error.config
         try {
-          await api.post("/api/auth/refresh")
+          await api.post("/auth/refresh")
           return api(originalRequest)
         } catch {
           window.location.href = "/"
