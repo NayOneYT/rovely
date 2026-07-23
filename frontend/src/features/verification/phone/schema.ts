@@ -1,42 +1,25 @@
 import { z } from "zod"
-import { parsePhoneNumberFromString } from "libphonenumber-js"
-import { removeEmptyValues } from "@/shared/utils/removeEmptyValues"
+import { phoneSchema, codeSchema, accountIdSchema, nameSchema } from "@/shared/schemas"
 
-export const verifyPhoneSchema = z.object({
-  phone: z
-    .string({ required_error: "Обязательное поле" })
-    .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат"),
-  code: z
-    .string({ required_error: "Введите код" })
-    .min(1, "Введите код")
-    .length(6, "Код должен содержать ровно 6 символов")
-    .regex(/^\d+$/, "Неверный формат"),
-  accountId: z
-    .union([
-      z.literal("none"),
-      z.string().cuid()
-    ], {
-      invalid_type_error: "Неверный формат"
-    })
+export const verifySchema = z.object({
+  phone: phoneSchema,
+  code: codeSchema,
+  accountId: accountIdSchema
     .optional()
 })
 
-export const sendVerificationCodeSchema = z.object({
-  phone: z
-    .string({ required_error: "Обязательное поле" })
-    .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат"),
-  name: removeEmptyValues.pipe(z
-    .string()
-    .optional()),
-  accountId: z
-    .union([
-      z.literal("none"),
-      z.string().cuid()
-    ], {
-      invalid_type_error: "Неверный формат"
-    })
+const checkRegistrationSchema = z.object({
+  phone: phoneSchema
+})
+
+const sendSchema = z.object({
+  phone: phoneSchema,
+  name: nameSchema
+    .optional(),
+  accountId: accountIdSchema
     .optional()
 })
 
-export type VerifyPhoneDto = z.infer<typeof verifyPhoneSchema>
-export type SendVerificationCodeDto = z.infer<typeof sendVerificationCodeSchema>
+export type SendDto = z.infer<typeof sendSchema>
+export type CheckRegistrationDto = z.infer<typeof checkRegistrationSchema>
+export type VerifyDto = z.infer<typeof verifySchema>

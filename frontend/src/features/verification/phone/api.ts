@@ -1,21 +1,18 @@
-import axios from "@/shared/lib/axios"
-import type { SendVerificationCodeDto, VerifyPhoneDto } from "./schema"
+import { api } from "@/shared/api/client"
+import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema"
+import type { SendResult } from "./types"
 
-export default {
-  verify: async (data: VerifyPhoneDto) => {
-    const response = await axios.post("/api/verification/phone/verify", data)
-    return response.data
+export const phoneVerificationApi = {
+  verify: async (data: VerifyDto) => {
+    await api.post("/verification/phone/verify", data)
   },
-  checkRegistrationVerification: async (phone: string) => {
-    const response = await axios.get("/api/verification/phone/check", {
-      params: {
-        phone
-      }
-    })
-    return response.data
+
+  checkRegistration: async (data: CheckRegistrationDto) => {
+    await api.post("/verification/phone/check", data)
   },
-  sendVerificationCode: async (data: SendVerificationCodeDto) => {
-    const response = await axios.post("/api/verification/phone/send", data)
-    return response.data
+
+  send: async (data: SendDto) => {
+    const response = await api.post("/verification/phone/send", data)
+    return response.data as SendResult
   }
 }

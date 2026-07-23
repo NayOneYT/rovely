@@ -1,121 +1,101 @@
 import { z } from "zod"
 import parsePhoneNumberFromString from "libphonenumber-js"
-import { removeEmptyValues } from "@/utils/removeEmptyValues"
+import {
+  emptyToUndefined,
+  phoneSchema, codeSchema, nameSchema, usernameSchema, emailSchema, tokenSchema
+} from "@/shared/schemas"
+
+const identifierSchema = emptyToUndefined(z
+  .string({ required_error: "Обязательное поле" })
+  .min(4, "Минимум 4 символа")
+  .max(254)
+  .refine((value) => {
+    const isLogin = /^[a-zа-яё0-9._-]+$/.test(value)
+    const isEmail = z.string().email().safeParse(value).success
+    const isPhone = parsePhoneNumberFromString(value)?.isValid()
+    return isEmail || isLogin || isPhone
+  }, "Неверный формат")
+)
+
+const passwordSchema = emptyToUndefined(z
+  .string({ required_error: "Обязательное поле" })
+  .min(6, "Минимум 6 символов")
+  .max(72)
+  .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы")
+)
+
+const rememberMeSchema = z
+  .boolean()
+  .default(false)
 
 export const loginSchema = z.object({
-  identifier: z
-    .string({ required_error: "Обязательное поле" })
-    .min(1, "Обязательное поле")
-    .min(4, "Минимум 4 символа")
-    .refine((value) => {
-      const isEmail = z.string().email().safeParse(value).success
-      const isLogin = /^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/.test(value)
-      return isEmail || isLogin
-    }, "Неверный формат"),
-  password: z
-    .string({ required_error: "Обязательное поле" })
-    .min(1, "Обязательное поле")
-    .min(6, "Минимум 6 символов")
-    .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы"),
-  rememberMe: z
-    .boolean()
-    .optional()
+  identifier: identifierSchema,
+  password: passwordSchema,
+  rememberMe: rememberMeSchema
 })
 
 export const loginWithPhoneSchema = z.object({
-  phone: z
-    .string({ required_error: "Обязательное поле" })
-    .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат"),
-  code: z
-    .string({ required_error: "Обязательное поле" })
-    .min(1, "Обязательное поле")
-    .length(6, "Код должен содержать ровно 6 символов")
-    .regex(/^\d+$/, "Неверный формат"),
-  rememberMe: z
-    .boolean()
-    .optional()
+  phone: phoneSchema,
+  code: codeSchema,
+  rememberMe: rememberMeSchema
 })
 
-export const registrationSchema = z.object({
-  name: z
+const sendLoginWithPhoneSchema = z.object({
+  phone: phoneSchema,
+})
+
+const checkAvailabilitySchema = z.object({
+  field: z
+    .enum(["username", "email", "phone", "login"]),
+  value: z
     .string()
+    .min(1)
+    .max(254)
+})
+
+export const registerSchema = z.object({
+  name: nameSchema
     .optional(),
-  username: removeEmptyValues.pipe(z
-    .string()
-    .regex(/^[a-zA-Z0-9]+$/, "Только латиница и цифры")
-    .optional()),
-  email: removeEmptyValues.pipe(z
-    .string()
-    .email("Неверный формат")
-    .optional()),
-  phone: removeEmptyValues.pipe(z
-    .string()
-    .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат")
-    .optional()),
-  login: z
+  username: usernameSchema
+    .optional(),
+  email: emailSchema
+    .optional(),
+  phone: phoneSchema
+    .optional(),
+  login: emptyToUndefined(z
     .string({ required_error: "Обязательное поле" })
-    .min(1, "Обязательное поле")
     .min(4, "Минимум 4 символа")
-    .regex(/^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/, "Только латиница, кирилица, цифры и ._-"),
-  password: z
-    .string({ required_error: "Обязательное поле" })
-    .min(1, "Обязательное поле")
-    .min(6, "Минимум 6 символов")
-    .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы")
+    .max(50)
+    .regex(/^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/, "Только латиница, кирилица, цифры и ._-")
+  ),
+  password: passwordSchema
 })
 
 export const passwordRecoveryContactsSchema = z.object({
-  identifier: z
-    .string({ required_error: "Обязательное поле" })
-    .min(1, "Обязательное поле")
-    .min(4, "Минимум 4 символа")
-    .refine((value) => {
-      const isEmail = z.string().email().safeParse(value).success
-      const isLogin = /^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/.test(value)
-      const isPhone = parsePhoneNumberFromString(value)?.isValid()
-      return isEmail || isLogin || isPhone
-    }, "Неверный формат")
+  identifier: identifierSchema,
 })
-
-export type ContactsDto = {
-  email?: string
-  phone?: string
-}
 
 const sendPasswordRecoverySchema = z.object({
-  identifier: z
-    .string(),
+  identifier: identifierSchema,
   to: z
-    .enum(["EMAIL", "PHONE"], { required_error: "Обязательное поле" })
+    .enum(["EMAIL", "PHONE"])
 })
 
-export type SendPasswordRecoveryResultDto = {
-  type: "success" | "info"
-  message: string
-  to: "EMAIL" | "PHONE"
-  secondsLeft: number
-}
-
-export const checkPasswordRecoveryToken = z.object({
-  token: z
-    .string()
+const checkPasswordRecoveryToken = z.object({
+  token: tokenSchema
 })
 
 export const resetPasswordSchema = z.object({
-  token: z
-    .string()
-    .length(64)
-    .regex(/^[a-f0-9]{64}$/),
-  password: z
-    .string({ required_error: "Обязательное поле" })
-    .min(1, "Обязательное поле")
-    .min(6, "Минимум 6 символов")
-    .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы")
+  token: tokenSchema,
+  password: passwordSchema
 })
 
 export type LoginDto = z.infer<typeof loginSchema>
 export type LoginWithPhoneDto = z.infer<typeof loginWithPhoneSchema>
-export type RegistrationDto = z.infer<typeof registrationSchema>
+export type SendLoginWithPhoneDto = z.infer<typeof sendLoginWithPhoneSchema>
+export type CheckAvailabilityDto = z.infer<typeof checkAvailabilitySchema>
+export type RegisterDto = z.infer<typeof registerSchema>
 export type PasswordRecoveryContactsDto = z.infer<typeof passwordRecoveryContactsSchema>
 export type SendPasswordRecoveryDto = z.infer<typeof sendPasswordRecoverySchema>
+export type CheckPasswordRecoveryTokenDto = z.infer<typeof checkPasswordRecoveryToken>
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>

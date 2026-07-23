@@ -1,21 +1,18 @@
-import axios from "@/shared/lib/axios"
-import type { SendVerificationEmailDto } from "./schema"
+import { api } from "@/shared/api/client"
+import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema"
+import type { SendResult } from "./types"
 
-export default {
-  verify: async (token: string) => {
-    const response = await axios.get(`/api/verification/email/verify/${token}`)
-    return response.data
+export const emailVerificationApi = {
+  verify: async (data: VerifyDto) => {
+    await api.post(`/verification/email/verify/${data.token}`)
   },
-  checkRegistrationVerification: async (email: string) => {
-    const response = await axios.get("/api/verification/email/check", {
-      params: {
-        email
-      }
-    })
-    return response.data
+
+  checkRegistration: async (data: CheckRegistrationDto) => {
+    await api.post("/verification/email/check", data)
   },
-  sendVerificationEmail: async (data: SendVerificationEmailDto) => {
-    const response = await axios.post("/api/verification/email/send", data)
-    return response.data
+
+  send: async (data: SendDto) => {
+    const response = await api.post("/verification/email/send", data)
+    return response.data as SendResult
   },
 }

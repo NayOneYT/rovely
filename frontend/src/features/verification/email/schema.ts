@@ -1,21 +1,22 @@
 import { z } from "zod"
-import { removeEmptyValues } from "@/shared/utils/removeEmptyValues"
+import { tokenSchema, emailSchema, nameSchema, accountIdSchema } from "@/shared/schemas"
 
-export const sendVerificationEmailSchema = z.object({
-  name: removeEmptyValues.pipe(z
-    .string()
-    .optional()),
-  email: z
-    .string({ required_error: "Обязательное поле" })
-    .email("Неверный формат"),
-  accountId: z
-    .union([
-      z.literal("none"),
-      z.string().cuid()
-    ], {
-      invalid_type_error: "Неверный формат"
-    })
+const verifySchema = z.object({
+  token: tokenSchema
+})
+
+const checkRegistrationSchema = z.object({
+  email: emailSchema
+})
+
+export const sendSchema = z.object({
+  name: nameSchema
+    .optional(),
+  email: emailSchema,
+  accountId: accountIdSchema
     .optional()
 })
 
-export type SendVerificationEmailDto = z.infer<typeof sendVerificationEmailSchema>
+export type VerifyDto = z.infer<typeof verifySchema>
+export type CheckRegistrationDto = z.infer<typeof checkRegistrationSchema>
+export type SendDto = z.infer<typeof sendSchema>

@@ -1,60 +1,60 @@
-import axios from "@/lib/axios"
-import type { LoginDto, LoginWithPhoneDto, RegistrationDto, PasswordRecoveryContactsDto, ContactsDto, SendPasswordRecoveryDto, SendPasswordRecoveryResultDto, ResetPasswordDto } from "./schema"
-import type { MeDto } from "./types"
+import { api } from "@/shared/api/client"
+import type {
+  LoginDto, LoginWithPhoneDto, SendLoginWithPhoneDto, CheckAvailabilityDto, RegisterDto,
+  PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto, ResetPasswordDto
+} from "./schema"
+import type { SendLoginWithPhoneResult, GetPasswordRecoveryContactsResult, SendPasswordRecoveryResult, MeDto } from "./types"
 
-export default {
+export const authApi = {
   login: async (data: LoginDto) => {
-    await axios.post("/api/auth/login", data)
+    await api.post("/auth/login", data)
   },
 
   loginWithPhone: async (data: LoginWithPhoneDto) => {
-    await axios.post("/api/auth/login-with-phone", data)
+    await api.post("/auth/login-with-phone", data)
   },
 
-  sendLoginWithPhoneCode: async (phone: string) => {
-    const response = await axios.post("/api/auth/login-with-phone/send", { phone })
-    return response.data
+  sendLoginWithPhone: async (data: SendLoginWithPhoneDto) => {
+    const response = await api.post("/auth/login-with-phone/send", data)
+    return response.data as SendLoginWithPhoneResult
   },
 
-  check: async (field: "username" | "email" | "phone" | "login", value: string) => {
-    await axios.get("/api/auth/check", {
-      params: {
-        field,
-        value
-      }
-    })
+  checkAvailability: async (data: CheckAvailabilityDto) => {
+    await api.post("/auth/check-availability", data)
   },
 
-  register: async (data: RegistrationDto) => {
-    await axios.post("/api/auth/register", data)
+  register: async (data: RegisterDto) => {
+    await api.post("/auth/register", data)
   },
 
   google: async (code: string) => {
-    await axios.post("/api/auth/google", { code })
+    await api.post("/auth/google", { code })
   },
 
-  passwordRecoveryContacts: async (data: PasswordRecoveryContactsDto) => {
-    const response = await axios.get("/api/auth/password-recovery/contacts", {
-      params: data
-    })
-    return response.data as ContactsDto
+  getPasswordRecoveryContacts: async (data: PasswordRecoveryContactsDto) => {
+    const response = await api.post("/auth/password-recovery/contacts", data)
+    return response.data as GetPasswordRecoveryContactsResult
   },
 
   sendPasswordRecovery: async (data: SendPasswordRecoveryDto) => {
-    const response = await axios.post("/api/auth/password-recovery/send", data)
-    return response.data as SendPasswordRecoveryResultDto
+    const response = await api.post("/auth/password-recovery/send", data)
+    return response.data as SendPasswordRecoveryResult
   },
 
-  checkPasswordRecoveryToken: async (token: string) => {
-    await axios.get(`/api/auth/password-recovery/check/${token}`)
+  checkPasswordRecoveryToken: async (data: CheckPasswordRecoveryTokenDto) => {
+    await api.get(`/auth/password-recovery/check-token/${data.token}`)
   },
 
   resetPassword: async (data: ResetPasswordDto) => {
-    await axios.post("/api/auth/password-recovery/reset", data)
+    await api.post("/auth/password-recovery/reset", data)
   },
 
   me: async () => {
-    const response = await axios.get("/api/auth/me")
+    const response = await api.get("/auth/me")
     return response.data as MeDto
+  },
+
+  logout: async () => {
+    await api.post("/auth/logout")
   }
 }
