@@ -1,3 +1,3 @@
 export * from "./common.js"
-export * from "./verification.js"
+export * from "./secure.js"
 export * from "./account.js"
