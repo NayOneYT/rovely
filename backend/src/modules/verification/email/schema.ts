@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { tokenSchema, emailSchema, nameSchema, accountIdSchema, valueOrNull } from "@/shared/schemas/index.js"
+import { tokenSchema, emailSchema, nameWithDefaultSchema, accountIdSchema, valueOrNull } from "@/shared/schemas/index.js"
 
 export const verifySchema = z.object({
   token: tokenSchema
@@ -11,7 +11,7 @@ export const checkRegistrationSchema = z.object({
 })
 
 export const sendSchema = z.object({
-  name: nameSchema,
+  name: nameWithDefaultSchema,
   email: emailSchema,
   accountId: valueOrNull(accountIdSchema)
 })

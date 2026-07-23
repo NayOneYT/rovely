@@ -8,6 +8,8 @@ export const accountIdSchema = z
 export const nameSchema = z
   .string()
   .max(30)
+
+export const nameWithDefaultSchema = nameSchema
   .default("Некто")
 
 export const emailSchema = z
