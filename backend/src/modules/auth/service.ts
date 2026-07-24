@@ -73,16 +73,15 @@ export const authService = {
   sendLoginWithPhone: async (data: SendLoginWithPhoneDto) => {
     try {
       const phone = data.phone
-      const account = await prisma.account.findUnique({
-        where: {
-          phone
-        },
-        include: {
-          profile: true
-        }
-      })
-      if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
-      const [request, link] = await Promise.all([
+      const [account, request, link] = await Promise.all([
+        prisma.account.findUnique({
+          where: {
+            phone
+          },
+          include: {
+            profile: true
+          }
+        }),
         prisma.loginWithPhoneRequest.findUnique({
           where: {
             phone
@@ -94,6 +93,7 @@ export const authService = {
           }
         })
       ])
+      if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
       if (!link) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
       const now = Date.now()
       if (request && request.updatedAt.getTime() > now - config.auth.loginWithPhoneCooldownMs) {
@@ -103,21 +103,18 @@ export const authService = {
       }
       const code = generateSecureCode()
       await sendLoginWithPhoneCode(link.telegramUserId, account.profile!.name, code)
-      request
-        ? await prisma.loginWithPhoneRequest.update({
-          where: {
-            phone
-          },
-          data: {
-            code
-          }
-        })
-        : await prisma.loginWithPhoneRequest.create({
-          data: {
-            code,
-            phone
-          }
-        })
+      await prisma.loginWithPhoneRequest.upsert({
+        where: {
+          phone
+        },
+        update: {
+          code
+        },
+        create: {
+          code,
+          phone
+        }
+      })
       return { timeLeftMs: config.auth.loginWithPhoneCooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
@@ -126,17 +123,19 @@ export const authService = {
   },
 
   loginWithPhone: async (data: LoginWithPhoneDto) => {
-    const account = await prisma.account.findUnique({
-      where: {
-        phone: data.phone
-      }
-    })
+    const [account, request] = await Promise.all([
+      prisma.account.findUnique({
+        where: {
+          phone: data.phone
+        }
+      }),
+      prisma.loginWithPhoneRequest.findUnique({
+        where: {
+          phone: data.phone
+        }
+      })
+    ])
     if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
-    const request = await prisma.loginWithPhoneRequest.findUnique({
-      where: {
-        phone: data.phone
-      }
-    })
     if (!request) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
     const now = Date.now()
     if (request.updatedAt.getTime() < now - config.auth.loginWithPhoneCodeTtlMs) throw new AppError(ErrorCode.CODE_EXPIRED)
