@@ -11,6 +11,9 @@ export const phoneSchema = emptyToUndefined(z
   .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат")
 )
 
+export const optionalPhoneSchema = emptyToUndefined(phoneSchema)
+  .optional()
+
 export const nameSchema = emptyToUndefined(z
   .string({ required_error: "Обязательное поле" })
   .max(30)
@@ -27,3 +30,6 @@ export const emailSchema = emptyToUndefined(z
   .string({ required_error: "Обязательное поле" })
   .email("Неверный формат")
 )
+
+export const optionalEmailSchema = emptyToUndefined(emailSchema)
+  .optional()

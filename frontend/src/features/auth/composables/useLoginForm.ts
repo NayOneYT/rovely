@@ -3,12 +3,11 @@ import { toTypedSchema } from "@vee-validate/zod"
 import { loginSchema } from "../schema"
 import { ref, watch, type Ref } from "vue"
 import { useMutation } from "@tanstack/vue-query"
-import api from "../api"
+import { authApi } from "../api"
 import { useRouter } from "vue-router"
-import { AxiosError } from "axios"
+import { ApiError, ErrorCode } from "@/shared/api/types"
 import { useLocalStorage } from "@vueuse/core"
 import { toast } from "vue-sonner"
-import type { ResponseErrorDto } from "@/shared/types"
 
 export const useLoginForm = (isProcessing: Ref<boolean>) => {
   const router = useRouter()
@@ -57,7 +56,7 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
   })
 
   watch(rememberMe, () => {
-    rememberMeHandleChange(rememberMe.value, false)
+    rememberMeHandleChange(rememberMe.value)
   })
 
   const onIdentifierBlur = () => {
@@ -74,29 +73,36 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
   }
 
   const loginMutation = useMutation({
-    mutationFn: api.login,
-    onMutate: () => isProcessing.value = true,
+    mutationFn: authApi.login,
     onSuccess: async () => {
-      const account = await api.me()
-      router.push(`/profiles/${account.profile.username}`)
+      const account = await authApi.me()
       theUserLoggedInOnce.value = true
+      router.replace(`/profiles/${account.profile.username}`)
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          identifierServerError.value = data.errors.identifier
-          passwordServerError.value = data.errors.password
-          return
+      if (error instanceof ApiError) {
+        switch (error.code) {
+          case ErrorCode.ACCOUNT_NOT_FOUND:
+            identifierServerError.value = "Аккаунт не найден"
+            break
+          case ErrorCode.PASSWORD_NOT_SET:
+            identifierServerError.value = "Войдите через Google"
+            break
+          case ErrorCode.PASSWORD_INVALID:
+            passwordServerError.value = "Неверный пароль"
+            break
         }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
-    },
-    onSettled: () => isProcessing.value = false
+      } else toast.error("Что-то пошло не так, попробуйте позже")
+    }
   })
 
-  const login = handleSubmit((values) => {
-    loginMutation.mutate(values)
+  const login = handleSubmit(async (values) => {
+    try {
+      isProcessing.value = true
+      await loginMutation.mutateAsync(values)
+    } catch { } finally {
+      isProcessing.value = false
+    }
   })
 
   return {

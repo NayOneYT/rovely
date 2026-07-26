@@ -3,21 +3,20 @@ import { toTypedSchema } from "@vee-validate/zod"
 import { loginWithPhoneSchema } from "../schema"
 import { ref, computed, watch, onUnmounted, type Ref } from "vue"
 import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
-import useCodeTimer from "@/shared/composables/useCodeTimer"
+import { useMessageTimer } from "@/shared/composables/useMessageTimer"
 import { useMutation } from "@tanstack/vue-query"
-import api from "../api"
+import { authApi } from "../api"
 import { useRouter } from "vue-router"
 import { useLocalStorage } from "@vueuse/core"
-import { AxiosError } from "axios"
+import { ApiError, ErrorCode } from "@/shared/api/types"
 import { toast } from "vue-sonner"
-import type { ResponseErrorDto, ResponseMessageDto } from "@/shared/types"
+import type { SendLoginWithPhoneStatus } from "../types"
 
 export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
-  const { startTimer, formattedTime, clearAllTimers } = useCodeTimer()
-  const sendCodeCooldown = computed(() => {
-    if (!phone.value) return undefined
-    return formattedTime(parsePhoneNumberFromString(phone.value)?.number as string)
-  })
+  const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
+
+  const sendCooldown = computed(() => formattedTime(phone.value ?? ""))
+
   const router = useRouter()
   const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
   const rememberMe = useLocalStorage("rememberMe", false)
@@ -82,7 +81,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   })
 
   watch(rememberMe, () => {
-    rememberMeHandleChange(rememberMe.value, false)
+    rememberMeHandleChange(rememberMe.value)
   })
 
   const onPhoneBlur = () => {
@@ -99,65 +98,87 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
     }
   }
 
-  const loginWithPhoneMutation = useMutation({
-    mutationFn: api.loginWithPhone,
-    onMutate: () => isProcessing.value = true,
+  const loginMutation = useMutation({
+    mutationFn: authApi.loginWithPhone,
     onSuccess: async () => {
-      const account = await api.me()
-      router.push(`/profiles/${account.profile.username}`)
+      const account = await authApi.me()
       theUserLoggedInOnce.value = true
+      router.replace(`/profiles/${account.profile.username}`)
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          phoneServerError.value = data.errors.phone
-          codeServerError.value = data.errors.code
-          return
+      if (error instanceof ApiError) {
+        switch (error.code) {
+          case ErrorCode.ACCOUNT_NOT_FOUND:
+            phoneServerError.value = "Аккаунт не найден"
+            break
+          case ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND:
+          case ErrorCode.LOGIN_WITH_PHONE_CODE_EXPIRED:
+            codeServerError.value = "Запросите новый код"
+            break
+          case ErrorCode.LOGIN_WITH_PHONE_CODE_INVALID:
+            codeServerError.value = "Неверный код"
+            break
         }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
-    },
-    onSettled: () => isProcessing.value = false
-  })
-
-  const loginWithPhone = handleSubmit((values) => {
-    loginWithPhoneMutation.mutate(values)
-  })
-
-  const sendLoginWithPhoneCodeMutation = useMutation({
-    mutationFn: api.sendLoginWithPhoneCode,
-    onError: (error) => {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          phoneServerError.value = data.errors.phone
-          if (data.errors.message) toast.warning(data.errors.message)
-          return
-        }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
+      } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 
-  const sendLoginWithPhoneCode = async () => {
+  const login = handleSubmit(async (values) => {
     try {
+      isProcessing.value = true
+      await loginMutation.mutateAsync(values)
+    } catch { } finally {
+      isProcessing.value = false
+    }
+  })
+
+  const sendMutation = useMutation({
+    mutationFn: authApi.sendLoginWithPhone,
+    onSuccess: (data) => {
+      codeServerError.value = undefined
+      startTimer(phone.value, data.timeLeftMs)
+      toast.success("Код для входа отправлен в Telegram")
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        switch (error.code) {
+          case ErrorCode.ACCOUNT_NOT_FOUND:
+            phoneServerError.value = "Аккаунт не найден"
+            break
+          case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
+            toast.error("Код для входа недавно уже был отправлен")
+            startTimer(phone.value, error.timeLeftMs)
+            break
+          case ErrorCode.TELEGRAM_BOT_BLOCKED:
+            toast.warning("Сначала разблокируйте нашего бота в Telegram")
+            break
+        }
+      } else toast.error("Что-то пошло не так, попробуйте позже")
+    }
+  })
+
+  const send = async (): Promise<SendLoginWithPhoneStatus> => {
+    try {
+      if (!phone.value) return "VALIDATION_ERROR"
+      isProcessing.value = true
       const phoneResult = await phoneValidate()
-      if (!phoneResult.valid) return
-      const result = await sendLoginWithPhoneCodeMutation.mutateAsync(phone.value) as ResponseMessageDto
-      if (result.secondsLeft) {
-        codeServerError.value = undefined
-        startTimer(parsePhoneNumberFromString(phone.value)?.number as string, result.secondsLeft)
-      }
-      toast[result.type](result.message)
-    } catch { }
+      if (!phoneResult.valid) return "VALIDATION_ERROR"
+      await sendMutation.mutateAsync({
+        phone: phone.value
+      })
+      return "SUCCESS"
+    } catch {
+      return "ERROR"
+    } finally {
+      isProcessing.value = false
+    }
   }
 
   onUnmounted(clearAllTimers)
 
   return {
     phoneString, onPhoneInput, onPhoneBlur, phoneClientError, phoneServerError,
-    codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
-    loginWithPhone, sendLoginWithPhoneCode
+    codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCooldown,
+    login, send
   }
 }

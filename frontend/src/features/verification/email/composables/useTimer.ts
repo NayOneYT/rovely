@@ -1,6 +1,6 @@
 import { ref } from "vue"
 
-export default () => {
+export const useEmailVerificationTimer = () => {
   const timers = ref<Record<string, number>>({})
   const intervals: Record<string, number> = {}
 
@@ -19,7 +19,8 @@ export default () => {
     }, 1000)
   }
 
-  const formattedTime = (email: string) => {
+  const formattedTime = (email: string | undefined) => {
+    if (!email) return undefined
     const totalSeconds = timers.value[email] || null
     if (!totalSeconds) return
     const minutes = Math.floor(totalSeconds / 60)

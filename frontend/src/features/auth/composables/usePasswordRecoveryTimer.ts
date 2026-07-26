@@ -1,15 +1,15 @@
 import { ref } from "vue"
 
-export default () => {
+export const usePasswordRecoveryTimer = () => {
   const timers = ref<Record<string, number>>({})
   const intervals: Record<string, number> = {}
 
-  const startTimer = (to: "EMAIL" | "PHONE", contact: string, seconds: number) => {
+  const startTimer = (to: "EMAIL" | "PHONE", contact: string, timeLeftMs: number) => {
     const formattedContact = `${to}-${contact}`
-
     if (intervals[formattedContact]) clearInterval(intervals[formattedContact])
 
-    timers.value[formattedContact] = seconds
+    const timeLeftSec = Math.floor(timeLeftMs / 1000)
+    timers.value[formattedContact] = timeLeftSec
 
     intervals[formattedContact] = setInterval(() => {
       if (timers.value[formattedContact]! > 0) timers.value[formattedContact]!--
@@ -21,7 +21,8 @@ export default () => {
     }, 1000)
   }
 
-  const formattedTime = (to: "EMAIL" | "PHONE", contact: string) => {
+  const formattedTime = (to: "EMAIL" | "PHONE", contact: string | undefined) => {
+    if (!contact) return undefined
     const formattedContact = `${to}-${contact}`
     const totalSeconds = timers.value[formattedContact] || null
     if (!totalSeconds) return

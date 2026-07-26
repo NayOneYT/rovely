@@ -2,17 +2,22 @@ import { useForm, useField } from "vee-validate"
 import { useRoute } from "vue-router"
 import { toTypedSchema } from "@vee-validate/zod"
 import { resetPasswordSchema } from "../schema"
-import { ref, watch } from "vue"
+import { ref, watch, type Ref } from "vue"
 import { useMutation } from "@tanstack/vue-query"
-import api from "../api"
+import { authApi } from "../api"
+import { ApiError, ErrorCode } from "@/shared/api/types"
 import { toast } from "vue-sonner"
-import { AxiosError } from "axios"
-import type { ResponseErrorDto } from "@/shared/types"
 
 export const useResetPasswordForm = () => {
+  const isProcessing = ref<boolean>(false)
   const isTokenValid = ref<boolean>(false)
-  const isProcessing = ref<boolean>(true)
   const route = useRoute()
+  const externalToken = route.params.token as string
+
+  if (externalToken) {
+    const urlWithoutToken = window.location.pathname.replace(`/${externalToken}`, '')
+    window.history.replaceState(null, "", urlWithoutToken)
+  }
 
   const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(resetPasswordSchema)
@@ -21,9 +26,9 @@ export const useResetPasswordForm = () => {
   const {
     value: token,
     validate: tokenValidate
-  } = useField<string>("token")
-
-  token.value = route.params.token as string
+  } = useField<string>("token", undefined, {
+    initialValue: externalToken
+  })
 
   const {
     value: password,
@@ -46,47 +51,47 @@ export const useResetPasswordForm = () => {
     }
   }
 
-  const checkPasswordRecoveryTokenMutation = useMutation({
-    mutationFn: api.checkPasswordRecoveryToken,
-    onSuccess: () => isTokenValid.value = true,
-    onSettled: () => isProcessing.value = false
+  const checkMutation = useMutation({
+    mutationFn: authApi.checkPasswordRecoveryToken,
+    onError: (error) => {
+      if (!(error instanceof ApiError)) toast.error("Что-то пошло не так, попробуйте позже")
+    }
   })
 
-  const checkPasswordRecoveryToken = async () => {
-    const tokenResult = await tokenValidate()
-    if (!tokenResult.valid) {
+  const check = async () => {
+    try {
+      isProcessing.value = true
+      const tokenResult = await tokenValidate()
+      if (!tokenResult.valid) return
+      await checkMutation.mutateAsync({ token: token.value })
+      isTokenValid.value = true
+    } catch { } finally {
       isProcessing.value = false
-      return
     }
-    checkPasswordRecoveryTokenMutation.mutateAsync(token.value)
   }
 
-  const resetPasswordMutation = useMutation({
-    mutationFn: api.resetPassword,
-    onMutate: () => isProcessing.value = true,
+  const resetMutation = useMutation({
+    mutationFn: authApi.resetPassword,
     onSuccess: () => {
-      toast.success("Пароль успешно изменен")
-      isTokenValid.value = false
+      toast.success("Пароль изменен")
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          isTokenValid.value = false
-          return
-        }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
-    },
-    onSettled: () => isProcessing.value = false
+      if (!(error instanceof ApiError)) toast.error("Что-то пошло не так, попробуйте позже")
+    }
   })
 
-  const resetPassword = handleSubmit((values) => {
-    resetPasswordMutation.mutate(values)
+  const reset = handleSubmit(async (values) => {
+    try {
+      isProcessing.value = true
+      await resetMutation.mutateAsync(values)
+    } catch { } finally {
+      isTokenValid.value = false
+      isProcessing.value = false
+    }
   })
 
   return {
     password, passwordClientError, onPasswordBlur,
-    isTokenValid, isProcessing, checkPasswordRecoveryToken, resetPassword
+    isProcessing, isTokenValid, check, reset
   }
 }

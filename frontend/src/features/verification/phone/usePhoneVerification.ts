@@ -1,27 +1,19 @@
-import { useForm, useField } from "vee-validate"
+import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { sendVerificationCodeSchema, verifyPhoneSchema } from "./schema"
-import { ref, watch, computed, onUnmounted, type Ref } from "vue"
+import { optionalPhoneSchema, codeSchema } from "@/shared/schemas"
+import { ref, watch, computed, onUnmounted, type Ref, toValue } from "vue"
 import { useMutation } from "@tanstack/vue-query"
-import api from "./api"
-import { AxiosError } from "axios"
-import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
-import useCodeTimer from "@/shared/composables/useCodeTimer"
-import type { ResponseErrorDto } from "@/shared/types"
-import type { CheckResponseDto } from "../types"
-import type { ResponseMessageDto } from "@/shared/types"
+import { phoneVerificationApi } from "./api"
+import { ApiError, ErrorCode } from "@/shared/api/types"
+import { AsYouType } from "libphonenumber-js"
+import { useMessageTimer } from "@/shared/composables/useMessageTimer"
 import { toast } from "vue-sonner"
+import type { CheckRegistrationStatus, SendStatus, VerifyStatus } from "./types"
 
-export const usePhoneVerification = (name: Ref | string, accountId?: string) => {
-  const { startTimer, formattedTime, clearAllTimers } = useCodeTimer()
-  const sendCodeCooldown = computed(() => {
-    if (!phone.value) return undefined
-    return formattedTime(parsePhoneNumberFromString(phone.value)?.number as string)
-  })
+export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: Ref<string> | string, accountId?: string) => {
+  const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
 
-  const { handleSubmit } = useForm({
-    validationSchema: toTypedSchema(verifyPhoneSchema)
-  })
+  const sendCooldown = computed(() => formattedTime(phone.value ?? ""))
 
   const {
     value: phone,
@@ -30,7 +22,7 @@ export const usePhoneVerification = (name: Ref | string, accountId?: string) => 
     meta: phoneMeta,
     handleBlur: phoneHandleBlur,
     handleChange: phoneHandleChange
-  } = useField<string>("phone")
+  } = useField<string>("phone", toTypedSchema(optionalPhoneSchema))
 
   const phoneString = ref("")
   const onPhoneInput = (event: Event) => {
@@ -51,7 +43,9 @@ export const usePhoneVerification = (name: Ref | string, accountId?: string) => 
     handleBlur: codeHandleBlur,
     setErrors: codeSetErrors,
     handleChange: codeHandleChange
-  } = useField("code")
+  } = useField<string>("code", toTypedSchema(codeSchema), {
+    controlled: false
+  })
 
   const codeString = ref("")
   const onCodeInput = (event: Event) => {
@@ -63,7 +57,8 @@ export const usePhoneVerification = (name: Ref | string, accountId?: string) => 
   }
 
   useField("accountId", undefined, {
-    initialValue: accountId
+    initialValue: accountId,
+    controlled: false
   })
 
   const phoneServerError = ref<undefined | string>(undefined)
@@ -93,88 +88,120 @@ export const usePhoneVerification = (name: Ref | string, accountId?: string) => 
     }
   }
 
-  const verifyPhoneMutation = useMutation({
-    mutationFn: api.verify,
+  const verifyMutation = useMutation({
+    mutationFn: phoneVerificationApi.verify,
+    onSuccess: () => toast.success("Номер телефона подтвержден"),
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          phoneServerError.value = data.errors.phone
-          codeServerError.value = data.errors.code
-          return
+      if (error instanceof ApiError) {
+        switch (error.code) {
+          case ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND:
+          case ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED:
+            codeServerError.value = "Запросите новый код"
+            break
+          case ErrorCode.PHONE_VERIFICATION_CODE_INVALID:
+            codeServerError.value = "Неверный код"
+            break
         }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
+      } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 
-  const verifyPhone = handleSubmit(async (values) => {
+  const verify = async (): Promise<VerifyStatus> => {
     try {
-      const result = await verifyPhoneMutation.mutateAsync(values) as ResponseMessageDto
-      toast[result.type](result.message)
-      return result
-    } catch {
-      return null
-    }
-  })
-
-  const checkRegistrationPhoneVerificationMutation = useMutation({
-    mutationFn: api.checkRegistrationVerification,
-    onError: (error) => {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
-    }
-  })
-
-  const checkRegistrationPhoneVerification = async () => {
-    try {
-      const result = await checkRegistrationPhoneVerificationMutation.mutateAsync(parsePhoneNumberFromString(phone.value)?.number as string) as CheckResponseDto
-      return result.verified
-    } catch {
-      return false
+      if (!phone.value || !code.value) return "VALIDATION_ERROR"
+      isProcessing.value = true
+      const [phoneResult, codeResult] = await Promise.all([
+        phoneValidate(),
+        codeValidate()
+      ])
+      if (!phoneResult.valid || !codeResult.valid) return "VALIDATION_ERROR"
+      await verifyMutation.mutateAsync({
+        phone: phone.value,
+        code: code.value,
+        accountId
+      })
+      return "SUCCESS"
+    } catch (error) {
+      if (error instanceof ApiError && error.code === ErrorCode.PHONE_ALREADY_VERIFIED) return "SUCCESS"
+      return "ERROR"
+    } finally {
+      isProcessing.value = false
     }
   }
 
-  const sendVerificationCodeMutation = useMutation({
-    mutationFn: api.sendVerificationCode,
+  const checkRegistrationMutation = useMutation({
+    mutationFn: phoneVerificationApi.checkRegistration,
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          phoneServerError.value = data.errors.phone
-          if (data.errors.message) toast.warning(data.errors.message)
-          return
-        }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
+      if (error instanceof ApiError) {
+        if (error.code === ErrorCode.PHONE_VERIFICATION_EXPIRED) toast.warning("Необходимо заново подтвердить номер телефона")
+        else toast.warning("Сначала подтвердите номер телефона")
+      } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 
-  const sendVerificationCode = async () => {
+  const checkRegistration = async (): Promise<CheckRegistrationStatus> => {
     try {
+      isProcessing.value = true
       const phoneResult = await phoneValidate()
-      if (!phoneResult.valid) return
-      const rawData = {
-        name: typeof name === "string" ? name : name.value,
+      if (!phoneResult.valid) return "VALIDATION_ERROR"
+      await checkRegistrationMutation.mutateAsync({ phone: phone.value })
+      return "VERIFIED"
+    } catch {
+      return "NOT_VERIFIED"
+    } finally {
+      isProcessing.value = false
+    }
+  }
+
+  const sendMutation = useMutation({
+    mutationFn: phoneVerificationApi.send,
+    onSuccess: (data) => {
+      toast.success("Код для подтверждения отправлен в Telegram")
+      startTimer(phone.value, data.timeLeftMs)
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        switch (error.code) {
+          case ErrorCode.PHONE_TAKEN:
+            phoneServerError.value = "Этот номер телефона занят"
+            break
+          case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
+            toast.error("Код для подтверждения недавно уже был отправлен")
+            startTimer(phone.value, error.timeLeftMs)
+            break
+          case ErrorCode.TELEGRAM_BOT_BLOCKED:
+            toast.warning("Сначала разблокируйте нашего бота в Telegram")
+            break
+        }
+      } else toast.error("Что-то пошло не так, попробуйте позже")
+    }
+  })
+
+  const send = async (): Promise<SendStatus> => {
+    try {
+      if (!phone.value) return "VALIDATION_ERROR"
+      isProcessing.value = true
+      const phoneResult = await phoneValidate()
+      if (!phoneResult.valid) return "VALIDATION_ERROR"
+      await sendMutation.mutateAsync({
         phone: phone.value,
+        name: toValue(externalName),
         accountId
-      }
-      const validatedData = sendVerificationCodeSchema.parse(rawData)
-      const result = await sendVerificationCodeMutation.mutateAsync(validatedData) as ResponseMessageDto
-      if (result.secondsLeft) {
-        codeServerError.value = undefined
-        startTimer(validatedData.phone, result.secondsLeft)
-      }
-      toast[result.type](result.message)
-    } catch { }
+      })
+      return "SUCCESS"
+    } catch (error) {
+      if (error instanceof ApiError && error.code === ErrorCode.PHONE_ALREADY_VERIFIED) return "ALREADY_VERIFIED"
+      return "ERROR"
+    } finally {
+      isProcessing.value = false
+    }
   }
 
   onUnmounted(clearAllTimers)
 
   return {
-    phoneString, onPhoneInput, onPhoneBlur, phoneHandleChange, phoneClientError, phoneServerError,
-    codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, codeSetErrors, sendCodeCooldown,
-    verifyPhone, checkRegistrationPhoneVerification, sendVerificationCode
+    phone, phoneString, onPhoneInput, onPhoneBlur, phoneHandleChange, phoneValidate, phoneClientError, phoneServerError,
+    codeString, onCodeInput, onCodeBlur, codeSetErrors, codeClientError, codeServerError, sendCooldown,
+    verify, checkRegistration, send
   }
 }

@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { phoneSchema, codeSchema, accountIdSchema, nameSchema } from "@/shared/schemas"
 
-export const verifySchema = z.object({
+const verifySchema = z.object({
   phone: phoneSchema,
   code: codeSchema,
   accountId: accountIdSchema

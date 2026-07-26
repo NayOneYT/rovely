@@ -1,13 +1,14 @@
 import { ref } from "vue"
 
-export default () => {
+export const useMessageTimer = () => {
   const timers = ref<Record<string, number>>({})
   const intervals: Record<string, number> = {}
 
-  const startTimer = (phone: string, seconds: number) => {
+  const startTimer = (phone: string, timeLeftMs: number) => {
     if (intervals[phone]) clearInterval(intervals[phone])
 
-    timers.value[phone] = seconds
+    const timeLeftSec = Math.floor(timeLeftMs / 1000)
+    timers.value[phone] = timeLeftSec
 
     intervals[phone] = setInterval(() => {
       if (timers.value[phone]! > 0) timers.value[phone]!--
@@ -19,7 +20,8 @@ export default () => {
     }, 1000)
   }
 
-  const formattedTime = (phone: string) => {
+  const formattedTime = (phone: string | undefined) => {
+    if (!phone) return undefined
     const totalSeconds = timers.value[phone] || null
     if (!totalSeconds) return
     const minutes = Math.floor(totalSeconds / 60)

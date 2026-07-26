@@ -1,27 +1,18 @@
-import { useForm, useField } from "vee-validate"
+import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { ref, watch, computed, onUnmounted, type Ref } from "vue"
-import { sendVerificationEmailSchema } from "../schema"
+import { optionalEmailSchema } from "@/shared/schemas"
+import { ref, watch, computed, onUnmounted, type Ref, toValue } from "vue"
 import { useMutation } from "@tanstack/vue-query"
-import api from "../api"
-import { AxiosError } from "axios"
-import useTimer from "./useTimer"
-import type { CheckResponseDto } from "../../types"
-import type { ResponseMessageDto } from "@/shared/types"
-import type { ResponseErrorDto } from "@/shared/types"
+import { emailVerificationApi } from "../api"
+import { ApiError, ErrorCode } from "@/shared/api/types"
+import { useEmailVerificationTimer } from "./useTimer"
 import { toast } from "vue-sonner"
+import type { CheckRegistrationStatus, SendStatus } from "../types"
 
-export const useEmailVerification = (name: Ref | string, accountId?: string) => {
-  const { startTimer, formattedTime, clearAllTimers } = useTimer()
-  const sendVerificationEmailCooldown = computed(() => formattedTime(email.value?.toLowerCase()))
+export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: Ref<string> | string, accountId?: string) => {
+  const { startTimer, formattedTime, clearAllTimers } = useEmailVerificationTimer()
 
-  const { handleSubmit } = useForm({
-    validationSchema: toTypedSchema(sendVerificationEmailSchema)
-  })
-
-  useField("name", undefined, {
-    initialValue: typeof name === "string" ? name : name.value,
-  })
+  const sendCooldown = computed(() => formattedTime(email.value?.toLowerCase() ?? ""))
 
   const {
     value: email,
@@ -30,12 +21,9 @@ export const useEmailVerification = (name: Ref | string, accountId?: string) => 
     meta: emailMeta,
     handleBlur: emailHandleBlur,
     handleChange: emailHandleChange
-  } = useField<string>("email", undefined, {
-    validateOnValueUpdate: false
-  })
+  } = useField<string>("email", toTypedSchema(optionalEmailSchema), {
+    validateOnValueUpdate: false,
 
-  useField("accountId", undefined, {
-    initialValue: accountId
   })
 
   const emailServerError = ref<undefined | string>(undefined)
@@ -52,52 +40,76 @@ export const useEmailVerification = (name: Ref | string, accountId?: string) => 
     }
   }
 
-  const checkRegistrationEmailVerificationMutation = useMutation({
-    mutationFn: api.checkRegistrationVerification,
+  const checkRegistrationMutation = useMutation({
+    mutationFn: emailVerificationApi.checkRegistration,
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
+      if (error instanceof ApiError) {
+        if (error.code === ErrorCode.EMAIL_VERIFICATION_EXPIRED) toast.warning("Необходимо заново подтвердить email")
+        else toast.warning("Сначала подтвердите email")
+      } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 
-  const checkRegistrationEmailVerification = async () => {
+  const checkRegistration = async (): Promise<CheckRegistrationStatus> => {
     try {
-      const result = await checkRegistrationEmailVerificationMutation.mutateAsync(email.value) as CheckResponseDto
-      return result.verified
+      if (!email.value) return "VALIDATION_ERROR"
+      isProcessing.value = true
+      const emailResult = await emailValidate()
+      if (!emailResult.valid) return "VALIDATION_ERROR"
+      await checkRegistrationMutation.mutateAsync({ email: email.value })
+      return "VERIFIED"
     } catch {
-      return false
+      return "NOT_VERIFIED"
+    } finally {
+      isProcessing.value = false
     }
   }
 
-  const sendVerificationEmailMutation = useMutation({
-    mutationFn: api.sendVerificationEmail,
+  const sendMutation = useMutation({
+    mutationFn: emailVerificationApi.send,
+    onSuccess: (data) => {
+      toast.success("Письмо для подтверждения отправлено")
+      startTimer(email.value.toLowerCase(), data.timeLeftMs)
+    },
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          emailServerError.value = data.errors.email
-          return
+      if (error instanceof ApiError) {
+        switch (error.code) {
+          case ErrorCode.EMAIL_TAKEN:
+            emailServerError.value = "Этот email занят"
+            break
+          case ErrorCode.SEND_EMAIL_COOLDOWN:
+            toast.error("Письмо для подтверждения недавно уже было отправлено")
+            startTimer(email.value.toLowerCase(), error.timeLeftMs)
+            break
         }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
+      } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 
-  const sendVerificationEmail = handleSubmit(async (values) => {
+  const send = async (): Promise<SendStatus> => {
     try {
-      const result = await sendVerificationEmailMutation.mutateAsync({ ...values, name: typeof name === "string" ? name : name.value }) as ResponseMessageDto
-      if (result.secondsLeft) startTimer(email.value.toLowerCase(), result.secondsLeft)
-      toast[result.type](result.message)
-    } catch {
-      return null
+      if (!email.value) return "VALIDATION_ERROR"
+      isProcessing.value = true
+      const emailResult = await emailValidate()
+      if (!emailResult.valid) return "VALIDATION_ERROR"
+      await sendMutation.mutateAsync({
+        name: toValue(externalName),
+        email: email.value,
+        accountId
+      })
+      return "SUCCESS"
+    } catch (error) {
+      if (error instanceof ApiError && error.code === ErrorCode.EMAIL_ALREADY_VERIFIED) return "ALREADY_VERIFIED"
+      return "ERROR"
+    } finally {
+      isProcessing.value = false
     }
-  })
+  }
 
   onUnmounted(clearAllTimers)
 
   return {
-    email, onEmailBlur, emailHandleChange, emailClientError, emailServerError, sendVerificationEmailCooldown,
-    checkRegistrationEmailVerification, sendVerificationEmail
+    email, onEmailBlur, emailHandleChange, emailValidate, emailClientError, emailServerError, sendCooldown,
+    checkRegistration, send
   }
 }

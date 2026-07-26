@@ -1,26 +1,25 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { registrationSchema } from "../schema"
+import { registerSchema, type CheckAvailabilityDto } from "../schema"
 import { ref, watch, type Ref } from "vue"
-import api from "../api"
-import { AxiosError } from "axios"
-import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
+import { authApi } from "../api"
+import { ApiError, ErrorCode } from "@/shared/api/types"
 import { useMutation } from "@tanstack/vue-query"
 import { useRouter } from "vue-router"
 import { useEmailVerification } from "@/features/verification/email/composables/useEmailVerification"
 import { usePhoneVerification } from "@/features/verification/phone/usePhoneVerification"
 import { toast } from "vue-sonner"
-import type { ResponseErrorDto } from "@/shared/types"
+import type { RegistrationStep, CheckAvailabilityStatus } from "../types"
 
 export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
-  const step = ref(1)
+  const step = ref<RegistrationStep>(1)
   const verifiedEmails = new Set<string>()
   const isEmailVerified = ref(false)
 
   const router = useRouter()
 
   const { handleSubmit } = useForm({
-    validationSchema: toTypedSchema(registrationSchema)
+    validationSchema: toTypedSchema(registerSchema)
   })
 
   const {
@@ -44,36 +43,6 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   })
 
   const {
-    value: email,
-    errorMessage: emailClientError,
-    validate: emailValidate,
-    meta: emailMeta,
-    handleBlur: emailHandleBlur
-  } = useField<string>("email", undefined, {
-    validateOnValueUpdate: false
-  })
-
-  const {
-    value: phone,
-    errorMessage: phoneClientError,
-    validate: phoneValidate,
-    meta: phoneMeta,
-    handleBlur: phoneHandleBlur,
-    handleChange: phoneHandleChange
-  } = useField<string>("phone")
-
-  const phoneString = ref("")
-  const onPhoneInput = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    let raw = input.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')
-    if (raw && !raw.startsWith('+')) raw = '+' + raw
-    const formatted = new AsYouType().input(raw)
-    input.value = formatted
-    phoneString.value = formatted
-    phoneHandleChange(formatted, false)
-  }
-
-  const {
     value: login,
     errorMessage: loginClientError,
     validate: loginValidate,
@@ -93,20 +62,10 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     validateOnValueUpdate: false
   })
 
-  const {
-    emailHandleChange, emailServerError: emailVerificationServerError, sendVerificationEmailCooldown,
-    checkRegistrationEmailVerification, sendVerificationEmail
-  } = useEmailVerification(name)
-
-  const {
-    onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, codeSetErrors, sendCodeCooldown,
-    phoneHandleChange: verificationPhoneHandleChange,
-    verifyPhone, checkRegistrationPhoneVerification, sendVerificationCode
-  } = usePhoneVerification(name)
+  const emailVerification = useEmailVerification(isProcessing, name)
+  const phoneVerification = usePhoneVerification(isProcessing, name)
 
   const usernameServerError = ref<undefined | string>(undefined)
-  const emailServerError = ref<undefined | string>(undefined)
-  const phoneServerError = ref<undefined | string>(undefined)
   const loginServerError = ref<undefined | string>(undefined)
 
   watch(name, () => {
@@ -116,25 +75,6 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   watch(username, () => {
     usernameServerError.value = undefined
     if (usernameMeta.touched) usernameValidate()
-  })
-
-  watch(email, () => {
-    emailHandleChange(email.value, false)
-    emailServerError.value = undefined
-    if (emailMeta.touched) {
-      emailValidate()
-    }
-    isEmailVerified.value = verifiedEmails.has(email.value.toLowerCase())
-  })
-
-  watch(emailVerificationServerError, () => {
-    emailServerError.value = emailVerificationServerError.value
-  })
-
-  watch(phone, () => {
-    verificationPhoneHandleChange(phone.value, false)
-    phoneServerError.value = undefined
-    if (phoneMeta.touched) phoneValidate()
   })
 
   watch(login, () => {
@@ -160,20 +100,6 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     }
   }
 
-  const onEmailBlur = () => {
-    if (emailMeta.dirty) {
-      emailHandleBlur()
-      emailValidate()
-    }
-  }
-
-  const onPhoneBlur = () => {
-    if (phoneMeta.dirty) {
-      phoneHandleBlur()
-      phoneValidate()
-    }
-  }
-
   const onLoginBlur = () => {
     if (loginMeta.dirty) {
       loginHandleBlur()
@@ -188,205 +114,153 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     }
   }
 
-  const handleSendVerificationEmail = async () => {
-    const emailResult = await emailValidate()
-    if (!emailResult.valid || !email.value) return
-    isProcessing.value = true
-    const verified = await checkRegistrationEmailVerification()
-    if (verified) {
-      isEmailVerified.value = true
-      verifiedEmails.add(email.value.toLowerCase())
-      isProcessing.value = false
-      return
+  const checkAvailabilityMutation = useMutation({
+    mutationFn: authApi.checkAvailability,
+    onError: (error) => {
+      if (!(error instanceof ApiError)) toast.error("Что-то пошло не так, попробуйте позже")
     }
-    await sendVerificationEmail()
-    isProcessing.value = false
+  })
+
+  const checkAvailability = async (data: CheckAvailabilityDto): Promise<CheckAvailabilityStatus> => {
+    try {
+      await checkAvailabilityMutation.mutateAsync(data)
+      return "AVAILABLE"
+    } catch {
+      return "TAKEN"
+    }
   }
 
-  const handleSendVerificationCode = async () => {
-    isProcessing.value = true
-    const verified = await checkRegistrationPhoneVerification()
-    if (verified) {
-      await goToNextStep()
-      isProcessing.value = false
-      return
+  const handleSendEmailVerification = async () => {
+    const status = await emailVerification.send()
+    if (status === "ALREADY_VERIFIED") {
+      isEmailVerified.value = true
+      verifiedEmails.add(emailVerification.email.value.toLowerCase())
     }
-    await sendVerificationCode()
-    isProcessing.value = false
+  }
+
+  const handleSendPhoneVerification = async () => {
+    const status = await phoneVerification.send()
+    if (status === "ALREADY_VERIFIED") await goToNextStep()
   }
 
   const goToNextStep = async () => {
+    isProcessing.value = true
     switch (step.value) {
       case 1:
         const [nameResult, usernameResult] = await Promise.all([
           nameValidate(),
           usernameValidate()
         ])
-        if (!nameResult.valid || !usernameResult.valid) return
-        isProcessing.value = true
+        if (!nameResult.valid || !usernameResult.valid) break
         if (username.value) {
-          try {
-            await api.check("username", username.value)
-          } catch (error) {
-            if (error instanceof AxiosError) {
-              const data = error.response?.data as ResponseErrorDto
-              if (data.errors) {
-                usernameServerError.value = data.errors.username
-                isProcessing.value = false
-                return
-              }
-              toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-            }
-            isProcessing.value = false
-            return
+          const status = await checkAvailability({
+            field: "username",
+            value: username.value
+          })
+          if (status === "TAKEN") {
+            usernameServerError.value = "Этот username занят"
+            break
           }
         }
         usernameServerError.value = undefined
         step.value = 2
-        isProcessing.value = false
         break
       case 2:
-        if (!email.value && !phone.value) {
-          toast.info("Укажите email или номер телефона")
-          return
+        if (!emailVerification.email.value && !phoneVerification.phone.value) {
+          toast.warning("Укажите email или номер телефона")
+          break
         }
         const [emailResult, phoneResult] = await Promise.all([
-          emailValidate(),
-          phoneValidate()
+          emailVerification.emailValidate(),
+          phoneVerification.phoneValidate()
         ])
-        if (!emailResult.valid || !phoneResult.valid) return
-        isProcessing.value = true
-        if (email.value) {
-          try {
-            const [, verified] = await Promise.all([
-              api.check("email", email.value),
-              checkRegistrationEmailVerification()
-            ])
-            if (!verified) {
-              toast.warning("Сначала подтвердите email")
-              verifiedEmails.delete(email.value.toLowerCase())
-              isEmailVerified.value = false
-              isProcessing.value = false
-              return
-            }
-            isEmailVerified.value = true
-            verifiedEmails.add(email.value.toLowerCase())
-          } catch (error) {
-            if (error instanceof AxiosError) {
-              const data = error.response?.data as ResponseErrorDto
-              if (data.errors) {
-                emailServerError.value = data.errors.email
-                isProcessing.value = false
-                return
-              }
-              toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-            }
-            isProcessing.value = false
-            return
+        if (!emailResult.valid || !phoneResult.valid) break
+        if (emailResult.value) {
+          const status = await emailVerification.checkRegistration()
+          if (status === "NOT_VERIFIED") {
+            verifiedEmails.delete(emailResult.value.toLowerCase())
+            isEmailVerified.value = false
+            break
+          }
+          isEmailVerified.value = true
+          verifiedEmails.add(emailResult.value.toLowerCase())
+        }
+        if (phoneResult.value) {
+          const status = await phoneVerification.checkRegistration()
+          if (status === "NOT_VERIFIED") {
+            phoneVerification.codeString.value = ""
+            phoneVerification.codeServerError.value = undefined
+            phoneVerification.codeSetErrors("")
+            step.value = 2.5
+            break
           }
         }
-        if (phone.value) {
-          try {
-            const [, verified] = await Promise.all([
-              api.check("phone", parsePhoneNumberFromString(phone.value)?.number as string),
-              checkRegistrationPhoneVerification()
-            ])
-            if (verified) step.value = 3
-            else {
-              codeString.value = ""
-              codeServerError.value = undefined
-              codeSetErrors("")
-              step.value = 2.5
-            }
-            isProcessing.value = false
-            return
-          } catch (error) {
-            if (error instanceof AxiosError) {
-              const data = error.response?.data as ResponseErrorDto
-              if (data.errors) {
-                phoneServerError.value = data.errors.phone
-                isProcessing.value = false
-                return
-              }
-              toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-              isProcessing.value = false
-            }
-            return
-          }
-        }
-        emailServerError.value = undefined
         step.value = 3
-        isProcessing.value = false
         break
       case 2.5:
-        isProcessing.value = true
-        const result = await verifyPhone()
-        if (result) {
-          step.value = 3
-        }
-        isProcessing.value = false
+        const result = await phoneVerification.verify()
+        if (result === "SUCCESS") step.value = 3
+        break
     }
+    isProcessing.value = false
   }
 
   const registerMutation = useMutation({
-    mutationFn: api.register,
+    mutationFn: authApi.register,
     onSuccess: () => {
-      toast.success("Аккаунт успешно создан")
-      router.push({ name: "Login" })
-      isProcessing.value = false
+      toast.success("Аккаунт создан")
+      router.replace({ name: "Login" })
     },
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          usernameServerError.value = data.errors.username
-          emailServerError.value = data.errors.email
-          phoneServerError.value = data.errors.phone
-          codeServerError.value = data.errors.code
-          loginServerError.value = data.errors.login
-          if (usernameServerError.value) step.value = 1
-          else if (emailServerError.value) {
-            verifiedEmails.delete(email.value.toLowerCase())
-            isEmailVerified.value = false
-            step.value = 2
-          }
-          else if (phoneServerError.value) step.value = 2
-          else if (codeServerError.value) step.value = 2.5
-          isProcessing.value = false
-          return
+      if (error instanceof ApiError) {
+        let targetStep: RegistrationStep = 3
+        switch (error.code) {
+          case ErrorCode.USERNAME_TAKEN:
+            usernameServerError.value = "Этот username занят"
+            targetStep = 1
+            break
+          case ErrorCode.EMAIL_TAKEN:
+            emailVerification.emailServerError.value = "Этот email занят"
+            targetStep = 2
+            break
+          case ErrorCode.PHONE_TAKEN:
+            phoneVerification.phoneServerError.value = "Этот номер телефона занят"
+            targetStep = 2
+            break
+          case ErrorCode.LOGIN_TAKEN:
+            loginServerError.value = "Этот логин занят"
+            break
+          case ErrorCode.EMAIL_VERIFICATION_EXPIRED:
+            toast.warning("Необходимо заново подтвердить email")
+            targetStep = 2
+            break
+          case ErrorCode.PHONE_VERIFICATION_EXPIRED:
+            toast.warning("Необходимо заново подтвердить номер телефона")
+            targetStep = 2.5
+            break
         }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
-      isProcessing.value = false
+        step.value = targetStep
+      } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 
   const register = handleSubmit(async (values) => {
     try {
-      await api.check("login", values.login)
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        const data = error.response?.data as ResponseErrorDto
-        if (data.errors) {
-          loginServerError.value = data.errors.login
-          return
-        }
-        toast.error(data.message ?? "Произошла ошибка сервера, попробуйте позже")
-      }
-      return
+      isProcessing.value = true
+      await registerMutation.mutateAsync(values)
+    } catch { } finally {
+      isProcessing.value = false
     }
-    isProcessing.value = true
-    registerMutation.mutate(values)
   })
 
   return {
     name, nameClientError, onNameBlur,
     username, usernameClientError, usernameServerError, onUsernameBlur,
-    email, emailClientError, emailServerError, onEmailBlur, isEmailVerified, sendVerificationEmailCooldown,
-    onPhoneInput, phoneString, onPhoneBlur, phoneClientError, phoneServerError,
-    onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
+    email: emailVerification.email, emailClientError: emailVerification.emailClientError, emailServerError: emailVerification.emailServerError, onEmailBlur: emailVerification.onEmailBlur, isEmailVerified, sendEmailCooldown: emailVerification.sendCooldown,
+    onPhoneInput: phoneVerification.onPhoneInput, phoneString: phoneVerification.phoneString, onPhoneBlur: phoneVerification.onPhoneBlur, phoneClientError: phoneVerification.phoneClientError, phoneServerError: phoneVerification.phoneServerError,
+    onCodeInput: phoneVerification.onCodeInput, codeString: phoneVerification.codeString, onCodeBlur: phoneVerification.onCodeBlur, codeClientError: phoneVerification.codeClientError, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
     login, loginClientError, loginServerError, onLoginBlur,
     password, passwordClientError, onPasswordBlur,
-    step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register
+    isProcessing, step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
   }
 }

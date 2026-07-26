@@ -1,6 +1,12 @@
+export type RegistrationStep = 1 | 2 | 2.5 | 3
+export type PasswordRecoveryStep = 1 | 2
+
 export type SendLoginWithPhoneResult = {
   timeLeftMs: number
 }
+
+export type SendLoginWithPhoneStatus = "VALIDATION_ERROR" | "SUCCESS" | "ERROR"
+export type CheckAvailabilityStatus = "AVAILABLE" | "TAKEN"
 
 export type GetPasswordRecoveryContactsResult = {
   email?: string
@@ -11,6 +17,8 @@ export type SendPasswordRecoveryResult = {
   to: "EMAIL" | "PHONE"
   timeLeftMs: number
 }
+
+export type SendPasswordRecoveryStatus = "VALIDATION_ERROR" | "SUCCESS" | "ERROR"
 
 export type MeDto = {
   profile: {
