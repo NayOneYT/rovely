@@ -138,8 +138,8 @@ export const authService = {
     if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
     if (!request) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
     const now = Date.now()
-    if (request.updatedAt.getTime() < now - config.auth.loginWithPhoneCodeTtlMs) throw new AppError(ErrorCode.CODE_EXPIRED)
-    if (data.code !== request.code) throw new AppError(ErrorCode.CODE_INVALID)
+    if (request.updatedAt.getTime() < now - config.auth.loginWithPhoneCodeTtlMs) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_EXPIRED)
+    if (data.code !== request.code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_INVALID)
     await prisma.loginWithPhoneRequest.delete({
       where: {
         phone: data.phone
