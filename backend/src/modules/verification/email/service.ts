@@ -117,4 +117,4 @@ export const emailVerificationService = {
   }
 }
 
-const generateUrl = (token: string) => `${config.clientUrl}/verification/email/verify/${token}`
+const generateUrl = (token: string) => `${config.clientUrl}/verify-email/${token}`

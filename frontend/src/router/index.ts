@@ -40,7 +40,7 @@ export const router = createRouter({
       meta: { title: "Регистрация | ROVELY" }
     },
     {
-      path: "/verification/email/verify/:token",
+      path: "/verify-email/:token",
       name: "VerifyEmail",
       component: () => import("@/pages/VerifyEmailPage.vue"),
       meta: { title: "Верификация почты | ROVELY" }
