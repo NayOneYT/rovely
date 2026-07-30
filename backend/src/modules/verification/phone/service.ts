@@ -130,7 +130,7 @@ const sendCode = async (telegramUserId: number, name: string, code: string, isNe
     `<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)${isNewAccount
       ? ", после подтверждения номер телефона будет считаться подтвержденным также <b>1 час</b>"
       : ""
-    }.</i>`
+    }</i>`
   ]
   await sendMessage(telegramUserId, messageRows.join("\n"))
 }
