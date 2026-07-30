@@ -1,6 +1,6 @@
 import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { optionalPhoneSchema, codeSchema } from "@/shared/schemas"
+import { phoneSchema, codeSchema } from "@/shared/schemas"
 import { ref, watch, computed, onUnmounted, type Ref, toValue } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import { phoneVerificationApi } from "./api"
@@ -22,7 +22,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
     meta: phoneMeta,
     handleBlur: phoneHandleBlur,
     handleChange: phoneHandleChange
-  } = useField<string>("phone", toTypedSchema(optionalPhoneSchema))
+  } = useField<string>("phone", toTypedSchema(phoneSchema))
 
   const phoneString = ref("")
   const onPhoneInput = (event: Event) => {
@@ -61,8 +61,8 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
     controlled: false
   })
 
-  const phoneServerError = ref<undefined | string>(undefined)
-  const codeServerError = ref<undefined | string>(undefined)
+  const phoneServerError = ref<string>()
+  const codeServerError = ref<string>()
 
   watch(phone, () => {
     phoneServerError.value = undefined
@@ -134,7 +134,6 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
     onError: (error) => {
       if (error instanceof ApiError) {
         if (error.code === ErrorCode.PHONE_VERIFICATION_EXPIRED) toast.warning("Необходимо заново подтвердить номер телефона")
-        else toast.warning("Сначала подтвердите номер телефона")
       } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
@@ -165,8 +164,11 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
           case ErrorCode.PHONE_TAKEN:
             phoneServerError.value = "Этот номер телефона занят"
             break
+          case ErrorCode.TELEGRAM_LINK_NOT_FOUND:
+            toast.warning("Сначала отправьте свой номер телефона нашему боту в Telegram")
+            break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
-            toast.error("Код для подтверждения недавно уже был отправлен")
+            toast.info("Код для подтверждения недавно уже был отправлен")
             startTimer(phone.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:

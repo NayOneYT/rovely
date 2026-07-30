@@ -2,6 +2,7 @@ import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { loginSchema } from "../schema"
 import { ref, watch, type Ref } from "vue"
+import { AsYouType } from "libphonenumber-js"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../api"
 import { useRouter } from "vue-router"
@@ -23,10 +24,26 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
     errorMessage: identifierClientError,
     validate: identifierValidate,
     meta: identifierMeta,
-    handleBlur: identifierHandleBlur
-  } = useField("identifier", undefined, {
+    handleBlur: identifierHandleBlur,
+    handleChange: identifierHandleChange
+  } = useField<string>("identifier", undefined, {
     validateOnValueUpdate: false
   })
+
+  const identifierString = ref<string>("")
+  const onIdentifierInput = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    if (!input.value.startsWith("+")) {
+      identifierString.value = input.value
+      identifierHandleChange(input.value, false)
+      return
+    }
+    let raw = input.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')
+    const formatted = new AsYouType().input(raw)
+    input.value = formatted
+    identifierString.value = formatted
+    identifierHandleChange(formatted, false)
+  }
 
   const {
     value: password,
@@ -42,8 +59,8 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
     handleChange: rememberMeHandleChange
   } = useField("rememberMe")
 
-  const identifierServerError = ref<undefined | string>(undefined)
-  const passwordServerError = ref<undefined | string>(undefined)
+  const identifierServerError = ref<string>()
+  const passwordServerError = ref<string>()
 
   watch(identifier, () => {
     identifierServerError.value = undefined
@@ -106,8 +123,9 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
   })
 
   return {
-    identifier, identifierClientError, identifierServerError, onIdentifierBlur,
+    identifierString, identifierClientError, identifierServerError, onIdentifierInput, onIdentifierBlur,
     password, passwordClientError, passwordServerError, onPasswordBlur,
+    rememberMe,
     login
   }
 }

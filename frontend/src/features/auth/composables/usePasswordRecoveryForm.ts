@@ -18,8 +18,8 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
   const sendTelegramMessageCooldown = computed(() => formattedTime("PHONE", identifier.value ?? ""))
 
   const step = ref<PasswordRecoveryStep>(1)
-  const blurredEmail = ref<string | undefined>(undefined)
-  const blurredPhone = ref<string | undefined>(undefined)
+  const blurredEmail = ref<string>()
+  const blurredPhone = ref<string>()
 
   const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(passwordRecoveryContactsSchema)
@@ -51,7 +51,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
     identifierHandleChange(formatted, false)
   }
 
-  const identifierServerError = ref<undefined | string>(undefined)
+  const identifierServerError = ref<string>()
 
   watch(identifier, () => {
     identifierServerError.value = undefined
@@ -70,7 +70,6 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
     onSuccess: (data) => {
       blurredEmail.value = data.email
       blurredPhone.value = data.phone
-      step.value = 2
     },
     onError: (error) => {
       if (error instanceof ApiError) identifierServerError.value = "Аккаунт не найден"
@@ -82,6 +81,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
     try {
       isProcessing.value = true
       await getContactsMutation.mutateAsync(values)
+      step.value = 2
     } catch { } finally {
       isProcessing.value = false
     }
@@ -100,11 +100,11 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
       if (error instanceof ApiError) {
         switch (error.code) {
           case ErrorCode.SEND_EMAIL_COOLDOWN:
-            toast.error("Письмо для восстановления недавно уже было отправлено")
+            toast.info("Письмо для восстановления недавно уже было отправлено")
             startTimer("EMAIL", identifier.value.toLowerCase(), error.timeLeftMs)
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
-            toast.error("Сообщение для восстановления недавно уже было отправлено")
+            toast.info("Сообщение для восстановления недавно уже было отправлено")
             startTimer("PHONE", identifier.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
@@ -133,7 +133,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
   onUnmounted(clearAllTimers)
 
   return {
-    identifierString, onIdentifierInput, identifierClientError, identifierServerError, onIdentifierBlur,
+    identifierString, identifierClientError, identifierServerError, onIdentifierInput, onIdentifierBlur,
     step, blurredEmail, blurredPhone, sendEmailCooldown, sendTelegramMessageCooldown,
     getContacts, send
   }

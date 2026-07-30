@@ -1,7 +1,8 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { authApi } from '../features/auth/api'
+import { createRouter, createWebHistory } from "vue-router"
+import WelcomePage from "../pages/welcome/WelcomePage.vue"
+import { authApi } from "../features/auth/api"
 
-const router = createRouter({
+export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
@@ -11,43 +12,49 @@ const router = createRouter({
     {
       path: "/login",
       name: "Login",
-      component: () => import("@/pages/HomePage.vue"),
+      component: WelcomePage,
       meta: { title: "Вход | ROVELY" }
+    },
+    {
+      path: "/login-with-phone",
+      name: "LoginWithPhone",
+      component: WelcomePage,
+      meta: { title: "Вход по номеру телефона | ROVELY" }
     },
     {
       path: "/password-recovery",
       name: "PasswordRecovery",
-      component: () => import("@/pages/HomePage.vue"),
+      component: WelcomePage,
       meta: { title: "Восстановление пароля | ROVELY" }
     },
     {
       path: "/reset-password/:token",
       name: "ResetPassword",
-      component: () => import("@/pages/ResetPassword.vue"),
+      component: () => import("@/pages/ResetPasswordPage.vue"),
       meta: { title: "Сброс пароля | ROVELY" }
     },
     {
       path: "/registration",
       name: "Registration",
-      component: () => import("@/pages/HomePage.vue"),
+      component: () => WelcomePage,
       meta: { title: "Регистрация | ROVELY" }
     },
     {
       path: "/verification/email/verify/:token",
       name: "VerifyEmail",
-      component: () => import("@/pages/VerifyEmail.vue"),
+      component: () => import("@/pages/VerifyEmailPage.vue"),
       meta: { title: "Верификация почты | ROVELY" }
     },
     {
       path: "/terms",
       name: "Terms",
-      component: () => import("@/pages/LegalPage.vue"),
+      component: () => import("@/pages/legal/LegalPage.vue"),
       meta: { title: "Правила пользования | ROVELY" }
     },
     {
       path: "/privacy",
       name: "Privacy",
-      component: () => import("@/pages/LegalPage.vue"),
+      component: () => import("@/pages/legal/LegalPage.vue"),
       meta: { title: "Политика конфиденциальности | ROVELY" }
     }
   ],
@@ -83,5 +90,3 @@ router.afterEach((to) => {
     document.title = title
   }
 })
-
-export default router

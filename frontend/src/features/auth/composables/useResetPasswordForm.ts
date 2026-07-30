@@ -2,17 +2,17 @@ import { useForm, useField } from "vee-validate"
 import { useRoute } from "vue-router"
 import { toTypedSchema } from "@vee-validate/zod"
 import { resetPasswordSchema } from "../schema"
-import { ref, watch, type Ref } from "vue"
+import { ref, watch } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../api"
-import { ApiError, ErrorCode } from "@/shared/api/types"
+import { ApiError } from "@/shared/api/types"
 import { toast } from "vue-sonner"
+import type { ResetPasswordStatus } from "../types"
 
 export const useResetPasswordForm = () => {
-  const isProcessing = ref<boolean>(false)
-  const isTokenValid = ref<boolean>(false)
   const route = useRoute()
   const externalToken = route.params.token as string
+  const status = ref<ResetPasswordStatus>("CHECKING")
 
   if (externalToken) {
     const urlWithoutToken = window.location.pathname.replace(`/${externalToken}`, '')
@@ -60,21 +60,22 @@ export const useResetPasswordForm = () => {
 
   const check = async () => {
     try {
-      isProcessing.value = true
       const tokenResult = await tokenValidate()
-      if (!tokenResult.valid) return
+      if (!tokenResult.valid) {
+        status.value = "TOKEN_INVALID"
+        return
+      }
       await checkMutation.mutateAsync({ token: token.value })
-      isTokenValid.value = true
-    } catch { } finally {
-      isProcessing.value = false
+      status.value = "READY"
+    } catch {
+      status.value = "TOKEN_INVALID"
     }
   }
 
+  check()
+
   const resetMutation = useMutation({
     mutationFn: authApi.resetPassword,
-    onSuccess: () => {
-      toast.success("Пароль изменен")
-    },
     onError: (error) => {
       if (!(error instanceof ApiError)) toast.error("Что-то пошло не так, попробуйте позже")
     }
@@ -82,16 +83,16 @@ export const useResetPasswordForm = () => {
 
   const reset = handleSubmit(async (values) => {
     try {
-      isProcessing.value = true
+      status.value = "RESETTING"
       await resetMutation.mutateAsync(values)
-    } catch { } finally {
-      isTokenValid.value = false
-      isProcessing.value = false
+      status.value = "SUCCESS"
+    } catch {
+      status.value = "TOKEN_INVALID"
     }
   })
 
   return {
     password, passwordClientError, onPasswordBlur,
-    isProcessing, isTokenValid, check, reset
+    status, reset
   }
 }

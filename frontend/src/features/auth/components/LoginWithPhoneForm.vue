@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { useLocalStorage } from "@vueuse/core"
-import { ref } from "vue"
-import { useLoginForm } from "../composables/useLoginForm"
+import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError } from "@/shared/components/ui"
-import { EyeOpenIcon, EyeClosedIcon, CheckIcon, LoadingIcon, GoogleIcon } from "@/shared/components/icons"
+import { TelegramIcon, CheckIcon, LoadingIcon, GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
-const showPassword = ref(false)
 
-const { 
-  identifierString, identifierClientError, identifierServerError, onIdentifierInput, onIdentifierBlur,
-  password, passwordClientError, passwordServerError, onPasswordBlur,
+const {
+  phoneString, onPhoneInput, onPhoneBlur, phoneClientError, phoneServerError,
+  codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCooldown,
   rememberMe,
-  login
-} = useLoginForm(isProcessing)
+  login, send
+} = useLoginWithPhoneForm(isProcessing)
 
 const { 
   googleClient
@@ -25,62 +23,63 @@ const handleGoogleLogin = () => {
   isProcessing.value = true
   googleClient.requestCode()
 }
+
 </script>
 
 <template>
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт</p>
   <form @submit="login" class="flex flex-col">
-    <label for="identifier" class="texl-lg pb-0.5 self-start">Логин, email или номер телефона</label>
-    <input 
-      :value="identifierString"
-      @input="onIdentifierInput"
-      @blur="onIdentifierBlur"
+    <label for="phone" class="texl-lg pb-0.5 self-start">Телефон</label>
+    <input
+      :value="phoneString"
+      @input="onPhoneInput"
+      @blur="onPhoneBlur"
       :disabled="isProcessing"
-      id="identifier"
-      autocomplete="username"
-      type="text"
-      maxlength="254"
-      placeholder="NayOne | email@example.com | +375 29 123 45 67" 
-      spellcheck="false"
+      id="phone"
+      autocomplete="tel"
+      type="tel"
+      placeholder="+375 29 123 45 67"
       class="
       w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
       "
     >
-    <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
-    <label for="password" class="texl-lg pb-0.5 mt-4 self-start">Пароль</label>
+    <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
+    <label for="code" class="texl-lg pb-0.5 mt-4 self-start">Код подтверждения</label>
     <div 
       class="
-      group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28] 
+      group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
       focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
       "
     >
       <input
-        v-model="password"
-        @blur="onPasswordBlur"
+        :value="codeString"
+        @input="onCodeInput"
+        @blur="onCodeBlur"
         :disabled="isProcessing"
-        :type="showPassword ? 'text' : 'password'"
-        id="password"
-        autocomplete="current-password"
-        maxlength="72"
+        id="code"
+        type="text"
+        inputmode="numeric"
+        maxlength="6"
+        placeholder="123456"
         class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
       <div class="w-14 px-3 flex items-center justify-center">
         <button
           type="button"
-          @click="showPassword = !showPassword"
+          @click="send"
           @mousedown.prevent
-          class="p-3 text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
-          :disabled="isProcessing"
+          :disabled="!!sendCooldown || isProcessing"
+          class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
         >
-          <EyeOpenIcon v-if="showPassword" class="size-6" />
-          <EyeClosedIcon v-else class="size-6" />
+          <TelegramIcon :class="sendCooldown ? 'size-6 mt-1' : 'size-8 m-2'" />
+          <p v-if="sendCooldown" class="text-sm">{{ sendCooldown }}</p>
         </button>
       </div>
     </div>
-    <InputError :clientError="passwordClientError" :serverError="passwordServerError" />
+    <InputError :clientError="codeClientError" :serverError="codeServerError" />
     <div class="flex justify-between mt-4 mb-5">
       <label class="group flex items-center" :class="isProcessing ? 'pointer-events-none' : ''">
         <input 
@@ -90,8 +89,7 @@ const handleGoogleLogin = () => {
           class="peer sr-only"
         >
         <div 
-          class="
-          w-5 h-5 cursor-pointer bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center 
+          class="w-5 h-5 cursor-pointer bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center 
           peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all
           "
         >
@@ -99,22 +97,14 @@ const handleGoogleLogin = () => {
         </div>
         <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
       </label>
-      <RouterLink
-        :to="'/password-recovery'"
-        :tabindex="isProcessing ? -1 : 0"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
-      >
-        Забыли пароль?
-      </RouterLink>
     </div>
     <button
-      :disabled="isProcessing"
-      :class="isProcessing ? 'pointer-events-none' : ''"
       class="
       relative w-full p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
       hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
       "
+      :disabled="isProcessing"
+      :class="isProcessing ? 'pointer-events-none' : ''"
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
       <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
@@ -131,7 +121,7 @@ const handleGoogleLogin = () => {
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
   </div>
   <RouterLink
-    to="/login-with-phone"
+    to="/login"
     :tabindex="isProcessing ? -1 : 0"
     :class="isProcessing ? 'pointer-events-none' : ''"
     class="
@@ -141,7 +131,7 @@ const handleGoogleLogin = () => {
     focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]
     "
   >
-    Войти по номеру телефона
+    Войти с паролем
   </RouterLink>
   <button
     @click="handleGoogleLogin"

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 const letters = [
   { char: "R", duration: 3.5},
   { char: "O", duration: 3},

@@ -1,5 +1,8 @@
 import { z } from "zod"
-import { tokenSchema, emailSchema, nameSchema, accountIdSchema } from "@/shared/schemas"
+import {
+  makeOptional,
+  tokenSchema, emailSchema, nameSchema, accountIdSchema
+} from "@/shared/schemas"
 
 export const verifySchema = z.object({
   token: tokenSchema
@@ -10,11 +13,9 @@ const checkRegistrationSchema = z.object({
 })
 
 const sendSchema = z.object({
-  name: nameSchema
-    .optional(),
+  name: makeOptional(nameSchema),
   email: emailSchema,
-  accountId: accountIdSchema
-    .optional()
+  accountId: makeOptional(accountIdSchema)
 })
 
 export type VerifyDto = z.infer<typeof verifySchema>

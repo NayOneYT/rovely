@@ -6,7 +6,6 @@ export type SendLoginWithPhoneResult = {
 }
 
 export type SendLoginWithPhoneStatus = "VALIDATION_ERROR" | "SUCCESS" | "ERROR"
-export type CheckAvailabilityStatus = "AVAILABLE" | "TAKEN"
 
 export type GetPasswordRecoveryContactsResult = {
   email?: string
@@ -19,6 +18,7 @@ export type SendPasswordRecoveryResult = {
 }
 
 export type SendPasswordRecoveryStatus = "VALIDATION_ERROR" | "SUCCESS" | "ERROR"
+export type ResetPasswordStatus = "CHECKING" | "TOKEN_INVALID" | "READY" | "RESETTING" | "SUCCESS"
 
 export type MeDto = {
   profile: {

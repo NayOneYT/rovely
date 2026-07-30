@@ -1,6 +1,6 @@
 import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { optionalEmailSchema } from "@/shared/schemas"
+import { emailSchema } from "@/shared/schemas"
 import { ref, watch, computed, onUnmounted, type Ref, toValue } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import { emailVerificationApi } from "../api"
@@ -21,12 +21,11 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
     meta: emailMeta,
     handleBlur: emailHandleBlur,
     handleChange: emailHandleChange
-  } = useField<string>("email", toTypedSchema(optionalEmailSchema), {
+  } = useField<string>("email", toTypedSchema(emailSchema), {
     validateOnValueUpdate: false,
-
   })
 
-  const emailServerError = ref<undefined | string>(undefined)
+  const emailServerError = ref<string>()
 
   watch(email, () => {
     emailServerError.value = undefined
@@ -78,7 +77,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
             emailServerError.value = "Этот email занят"
             break
           case ErrorCode.SEND_EMAIL_COOLDOWN:
-            toast.error("Письмо для подтверждения недавно уже было отправлено")
+            toast.info("Письмо для подтверждения недавно уже было отправлено")
             startTimer(email.value.toLowerCase(), error.timeLeftMs)
             break
         }

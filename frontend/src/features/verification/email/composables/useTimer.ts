@@ -4,10 +4,11 @@ export const useEmailVerificationTimer = () => {
   const timers = ref<Record<string, number>>({})
   const intervals: Record<string, number> = {}
 
-  const startTimer = (email: string, seconds: number) => {
+  const startTimer = (email: string, timeLeftMs: number) => {
     if (intervals[email]) clearInterval(intervals[email])
 
-    timers.value[email] = seconds
+    const timeLeftSec = Math.floor(timeLeftMs / 1000)
+    timers.value[email] = timeLeftSec
 
     intervals[email] = setInterval(() => {
       if (timers.value[email]! > 0) timers.value[email]!--

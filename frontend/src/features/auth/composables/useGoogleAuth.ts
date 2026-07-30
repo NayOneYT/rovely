@@ -11,11 +11,6 @@ export const useGoogleAuth = (isProcessing: Ref<boolean>) => {
   const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 
   const authenticate = async (response: google.accounts.oauth2.CodeResponse) => {
-    if (response.error) {
-      toast.info("Авторизация через Google была отменена")
-      isProcessing.value = false
-      return
-    }
     try {
       await authApi.google(response.code)
       const account = await authApi.me()

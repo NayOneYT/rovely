@@ -6,7 +6,7 @@ type LegalSection = {
   tables?: Array<Record<string, string | Array<string>>>
 }
 
-export const privacySections: Array<LegalSection> = [
+export const PRIVACY_SECTIONS: Array<LegalSection> = [
   {
     id: "obschie-polozheniya",
     title: "1. Общие положения",
@@ -178,7 +178,7 @@ export const privacySections: Array<LegalSection> = [
   }
 ]
 
-export const termSections: Array<LegalSection> = [
+export const TERM_SECTIONS: Array<LegalSection> = [
   {
     id: "obschie-polozheniya",
     title: "1. Общие положения",

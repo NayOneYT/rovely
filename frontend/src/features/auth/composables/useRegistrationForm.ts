@@ -9,7 +9,7 @@ import { useRouter } from "vue-router"
 import { useEmailVerification } from "@/features/verification/email/composables/useEmailVerification"
 import { usePhoneVerification } from "@/features/verification/phone/usePhoneVerification"
 import { toast } from "vue-sonner"
-import type { RegistrationStep, CheckAvailabilityStatus } from "../types"
+import type { RegistrationStep } from "../types"
 
 export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const step = ref<RegistrationStep>(1)
@@ -65,8 +65,8 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const emailVerification = useEmailVerification(isProcessing, name)
   const phoneVerification = usePhoneVerification(isProcessing, name)
 
-  const usernameServerError = ref<undefined | string>(undefined)
-  const loginServerError = ref<undefined | string>(undefined)
+  const usernameServerError = ref<string>()
+  const loginServerError = ref<string>()
 
   watch(name, () => {
     if (nameMeta.touched) nameValidate()
@@ -121,12 +121,12 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     }
   })
 
-  const checkAvailability = async (data: CheckAvailabilityDto): Promise<CheckAvailabilityStatus> => {
+  const checkAvailability = async (data: CheckAvailabilityDto) => {
     try {
       await checkAvailabilityMutation.mutateAsync(data)
-      return "AVAILABLE"
+      return true
     } catch {
-      return "TAKEN"
+      return false
     }
   }
 
@@ -153,11 +153,11 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         ])
         if (!nameResult.valid || !usernameResult.valid) break
         if (username.value) {
-          const status = await checkAvailability({
+          const available = await checkAvailability({
             field: "username",
             value: username.value
           })
-          if (status === "TAKEN") {
+          if (!available) {
             usernameServerError.value = "Этот username занят"
             break
           }
@@ -175,17 +175,33 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           phoneVerification.phoneValidate()
         ])
         if (!emailResult.valid || !phoneResult.valid) break
-        if (emailResult.value) {
+        if (emailVerification.email.value) {
+          const available = await checkAvailability({
+            field: "email",
+            value: emailVerification.email.value
+          })
+          if (!available) {
+            emailVerification.emailServerError.value = "Этот email занят"
+            break
+          }
           const status = await emailVerification.checkRegistration()
           if (status === "NOT_VERIFIED") {
-            verifiedEmails.delete(emailResult.value.toLowerCase())
+            verifiedEmails.delete(emailVerification.email.value.toLowerCase())
             isEmailVerified.value = false
             break
           }
           isEmailVerified.value = true
-          verifiedEmails.add(emailResult.value.toLowerCase())
+          verifiedEmails.add(emailVerification.email.value.toLowerCase())
         }
-        if (phoneResult.value) {
+        if (phoneVerification.phone.value) {
+          const available = await checkAvailability({
+            field: "phone",
+            value: phoneVerification.phone.value
+          })
+          if (!available) {
+            phoneVerification.phoneServerError.value = "Этот номер телефона занят"
+            break
+          }
           const status = await phoneVerification.checkRegistration()
           if (status === "NOT_VERIFIED") {
             phoneVerification.codeString.value = ""
@@ -261,6 +277,6 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     onCodeInput: phoneVerification.onCodeInput, codeString: phoneVerification.codeString, onCodeBlur: phoneVerification.onCodeBlur, codeClientError: phoneVerification.codeClientError, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
     login, loginClientError, loginServerError, onLoginBlur,
     password, passwordClientError, onPasswordBlur,
-    isProcessing, step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
+    step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
   }
 }

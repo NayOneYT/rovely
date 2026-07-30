@@ -1,27 +1,25 @@
 <script setup lang="ts">
+import { useLocalStorage } from "@vueuse/core"
 import { ref } from "vue"
 import { useRegistrationForm } from "../composables/useRegistrationForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { useLocalStorage } from "@vueuse/core"
-import InputError from "@/shared/components/icons/InputError.vue"
-import SvgGoogle from "@/shared/components/icons/SvgGoogle.vue"
-import SvgEmail from "@/shared/components/icons/SvgEmail.vue"
-import SvgEyeOpen from "@/shared/components/icons/SvgEyeOpen.vue"
-import SvgEyeClosed from "@/shared/components/icons/SvgEyeClosed.vue"
-import SvgTelegram from "@/shared/components/icons/SvgTelegram.vue"
-import SvgCheck from "@/shared/components/icons/SvgCheck.vue"
+import { InputError } from "@/shared/components/ui"
+import { EmailIcon, TelegramIcon, EyeOpenIcon, EyeClosedIcon, CheckIcon, GoogleIcon } from "@/shared/components/icons"
 
-const isProcessing = ref<boolean>(false)
+const isProcessing = defineModel<boolean>({ default: false })
+const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
+const showPassword = ref(false)
+const acceptedTerms = ref(false)
 
 const {
-  name, nameClientError, onNameBlur,
+ name, nameClientError, onNameBlur,
   username, usernameClientError, usernameServerError, onUsernameBlur,
-  email, emailClientError, emailServerError, onEmailBlur, isEmailVerified, sendVerificationEmailCooldown,
-  phoneClientError, phoneServerError, onPhoneBlur, onPhoneInput, phoneString,
-  onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendCodeCooldown,
+  email, emailClientError, emailServerError, onEmailBlur, isEmailVerified, sendEmailCooldown,
+  onPhoneInput, phoneString, onPhoneBlur, phoneClientError, phoneServerError,
+  onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendTelegramMessageCooldown,
   login, loginClientError, loginServerError, onLoginBlur,
   password, passwordClientError, onPasswordBlur,
-  step, handleSendVerificationEmail, handleSendVerificationCode, goToNextStep, register
+  step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
 } = useRegistrationForm(isProcessing)
 
 const { 
@@ -32,17 +30,13 @@ const handleGoogleRegistration = () => {
   isProcessing.value = true
   googleClient.requestCode()
 }
-
-const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
-const showPassword = ref(false)
-const acceptedTerms = ref(false)
 </script>
 
 <template>
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Расскажите нам о себе</p>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 1">
-    <label for="name" class="texl-lg pb-0.5 self-start">Отображаемое имя (необязательно)</label>
+    <label for="name" class="texl-lg pb-0.5 self-start">Отображаемое имя</label>
     <input 
       v-model="name"
       @blur="onNameBlur"
@@ -56,7 +50,7 @@ const acceptedTerms = ref(false)
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="nameClientError" />
-    <label for="username" class="texl-lg pb-0.5 mt-4 self-start">Имя пользователя (необязательно)</label>
+    <label for="username" class="texl-lg pb-0.5 mt-4 self-start">Имя пользователя</label>
     <input 
       v-model="username"
       @blur="onUsernameBlur"
@@ -82,7 +76,7 @@ const acceptedTerms = ref(false)
       </span>
     </button>
   </form>
-  <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2">
+  <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2" novalidate>
     <label for="email" class="texl-lg pb-0.5 self-start">Email</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
@@ -104,18 +98,27 @@ const acceptedTerms = ref(false)
       <div class="w-14 px-3 flex items-center justify-center">
         <button
           type="button"
-          @click="handleSendVerificationEmail"
+          @click="handleSendEmailVerification"
           @mousedown.prevent
-          :disabled="isEmailVerified || !!sendVerificationEmailCooldown || isProcessing"
+          :disabled="isEmailVerified || !!sendEmailCooldown || isProcessing"
           class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
         >
-          <SvgEmail :class="sendVerificationEmailCooldown && !isEmailVerified ? 'size-5 mt-1' : 'size-6 m-3'" />
-          <p v-if="sendVerificationEmailCooldown && !isEmailVerified" class="text-sm">{{ sendVerificationEmailCooldown }}</p>
+          <EmailIcon 
+            :class="!!sendEmailCooldown && !isEmailVerified
+              ? 'size-5 mt-1' 
+              : 'size-6 m-3'"
+            />
+          <p 
+            v-if="!!sendEmailCooldown && !isEmailVerified" 
+            class="text-sm"
+          >
+            {{ sendEmailCooldown }}
+          </p>
         </button>
       </div>
     </div>
     <InputError :clientError="emailClientError" :serverError="emailServerError" />
-    <label for="phone" class="texl-lg pb-0.5 mt-4 self-start">Телефон</label>
+    <label for="phone" class="texl-lg pb-0.5 mt-4 self-start">Номер телефона</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -131,7 +134,7 @@ const acceptedTerms = ref(false)
       "
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
-    <p class="text-white/40 font-light mt-2"><i>* Достаточно указать одно из полей</i></p>
+    <p class="text-white/40 font-light mt-2"><i>Достаточно указать одно из полей</i></p>
     <div class="flex justify-between mt-6">
       <button
         @click.prevent="step = 1"
@@ -179,13 +182,22 @@ const acceptedTerms = ref(false)
       <div class="w-14 px-3 flex items-center justify-center">
         <button
           type="button"
-          @click="handleSendVerificationCode"
+          @click="handleSendPhoneVerification"
           @mousedown.prevent
-          :disabled="!!sendCodeCooldown || isProcessing"
+          :disabled="!!sendTelegramMessageCooldown || isProcessing"
           class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
         >
-          <SvgTelegram :class="sendCodeCooldown ? 'size-6 mt-1' : 'size-8 m-2'" />
-          <p v-if="sendCodeCooldown" class="text-sm">{{ sendCodeCooldown }}</p>
+          <TelegramIcon 
+            :class="!!sendTelegramMessageCooldown 
+              ? 'size-6 mt-1' 
+              : 'size-8 m-2'" 
+          />
+          <p 
+            v-if="!!sendTelegramMessageCooldown"
+            class="text-sm"
+          >
+            {{ sendTelegramMessageCooldown }}
+          </p>
         </button>
       </div>
     </div>
@@ -261,7 +273,6 @@ const acceptedTerms = ref(false)
         id="password"
         autocomplete="current-password"
         maxlength="72"
-        placeholder="Введите пароль"
         class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
@@ -273,8 +284,8 @@ const acceptedTerms = ref(false)
           type="button"
           class="p-3 text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
         >
-          <SvgEyeOpen v-if="showPassword" class="size-6" />
-          <SvgEyeClosed v-else class="size-6" />
+          <EyeOpenIcon v-if="showPassword" class="size-6" />
+          <EyeClosedIcon v-else class="size-6" />
         </button>
       </div>
     </div>
@@ -292,29 +303,31 @@ const acceptedTerms = ref(false)
           class="w-5 h-5 bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center
           cursor-pointer peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all"
         >
-          <SvgCheck class="size-4" />
+          <CheckIcon class="size-4" />
         </div>
         <span 
           :class="isProcessing ? 'pointer-events-none' : ''"
           class="pl-1 select-none text-white/60 cursor-pointer peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all"
         >
           <span>Я принимаю </span> 
-          <router-link 
-            :class="isProcessing ? 'pointer-events-none' : ''"
+          <RouterLink 
             to="/terms" 
-            target="_blank" 
+            target="_blank"
+            :tabindex="isProcessing ? -1 : 0"
+            :class="isProcessing ? 'pointer-events-none' : ''"
             class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
           >
-            условия</router-link> <!-- if you move </router-link> to a new line, the space before "и" will also be underlined -->
+            условия</RouterLink> <!-- if you move </RouterLink> to a new line, the space before "и" will also be underlined -->
           <span> и </span> 
-          <router-link 
-            :class="isProcessing ? 'pointer-events-none' : ''"
+          <RouterLink 
             to="/privacy" 
-            target="_blank" 
+            target="_blank"
+            :tabindex="isProcessing ? -1 : 0"
+            :class="isProcessing ? 'pointer-events-none' : ''"
             class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
           >
             политику
-          </router-link>
+          </RouterLink>
         </span>
       </label>
     </div>
@@ -357,7 +370,7 @@ const acceptedTerms = ref(false)
     select-none cursor-pointer hover:border-[#13d373] hover:text-white hover:shadow-[0_0_6px_#13d373] 
     focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all duration-200"
   >
-    <SvgGoogle class="size-5" />
+    <GoogleIcon class="size-5" />
     Продолжить с Google
   </button>
 </template>

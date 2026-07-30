@@ -2,7 +2,7 @@ import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { loginWithPhoneSchema } from "../schema"
 import { ref, computed, watch, onUnmounted, type Ref } from "vue"
-import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js"
+import { AsYouType } from "libphonenumber-js"
 import { useMessageTimer } from "@/shared/composables/useMessageTimer"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../api"
@@ -67,8 +67,8 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
     handleChange: rememberMeHandleChange
   } = useField("rememberMe")
 
-  const phoneServerError = ref<undefined | string>(undefined)
-  const codeServerError = ref<undefined | string>(undefined)
+  const phoneServerError = ref<string>()
+  const codeServerError = ref<string>()
 
   watch(phone, () => {
     phoneServerError.value = undefined
@@ -146,7 +146,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
             phoneServerError.value = "Аккаунт не найден"
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
-            toast.error("Код для входа недавно уже был отправлен")
+            toast.info("Код для входа недавно уже был отправлен")
             startTimer(phone.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
@@ -179,6 +179,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   return {
     phoneString, onPhoneInput, onPhoneBlur, phoneClientError, phoneServerError,
     codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCooldown,
+    rememberMe,
     login, send
   }
 }

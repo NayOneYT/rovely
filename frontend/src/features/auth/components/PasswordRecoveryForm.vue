@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import { ref } from "vue"
 import { usePasswordRecoveryForm } from "../composables/usePasswordRecoveryForm"
-import InputError from "@/shared/components/ui/InputError.vue"
-import SvgEmail from "@/shared/components/icons/SvgEmail.vue"
-import SvgTelegram from "@/shared/components/icons/SvgTelegram.vue"
+import { InputError } from "@/shared/components/ui"
+import { EmailIcon, TelegramIcon } from "@/shared/components/icons"
 
-const isProcessing = ref<boolean>(false)
+const isProcessing = defineModel<boolean>({ default: false })
 
 const {
-  identifierString, onIdentifierInput, identifierClientError, identifierServerError, onIdentifierBlur,
-  passwordRecoveryContacts, sendPasswordRecovery,
-  step, email, phone, sendPasswordRecoveryEmailCooldown, sendPasswordRecoveryMessageCooldown
+  identifierString, identifierClientError, identifierServerError, onIdentifierInput, onIdentifierBlur,
+  step, blurredEmail, blurredPhone, sendEmailCooldown, sendTelegramMessageCooldown,
+  getContacts, send
 } = usePasswordRecoveryForm(isProcessing)
 </script>
 
 <template>
   <p class="text-4xl font-medium cursor-default">Восстановление пароля</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">{{ step === 1 ? "Что за аккаунт?" : "Как будем восстанавливать?" }}</p>
-  <form v-if="step === 1" @submit="passwordRecoveryContacts" class="flex flex-col">
+  <form v-if="step === 1" @submit="getContacts" class="flex flex-col">
     <label for="identifier" class="texl-lg pb-0.5 self-start">Логин, email или номер телефона</label>
     <input 
       :value="identifierString"
@@ -37,14 +35,18 @@ const {
     >
     <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
     <div class="flex justify-between mt-6">
-      <router-link
+      <RouterLink
         to="/"
+        :tabindex="isProcessing ? -1 : 0"
+        :class="isProcessing ? 'pointer-events-none' : ''"
         class="w-50 texl-lg text-center bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
         cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         На главную
-      </router-link>
+      </RouterLink>
       <button
+        :disabled="isProcessing"
+        :class="isProcessing ? 'pointer-events-none' : ''"
         class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
         cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
       >
@@ -57,10 +59,10 @@ const {
   </form>
   <div v-else class="flex flex-col">
     <button 
-      v-if="email"
-      @click="sendPasswordRecovery('EMAIL')"
-      :disabled="isProcessing || !!sendPasswordRecoveryEmailCooldown"
-      :class="isProcessing || sendPasswordRecoveryEmailCooldown ? 'pointer-events-none' : ''"
+      v-if="blurredEmail"
+      @click="send('EMAIL')"
+      :disabled="isProcessing || !!sendEmailCooldown"
+      :class="isProcessing || sendEmailCooldown ? 'pointer-events-none' : ''"
       class="
       relative w-full rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
       hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
@@ -68,23 +70,23 @@ const {
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
       <span class="flex justify-center items-center gap-3 z-10 font-bold texl-lg select-none">
-        <span class="py-3">Письмо на {{ email }}</span>
+        <span class="py-3">Письмо на {{ blurredEmail }}</span>
         <span class="flex flex-row items-center gap-1">
-          <SvgEmail class="size-6" />
+          <EmailIcon class="size-6" />
           <p 
-            v-if="sendPasswordRecoveryEmailCooldown" 
+            v-if="sendEmailCooldown" 
             class="text-sm"
           >
-            {{ sendPasswordRecoveryEmailCooldown }}
+            {{ sendEmailCooldown }}
           </p>
         </span>
       </span>
     </button>
     <button 
-      v-if="phone"
-      @click="sendPasswordRecovery('PHONE')"
-      :disabled="isProcessing || !!sendPasswordRecoveryMessageCooldown"
-      :class="isProcessing || sendPasswordRecoveryMessageCooldown ? 'pointer-events-none' : ''"
+      v-if="blurredPhone"
+      @click="send('PHONE')"
+      :disabled="isProcessing || !!sendTelegramMessageCooldown"
+      :class="isProcessing || sendTelegramMessageCooldown ? 'pointer-events-none' : ''"
       class="
       relative w-full mt-2 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
       hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
@@ -92,14 +94,14 @@ const {
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
       <span class="flex justify-center items-center gap-2 z-10 font-bold texl-lg select-none">
-        <span class="py-3">Сообщение на {{ phone }}</span>
+        <span class="py-3">Сообщение на {{ blurredPhone }}</span>
         <span class="flex flex-row items-center">
-          <SvgTelegram class="size-8" />
+          <TelegramIcon class="size-8" />
           <p 
-            v-if="sendPasswordRecoveryMessageCooldown" 
+            v-if="sendTelegramMessageCooldown" 
             class="text-sm"
           >
-            {{ sendPasswordRecoveryMessageCooldown }}
+            {{ sendTelegramMessageCooldown }}
           </p>
         </span>
       </span>
