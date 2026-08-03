@@ -19,7 +19,7 @@ const { isProcessing, currentForm } = useAuthWidget()
         :style="{ transform: currentForm === RegistrationForm ? 'translateX(100%)' : 'translateX(0)' }"
       />
       <RouterLink
-        :to="currentForm === RegistrationForm ? '/login' : ''"
+        :to="{ name: 'Login' }"
         :tabindex="isProcessing || (currentForm === LoginForm || currentForm === LoginWithPhoneForm) ? -1 : 0"
         :class="[
           isProcessing || (currentForm === LoginForm || currentForm === LoginWithPhoneForm) ? 'pointer-events-none' : '', 
@@ -32,7 +32,7 @@ const { isProcessing, currentForm } = useAuthWidget()
         Вход
       </RouterLink>
       <RouterLink
-        :to="`/registration`"
+        :to="{ name: 'Registration' }"
         :tabindex="isProcessing || currentForm === RegistrationForm ? -1 : 0"
         :class="[
           isProcessing || currentForm === RegistrationForm ? 'pointer-events-none' : '', 

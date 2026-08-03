@@ -121,7 +121,7 @@ const handleGoogleLogin = () => {
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
   </div>
   <RouterLink
-    to="/login"
+    :to="{ name: 'Login' }"
     :tabindex="isProcessing ? -1 : 0"
     :class="isProcessing ? 'pointer-events-none' : ''"
     class="

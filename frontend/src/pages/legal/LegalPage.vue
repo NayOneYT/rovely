@@ -87,7 +87,7 @@ const { currentTitle, currentSections, activeSections, currentFooterNote } = use
         </div>
         <div class="flex gap-6 text-white/60">
           <RouterLink 
-            to="/" 
+            :to="{ name: 'Login' }" 
             class="hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200"
           >
             Главная

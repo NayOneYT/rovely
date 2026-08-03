@@ -36,7 +36,7 @@ const {
     <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
     <div class="flex justify-between mt-6">
       <RouterLink
-        to="/"
+        :to="{ name: 'Login' }"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
         class="w-50 texl-lg text-center bg-[#060e0b] select-none p-3 rounded-4xl text-white/60

@@ -100,7 +100,7 @@ const handleGoogleLogin = () => {
         <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
       </label>
       <RouterLink
-        :to="'/password-recovery'"
+        :to="{ name: 'PasswordRecovery' }"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
         class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
@@ -131,7 +131,7 @@ const handleGoogleLogin = () => {
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
   </div>
   <RouterLink
-    to="/login-with-phone"
+    :to="{ name: 'LoginWithPhone' }"
     :tabindex="isProcessing ? -1 : 0"
     :class="isProcessing ? 'pointer-events-none' : ''"
     class="

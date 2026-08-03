@@ -311,7 +311,7 @@ const handleGoogleRegistration = () => {
         >
           <span>Я принимаю </span> 
           <RouterLink 
-            to="/terms" 
+            :to="{ name: 'Terms' }" 
             target="_blank"
             :tabindex="isProcessing ? -1 : 0"
             :class="isProcessing ? 'pointer-events-none' : ''"
@@ -320,7 +320,7 @@ const handleGoogleRegistration = () => {
             условия</RouterLink> <!-- if you move </RouterLink> to a new line, the space before "и" will also be underlined -->
           <span> и </span> 
           <RouterLink 
-            to="/privacy" 
+            :to="{ name: 'Privacy' }" 
             target="_blank"
             :tabindex="isProcessing ? -1 : 0"
             :class="isProcessing ? 'pointer-events-none' : ''"
