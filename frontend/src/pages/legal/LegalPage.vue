@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLegalPage } from './useLegalPage'
 
-const { currentTitle, currentSections, activeSections, currentFooterNote } = useLegalPage()
+const { currentTitle, currentSections, activeSections, currentFooterNote, currentLink } = useLegalPage()
 </script>
 
 <template>
@@ -71,7 +71,8 @@ const { currentTitle, currentSections, activeSections, currentFooterNote } = use
             v-for="(section, index) in currentSections" 
             :key="`nav-${index}`"
             :to="{ hash: `#${section.id}` }"
-            :class="activeSections.has(section.id) ? 'text-[#00ff8c]' : 'text-white/60 hover:text-white focus-visible:text-white'"
+            :tabindex="activeSections.has(section.id) ? -1 : 0"
+            :class="activeSections.has(section.id) ? 'text-[#00ff8c] pointer-events-none' : 'text-white/60 hover:text-white focus-visible:text-white'"
             class="leading-tight focus-visible:outline-none transition-all duration-200"
           >
             {{ section.title }}
@@ -85,14 +86,22 @@ const { currentTitle, currentSections, activeSections, currentFooterNote } = use
           <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>
           <p class="mt-1">{{ currentFooterNote }}</p>
         </div>
-        <div class="flex gap-6 text-white/60">
-          <RouterLink 
-            :to="{ name: 'Login' }" 
-            class="hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200"
+        <div class="text-white/60">
+          <RouterLink
+            :to="currentLink.to"
+            class="block hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200"
           >
-            Главная
+            {{ currentLink.label }}
           </RouterLink>
-          <a href="mailto:nayone.tapok@gmail.com" class="hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200">Почта поддержки</a>
+          <div class="flex gap-6">
+            <RouterLink 
+              :to="{ name: 'Login' }" 
+              class="hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200"
+            >
+              Главная
+            </RouterLink>
+            <a href="mailto:nayone.tapok@gmail.com" class="hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200">Почта поддержки</a>
+          </div>
         </div>
       </div>
     </footer>
