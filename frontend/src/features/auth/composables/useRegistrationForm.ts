@@ -1,7 +1,7 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { registerSchema, type CheckAvailabilityDto } from "../schema"
-import { ref, watch, type Ref } from "vue"
+import { ref, computed, watch, type Ref } from "vue"
 import { authApi } from "../api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
 import { useMutation } from "@tanstack/vue-query"
@@ -13,8 +13,8 @@ import type { RegistrationStep } from "../types"
 
 export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const step = ref<RegistrationStep>(1)
-  const verifiedEmails = new Set<string>()
-  const isEmailVerified = ref(false)
+  const verifiedEmails = ref<Set<string>>(new Set())
+  const isEmailVerified = computed(() => emailVerification.email.value && verifiedEmails.value.has(emailVerification.email.value.toLowerCase()))
 
   const router = useRouter()
 
@@ -132,10 +132,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
 
   const handleSendEmailVerification = async () => {
     const status = await emailVerification.send()
-    if (status === "ALREADY_VERIFIED") {
-      isEmailVerified.value = true
-      verifiedEmails.add(emailVerification.email.value.toLowerCase())
-    }
+    if (status === "ALREADY_VERIFIED") verifiedEmails.value.add(emailVerification.email.value.toLowerCase())
   }
 
   const handleSendPhoneVerification = async () => {
@@ -186,12 +183,10 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           }
           const status = await emailVerification.checkRegistration()
           if (status === "NOT_VERIFIED") {
-            verifiedEmails.delete(emailVerification.email.value.toLowerCase())
-            isEmailVerified.value = false
+            verifiedEmails.value.delete(emailVerification.email.value.toLowerCase())
             break
           }
-          isEmailVerified.value = true
-          verifiedEmails.add(emailVerification.email.value.toLowerCase())
+          verifiedEmails.value.add(emailVerification.email.value.toLowerCase())
         }
         if (phoneVerification.phone.value) {
           const available = await checkAvailability({
