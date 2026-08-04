@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useResetPasswordForm } from "../composables/useResetPasswordForm"
 import { ref } from "vue"
-import { LoadingIcon, EyeOpenIcon, EyeClosedIcon } from "@/shared/components/icons"
-import { InputError } from "@/shared/components/ui"
+import { InputError, AppButton } from "@/shared/components/ui"
+import { LoaderCircle, Eye, EyeOff } from "@lucide/vue"
 
 const { 
   password, passwordClientError, onPasswordBlur,
@@ -18,7 +18,7 @@ const showPassword = ref<boolean>(false)
     class="z-1 rounded-4xl border border-[#1c2e28] bg-[#111b18] p-10 mt-4 transition-all"
   >
     <p v-if="status === 'CHECKING'">
-      <LoadingIcon class="size-10" />
+      <LoaderCircle class="size-10" />
     </p>
     <p 
       v-else-if="status === 'TOKEN_INVALID'"
@@ -51,17 +51,19 @@ const showPassword = ref<boolean>(false)
           class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
         >
         <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-        <div class="w-14 px-3 flex items-center justify-center">
-          <button
-            type="button"
-            @click="showPassword = !showPassword"
-            @mousedown.prevent
-            :disabled="status === 'RESETTING'"
-            class="p-3 text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
-          >
-            <component :is="showPassword ? EyeOpenIcon : EyeClosedIcon" class="size-6" />
-          </button>
-        </div>
+        <AppButton
+          variant="icon"
+          @click="showPassword = !showPassword"
+          @mousedown.prevent
+          :disabled="status === 'RESETTING'"
+          class="m-1 mr-1.5"
+          :class="showPassword ? 'p-1' : 'p-2'"
+        >
+          <component 
+            :is="showPassword ? Eye : EyeOff"
+            :class="showPassword ? 'size-7' : 'size-6'"
+          />
+      </AppButton>
       </div>
       <InputError :clientError="passwordClientError" />
       <button

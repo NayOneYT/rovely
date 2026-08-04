@@ -3,8 +3,9 @@ import { useLocalStorage } from "@vueuse/core"
 import { ref } from "vue"
 import { useRegistrationForm } from "../composables/useRegistrationForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { InputError } from "@/shared/components/ui"
-import { EmailIcon, TelegramIcon, EyeOpenIcon, EyeClosedIcon, CheckIcon, GoogleIcon } from "@/shared/components/icons"
+import { InputError, AppButton } from "@/shared/components/ui"
+import { Mail, Eye, EyeOff, Check } from "@lucide/vue"
+import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -95,27 +96,18 @@ const handleGoogleRegistration = () => {
         class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <div class="w-14 px-3 flex items-center justify-center">
-        <button
-          type="button"
-          @click="handleSendEmailVerification"
-          @mousedown.prevent
-          :disabled="isEmailVerified || !!sendEmailCooldown || isProcessing"
-          class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
-        >
-          <EmailIcon 
-            :class="!!sendEmailCooldown && !isEmailVerified
-              ? 'size-5 mt-1' 
-              : 'size-6 m-3'"
-            />
-          <p 
-            v-if="!!sendEmailCooldown && !isEmailVerified" 
-            class="text-sm"
-          >
-            {{ sendEmailCooldown }}
-          </p>
-        </button>
-      </div>
+      <AppButton
+        variant="icon"
+        @click="handleSendEmailVerification"
+        @mousedown.prevent
+        :disabled="isProcessing || isEmailVerified || !!sendEmailCooldown"
+        class="m-1 mr-1.5 flex flex-col items-center"
+      >
+        <Mail :class="!!sendEmailCooldown && !isEmailVerified ? 'size-5 -mb-0.5' : 'size-8 p-1'"/>
+        <p v-if="!!sendEmailCooldown && !isEmailVerified" class="text-sm -mb-1">
+          {{ sendEmailCooldown }}
+        </p>
+      </AppButton>
     </div>
     <InputError :clientError="emailClientError" :serverError="emailServerError" />
     <label for="phone" class="texl-lg pb-0.5 mt-4 self-start">Номер телефона</label>
@@ -179,27 +171,18 @@ const handleGoogleRegistration = () => {
         class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <div class="w-14 px-3 flex items-center justify-center">
-        <button
-          type="button"
-          @click="handleSendPhoneVerification"
-          @mousedown.prevent
-          :disabled="!!sendTelegramMessageCooldown || isProcessing"
-          class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
-        >
-          <TelegramIcon 
-            :class="!!sendTelegramMessageCooldown 
-              ? 'size-6 mt-1' 
-              : 'size-8 m-2'" 
-          />
-          <p 
-            v-if="!!sendTelegramMessageCooldown"
-            class="text-sm"
-          >
-            {{ sendTelegramMessageCooldown }}
-          </p>
-        </button>
-      </div>
+      <AppButton
+        variant="icon"
+        @click="handleSendPhoneVerification"
+        @mousedown.prevent
+        :disabled="isProcessing || !!sendTelegramMessageCooldown"
+        class="m-1 mr-1.5 flex flex-col items-center"
+      >
+        <TelegramIcon :class="sendTelegramMessageCooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
+        <p v-if="!!sendTelegramMessageCooldown" class="text-sm -mb-0.5">
+          {{ sendTelegramMessageCooldown }}
+        </p>
+      </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
     <p class="text-white/40 font-light mt-2">
@@ -276,18 +259,19 @@ const handleGoogleRegistration = () => {
         class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <div class=" w-14 px-3 flex items-center justify-center">
-        <button
-          @click="showPassword = !showPassword"
-          @mousedown.prevent
-          :disabled="isProcessing"
-          type="button"
-          class="p-3 text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
-        >
-          <EyeOpenIcon v-if="showPassword" class="size-6" />
-          <EyeClosedIcon v-else class="size-6" />
-        </button>
-      </div>
+      <AppButton
+        variant="icon"
+        @click="showPassword = !showPassword"
+        @mousedown.prevent
+        :disabled="isProcessing"
+        class="m-1 mr-1.5"
+        :class="showPassword ? 'p-1' : 'p-2'"
+      >
+        <component 
+          :is="showPassword ? Eye : EyeOff"
+          :class="showPassword ? 'size-7' : 'size-6'"
+        />
+      </AppButton>
     </div>
     <InputError :clientError="passwordClientError" />
     <div class="flex justify-between mt-4 mb-5">
@@ -303,7 +287,7 @@ const handleGoogleRegistration = () => {
           class="w-5 h-5 bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center
           cursor-pointer peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all"
         >
-          <CheckIcon class="size-4" />
+          <Check class="size-4 stroke-5 -mb-0.5" />
         </div>
         <span 
           :class="isProcessing ? 'pointer-events-none' : ''"

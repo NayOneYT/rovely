@@ -2,8 +2,9 @@
 import { useLocalStorage } from "@vueuse/core"
 import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { InputError } from "@/shared/components/ui"
-import { TelegramIcon, CheckIcon, LoadingIcon, GoogleIcon } from "@/shared/components/icons"
+import { InputError, AppButton } from "@/shared/components/ui"
+import { Check, LoaderCircle } from "@lucide/vue"
+import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -66,18 +67,18 @@ const handleGoogleLogin = () => {
         class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <div class="w-14 px-3 flex items-center justify-center">
-        <button
-          type="button"
-          @click="send"
-          @mousedown.prevent
-          :disabled="!!sendCooldown || isProcessing"
-          class="flex flex-col items-center justify-center text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
-        >
-          <TelegramIcon :class="sendCooldown ? 'size-6 mt-1' : 'size-8 m-2'" />
-          <p v-if="sendCooldown" class="text-sm">{{ sendCooldown }}</p>
-        </button>
-      </div>
+      <AppButton
+        variant="icon"
+        @click="send"
+        @mousedown.prevent
+        :disabled="isProcessing || !!sendCooldown"
+        class="m-1 mr-1.5 flex flex-col items-center"
+      >
+        <TelegramIcon :class="sendCooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
+        <p v-if="!!sendCooldown" class="text-sm -mb-0.5">
+          {{ sendCooldown }}
+        </p>
+      </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
     <div class="flex justify-between mt-4 mb-5">
@@ -93,7 +94,7 @@ const handleGoogleLogin = () => {
           peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all
           "
         >
-          <CheckIcon class="size-4" />
+          <Check class="size-4 stroke-5 -mb-0.5" />
         </div>
         <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
       </label>
@@ -108,7 +109,7 @@ const handleGoogleLogin = () => {
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
       <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-        <LoadingIcon v-if="isProcessing" class="size-6 text-[#060e0b]" />
+        <LoaderCircle v-if="isProcessing" class="size-6 text-[#060e0b] animate-spin" />
         {{ isProcessing ? "Проверка..." : "Войти" }}
       </span>
     </button>

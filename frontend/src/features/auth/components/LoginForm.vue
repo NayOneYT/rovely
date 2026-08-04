@@ -3,8 +3,9 @@ import { useLocalStorage } from "@vueuse/core"
 import { ref } from "vue"
 import { useLoginForm } from "../composables/useLoginForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { InputError } from "@/shared/components/ui"
-import { EyeOpenIcon, EyeClosedIcon, CheckIcon, LoadingIcon, GoogleIcon } from "@/shared/components/icons"
+import { InputError, AppButton } from "@/shared/components/ui"
+import { Eye, EyeOff, Check, LoaderCircle } from "@lucide/vue"
+import { GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -64,21 +65,21 @@ const handleGoogleLogin = () => {
         id="password"
         autocomplete="current-password"
         maxlength="72"
-        class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
+        class="flex-1 bg-transparent py-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <div class="w-14 px-3 flex items-center justify-center">
-        <button
-          type="button"
-          @click="showPassword = !showPassword"
-          @mousedown.prevent
-          class="p-3 text-white/60 not-disabled:hover:text-white not-disabled:cursor-pointer transition-all focus-visible:outline-none focus-visible:text-white"
-          :disabled="isProcessing"
-        >
-          <EyeOpenIcon v-if="showPassword" class="size-6" />
-          <EyeClosedIcon v-else class="size-6" />
-        </button>
-      </div>
+      <AppButton
+        variant="icon"
+        @click="showPassword = !showPassword"
+        @mousedown.prevent
+        :disabled="isProcessing"
+        class="m-1 mr-1.5"
+      >
+        <component 
+          :is="showPassword ? Eye : EyeOff"
+          :class="showPassword ? 'size-7' : 'size-6'"
+        />
+      </AppButton>
     </div>
     <InputError :clientError="passwordClientError" :serverError="passwordServerError" />
     <div class="flex justify-between mt-4 mb-5">
@@ -95,7 +96,7 @@ const handleGoogleLogin = () => {
           peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all
           "
         >
-          <CheckIcon class="size-4" />
+          <Check class="size-4 stroke-5 -mb-0.5" />
         </div>
         <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
       </label>
@@ -118,7 +119,7 @@ const handleGoogleLogin = () => {
     >
       <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
       <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-        <LoadingIcon v-if="isProcessing" class="size-6 text-[#060e0b]" />
+        <LoaderCircle v-if="isProcessing" class="size-6 text-[#060e0b] animate-spin" />
         {{ isProcessing ? "Проверка..." : "Войти" }}
       </span>
     </button>

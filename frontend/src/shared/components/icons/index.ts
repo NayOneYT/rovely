@@ -1,7 +1,2 @@
-export { default as CheckIcon } from "./CheckIcon.vue"
-export { default as EmailIcon } from "./EmailIcon.vue"
-export { default as EyeClosedIcon } from "./EyeClosedIcon.vue"
-export { default as EyeOpenIcon } from "./EyeOpenIcon.vue"
 export { default as GoogleIcon } from "./GoogleIcon.vue"
-export { default as LoadingIcon } from "./LoadingIcon.vue"
 export { default as TelegramIcon } from "./TelegramIcon.vue"

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { usePasswordRecoveryForm } from "../composables/usePasswordRecoveryForm"
 import { InputError } from "@/shared/components/ui"
-import { EmailIcon, TelegramIcon } from "@/shared/components/icons"
+import { Mail } from "@lucide/vue"
+import { TelegramIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
 
@@ -72,7 +73,7 @@ const {
       <span class="flex justify-center items-center gap-3 z-10 font-bold texl-lg select-none">
         <span class="py-3">Письмо на {{ blurredEmail }}</span>
         <span class="flex flex-row items-center gap-1">
-          <EmailIcon class="size-6" />
+          <Mail class="size-6" />
           <p 
             v-if="sendEmailCooldown" 
             class="text-sm"
