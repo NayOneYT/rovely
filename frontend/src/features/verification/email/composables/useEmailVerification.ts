@@ -87,7 +87,6 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
 
   const send = async (): Promise<SendStatus> => {
     try {
-      if (!email.value) return "VALIDATION_ERROR"
       isProcessing.value = true
       const emailResult = await emailValidate()
       if (!emailResult.valid) return "VALIDATION_ERROR"

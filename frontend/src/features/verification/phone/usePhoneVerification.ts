@@ -108,7 +108,6 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
 
   const verify = async (): Promise<VerifyStatus> => {
     try {
-      if (!phone.value || !code.value) return "VALIDATION_ERROR"
       isProcessing.value = true
       const [phoneResult, codeResult] = await Promise.all([
         phoneValidate(),
@@ -181,7 +180,6 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
 
   const send = async (): Promise<SendStatus> => {
     try {
-      if (!phone.value) return "VALIDATION_ERROR"
       isProcessing.value = true
       const phoneResult = await phoneValidate()
       if (!phoneResult.valid) return "VALIDATION_ERROR"

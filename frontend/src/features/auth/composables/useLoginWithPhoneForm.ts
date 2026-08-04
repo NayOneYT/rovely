@@ -159,7 +159,6 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
 
   const send = async (): Promise<SendLoginWithPhoneStatus> => {
     try {
-      if (!phone.value) return "VALIDATION_ERROR"
       isProcessing.value = true
       const phoneResult = await phoneValidate()
       if (!phoneResult.valid) return "VALIDATION_ERROR"

@@ -131,6 +131,10 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   }
 
   const handleSendEmailVerification = async () => {
+    if (!emailVerification.email.value) {
+      toast.warning("Сначала укажите email")
+      return
+    }
     const status = await emailVerification.send()
     if (status === "ALREADY_VERIFIED") verifiedEmails.value.add(emailVerification.email.value.toLowerCase())
   }
@@ -164,7 +168,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         break
       case 2:
         if (!emailVerification.email.value && !phoneVerification.phone.value) {
-          toast.warning("Укажите email или номер телефона")
+          toast.warning("Сначала укажите email или номер телефона")
           break
         }
         const [emailResult, phoneResult] = await Promise.all([
