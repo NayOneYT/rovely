@@ -65,17 +65,14 @@ const handleGoogleRegistration = () => {
     >
     <InputError :clientError="usernameClientError" :serverError="usernameServerError" />
     <p class="text-white/40 font-light mt-2"><i>Вас смогут найти по @{{ username || "username" }}</i></p>
-    <button
+    <AppButton
+      variant="primary"
+      type="submit"
       :disabled="isProcessing"
-      :class="isProcessing ? 'pointer-events-none' : ''"
-      class="w-full self-end relative p-3 mt-6 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
-      cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
+      class="mt-6"
     >
-      <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-      <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-        Далее
-      </span>
-    </button>
+      Далее
+    </AppButton>
   </form>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2" novalidate>
     <label for="email" class="texl-lg pb-0.5 self-start">Email</label>
@@ -104,7 +101,7 @@ const handleGoogleRegistration = () => {
         class="m-1 mr-1.5 flex flex-col items-center"
       >
         <Mail :class="!!sendEmailCooldown && !isEmailVerified ? 'size-5 -mb-0.5' : 'size-8 p-1'"/>
-        <p v-if="!!sendEmailCooldown && !isEmailVerified" class="text-sm -mb-1">
+        <p v-if="!!sendEmailCooldown && !isEmailVerified" class="-mb-1">
           {{ sendEmailCooldown }}
         </p>
       </AppButton>
@@ -127,28 +124,25 @@ const handleGoogleRegistration = () => {
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
     <p class="text-white/40 font-light mt-2"><i>Достаточно указать одно из полей</i></p>
-    <div class="flex justify-between mt-6">
+    <div class="flex gap-6 mt-6">
       <button
         @click.prevent="step = 1"
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
         type="button"
-        class="w-50 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
+        class="flex-1 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
         cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         Назад
       </button>
-      <button
+      <AppButton
+        variant="primary"
+        type="submit"
         :disabled="isProcessing"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
-        cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
+        class="flex-1"
       >
-        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-        <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-          Далее
-        </span>
-      </button>
+        Далее
+      </AppButton>
     </div>
   </form>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2.5">
@@ -179,7 +173,7 @@ const handleGoogleRegistration = () => {
         class="m-1 mr-1.5 flex flex-col items-center"
       >
         <TelegramIcon :class="sendTelegramMessageCooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
-        <p v-if="!!sendTelegramMessageCooldown" class="text-sm -mb-0.5">
+        <p v-if="!!sendTelegramMessageCooldown" class="-mb-0.5">
           {{ sendTelegramMessageCooldown }}
         </p>
       </AppButton>
@@ -200,28 +194,25 @@ const handleGoogleRegistration = () => {
       3. Отправьте боту свой номер телефона (кнопкой)<br>
       4. Нажмите на самолетик справа от поля ввода кода</i>
     </p>
-    <div class="flex justify-between mt-6">
+    <div class="flex gap-6 mt-6">
       <button
         @click.prevent="step = 2"
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
         type="button"
-        class="w-50 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
+        class="flex-1 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
         cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         Назад
       </button>
-      <button
+      <AppButton
+        variant="primary"
+        type="submit"
         :disabled="isProcessing"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
-        cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
+        class="flex-1"
       >
-        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-        <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-          Далее
-        </span>
-      </button>
+        Далее
+      </AppButton>
     </div>
   </form>
   <form @submit="register" class="flex flex-col" v-if="step === 3">
@@ -315,28 +306,25 @@ const handleGoogleRegistration = () => {
         </span>
       </label>
     </div>
-    <div class="flex justify-between">
+    <div class="flex gap-6 mt-6">
       <button
         @click.prevent="step = 2"
         :disabled="isProcessing"
         :class="isProcessing ? 'pointer-events-none' : ''"
         type="button"
-        class="w-50 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl  text-white/60
-        cursor-pointer hover:text-white focus-visible:text-white focus-visible:outline-none transition-all"
+        class="flex-1 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
+        cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         Назад
       </button>
-      <button
-        :disabled="!acceptedTerms || isProcessing"
-        :class="!acceptedTerms || isProcessing ? 'pointer-events-none' : ''"
-        class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
-        cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
+      <AppButton
+        variant="primary"
+        type="submit"
+        :disabled="isProcessing || !acceptedTerms"
+        class="flex-1"
       >
-        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-        <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-          Завершить
-        </span>
-      </button>
+        Завершить
+      </AppButton>
     </div>
   </form>
   <div class="flex items-center my-6 text-sm text-white/40">  

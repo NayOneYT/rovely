@@ -3,7 +3,7 @@ import { useLocalStorage } from "@vueuse/core"
 import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
-import { Check, LoaderCircle } from "@lucide/vue"
+import { Check } from "@lucide/vue"
 import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
@@ -75,7 +75,7 @@ const handleGoogleLogin = () => {
         class="m-1 mr-1.5 flex flex-col items-center"
       >
         <TelegramIcon :class="sendCooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
-        <p v-if="!!sendCooldown" class="text-sm -mb-0.5">
+        <p v-if="!!sendCooldown" class="-mb-0.5">
           {{ sendCooldown }}
         </p>
       </AppButton>
@@ -99,20 +99,13 @@ const handleGoogleLogin = () => {
         <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
       </label>
     </div>
-    <button
-      class="
-      relative w-full p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-      hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
-      "
+    <AppButton
+      variant="primary"
+      type="submit"
       :disabled="isProcessing"
-      :class="isProcessing ? 'pointer-events-none' : ''"
     >
-      <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-      <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-        <LoaderCircle v-if="isProcessing" class="size-6 text-[#060e0b] animate-spin" />
-        {{ isProcessing ? "Проверка..." : "Войти" }}
-      </span>
-    </button>
+      {{ isProcessing ? "Проверка..." : "Войти" }}
+    </AppButton>
   </form>
   <div class="flex items-center my-6 text-sm text-white/40">  
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />

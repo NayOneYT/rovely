@@ -18,7 +18,7 @@ const showPassword = ref<boolean>(false)
     class="z-1 rounded-4xl border border-[#1c2e28] bg-[#111b18] p-10 mt-4 transition-all"
   >
     <p v-if="status === 'CHECKING'">
-      <LoaderCircle class="size-10" />
+      <LoaderCircle class="size-10 animate-spin" />
     </p>
     <p 
       v-else-if="status === 'TOKEN_INVALID'"
@@ -66,17 +66,13 @@ const showPassword = ref<boolean>(false)
       </AppButton>
       </div>
       <InputError :clientError="passwordClientError" />
-      <button
-        :disabled="status === 'RESETTING'"
-        :class="status === 'RESETTING' ? 'pointer-events-none' : ''"
-        class="w-full self-end relative p-3 mt-6 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
-        cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
+      <AppButton
+        variant="primary"
+        type="submit"
+        :disabled="status==='RESETTING'"
       >
-        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-        <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-          Изменить
-        </span>
-      </button>
+        Изменить
+      </AppButton>
     </form>
     <p v-else class="text-xl">
       Пароль изменен

@@ -4,7 +4,7 @@ import { ref } from "vue"
 import { useLoginForm } from "../composables/useLoginForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
-import { Eye, EyeOff, Check, LoaderCircle } from "@lucide/vue"
+import { Eye, EyeOff, Check } from "@lucide/vue"
 import { GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
@@ -109,20 +109,13 @@ const handleGoogleLogin = () => {
         Забыли пароль?
       </RouterLink>
     </div>
-    <button
+    <AppButton
+      variant="primary"
+      type="submit"
       :disabled="isProcessing"
-      :class="isProcessing ? 'pointer-events-none' : ''"
-      class="
-      relative w-full p-3 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-      hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
-      "
     >
-      <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-      <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-        <LoaderCircle v-if="isProcessing" class="size-6 text-[#060e0b] animate-spin" />
-        {{ isProcessing ? "Проверка..." : "Войти" }}
-      </span>
-    </button>
+      {{ isProcessing ? "Проверка..." : "Войти" }}
+    </AppButton>
   </form>
   <div class="flex items-center my-6 text-sm text-white/40">  
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />

@@ -2,13 +2,13 @@
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "icon"
 
-const baseClasses = "not-disabled:cursor-pointer focus:outline-none transition-all duration-200"
+const baseClasses = "select-none not-disabled:cursor-pointer focus:outline-none transition-all duration-200"
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "",
+  primary: "flex justify-center items-center text-black text-md font-bold p-3 rounded-full bg-[#13d373] not-disabled:hover:shadow-[0_0_15px_#13d373] focus-visible:shadow-[0_0_15px_#13d373]",
   secondary: "",
   outline: "",
-  icon: "flex justify-center items-center size-10 text-white/60 not-disabled:hover:text-white focus-visible:text-white"
+  icon: "text-sm flex justify-center items-center size-10 text-white/60 not-disabled:hover:text-white focus-visible:text-white"
 }
 
 defineProps<{

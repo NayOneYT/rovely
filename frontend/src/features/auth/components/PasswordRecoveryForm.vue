@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePasswordRecoveryForm } from "../composables/usePasswordRecoveryForm"
-import { InputError } from "@/shared/components/ui"
+import { InputError, AppButton } from "@/shared/components/ui"
 import { Mail } from "@lucide/vue"
 import { TelegramIcon } from "@/shared/components/icons"
 
@@ -35,78 +35,58 @@ const {
       "
     >
     <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
-    <div class="flex justify-between mt-6">
+    <div class="flex gap-6 mt-6">
       <RouterLink
         :to="{ name: 'Login' }"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="w-50 texl-lg text-center bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
+        class="flex-1 texl-lg text-center bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
         cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
       >
         На главную
       </RouterLink>
-      <button
+      <AppButton
+        variant="primary"
+        type="submit"
         :disabled="isProcessing"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        class="w-50 self-end relative p-3 rounded-4xl bg-[#13d373] text-[#060e0b] overflow-hidden group
-        cursor-pointer hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373] transition-all duration-200"
+        class="flex-1"
       >
-        <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-        <span class="flex justify-center items-center gap-1 z-10 font-bold texl-lg select-none">
-          Далее
-        </span>
-      </button>
+        Далее
+      </AppButton>
     </div>
   </form>
   <div v-else class="flex flex-col">
-    <button 
+    <AppButton
       v-if="blurredEmail"
+      variant="primary"
       @click="send('EMAIL')"
       :disabled="isProcessing || !!sendEmailCooldown"
-      :class="isProcessing || sendEmailCooldown ? 'pointer-events-none' : ''"
-      class="
-      relative w-full rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-      hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
-      "
     >
-      <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-      <span class="flex justify-center items-center gap-3 z-10 font-bold texl-lg select-none">
-        <span class="py-3">Письмо на {{ blurredEmail }}</span>
-        <span class="flex flex-row items-center gap-1">
-          <Mail class="size-6" />
-          <p 
-            v-if="sendEmailCooldown" 
-            class="text-sm"
-          >
-            {{ sendEmailCooldown }}
-          </p>
-        </span>
-      </span>
-    </button>
-    <button 
+      Письмо на {{ blurredEmail }}
+      <Mail class="ml-2 mr-1 size-6" />
+      <p 
+        v-if="!!sendEmailCooldown" 
+        class="text-sm"
+      >
+        {{ sendEmailCooldown }}
+      </p>
+    </AppButton>
+    <AppButton
       v-if="blurredPhone"
+      variant="primary"
       @click="send('PHONE')"
       :disabled="isProcessing || !!sendTelegramMessageCooldown"
-      :class="isProcessing || sendTelegramMessageCooldown ? 'pointer-events-none' : ''"
-      class="
-      relative w-full mt-2 rounded-4xl bg-[#13d373] text-[#060e0b] transition-all duration-200 overflow-hidden group cursor-pointer
-      hover:shadow-[0_0_30px_-10px_#13d373] focus-visible:outline-none focus-visible:shadow-[0_0_30px_-10px_#13d373]
-      "
+      class="mt-6"
     >
-      <span class="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12 group-focus-visible:translate-x-full" />
-      <span class="flex justify-center items-center gap-2 z-10 font-bold texl-lg select-none">
-        <span class="py-3">Сообщение на {{ blurredPhone }}</span>
-        <span class="flex flex-row items-center">
-          <TelegramIcon class="size-8" />
-          <p 
-            v-if="sendTelegramMessageCooldown" 
-            class="text-sm"
-          >
-            {{ sendTelegramMessageCooldown }}
-          </p>
-        </span>
-      </span>
-    </button>
+      Сообщение на {{ blurredPhone }}
+      <TelegramIcon class="ml-2.5 mr-0.5 size-6 scale-125" />
+      <p 
+        v-if="!!sendTelegramMessageCooldown" 
+        class="text-sm"
+      >
+        {{ sendTelegramMessageCooldown }}
+      </p>
+    </AppButton>
     <button
       @click="step = 1"
       :disabled="isProcessing"
