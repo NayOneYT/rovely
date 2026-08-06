@@ -70,6 +70,7 @@ const showPassword = ref<boolean>(false)
         variant="primary"
         type="submit"
         :disabled="status==='RESETTING'"
+        class="mt-6"
       >
         Изменить
       </AppButton>
