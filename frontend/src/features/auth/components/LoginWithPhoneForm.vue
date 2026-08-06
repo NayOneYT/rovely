@@ -28,10 +28,10 @@ const handleGoogleLogin = () => {
 </script>
 
 <template>
-  <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
-  <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт</p>
+  <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
+  <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Войдите в аккаунт</p>
   <form @submit.prevent="login" class="flex flex-col">
-    <label for="phone" class="text-sm font-medium pb-0.5 self-start">Телефон</label>
+    <label for="phone" class="text-sm font-medium pb-1 self-start">Телефон</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -47,7 +47,7 @@ const handleGoogleLogin = () => {
       "
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
-    <label for="code" class="text-sm font-medium pb-0.5 mt-4 self-start">Код подтверждения</label>
+    <label for="code" class="text-sm font-medium pb-1 mt-4 self-start">Код подтверждения</label>
     <div 
       class="
       group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28]
@@ -81,7 +81,7 @@ const handleGoogleLogin = () => {
       </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
-    <label class="group flex items-center text-sm font-medium gap-1.5 mt-4 mb-5 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
+    <label class="group flex items-center text-sm font-medium gap-1.5 mt-4 mb-6 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
       <input 
         :disabled="isProcessing"
         v-model="rememberMe"
@@ -107,9 +107,9 @@ const handleGoogleLogin = () => {
       {{ isProcessing ? "Проверка..." : "Войти" }}
     </AppButton>
   </form>
-  <div class="flex items-center my-6 text-sm text-white/60">  
+  <div class="flex items-center my-6">  
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
-      <span class="mx-4 select-none">
+      <span class="text-sm text-white/60 mx-4 select-none">
         или
       </span>
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />

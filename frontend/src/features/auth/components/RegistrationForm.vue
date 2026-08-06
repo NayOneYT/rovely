@@ -33,14 +33,14 @@ const handleGoogleRegistration = () => {
 </script>
 
 <template>
-  <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
-  <p class="text-white/60 mt-1 mb-8 cursor-default">Расскажите нам о себе</p>
+  <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
+  <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Расскажите нам о себе</p>
   <form
     v-if="step === 1"
     @submit.prevent="goToNextStep"
     class="flex flex-col"
   >
-    <label for="name" class="text-sm font-medium pb-0.5 self-start">Отображаемое имя</label>
+    <label for="name" class="text-sm font-medium pb-1 self-start">Отображаемое имя</label>
     <input 
       v-model="name"
       @blur="onNameBlur"
@@ -54,7 +54,7 @@ const handleGoogleRegistration = () => {
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="nameClientError" />
-    <label for="username" class="text-sm font-medium pb-0.5 mt-4 self-start">Имя пользователя</label>
+    <label for="username" class="text-sm font-medium pb-1 mt-4 self-start">Имя пользователя</label>
     <input 
       v-model="username"
       @blur="onUsernameBlur"
@@ -67,12 +67,11 @@ const handleGoogleRegistration = () => {
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="usernameClientError" :serverError="usernameServerError" />
-    <p class="text-white/60 font-light italic mt-2">Вас смогут найти по @{{ username || "username" }}</p>
+    <p class="text-sm text-white/60 mt-4 mb-6">Вас смогут найти по @{{ username || "username" }}</p>
     <AppButton
       variant="primary"
       type="submit"
       :disabled="isProcessing"
-      class="mt-6"
     >
       Далее
     </AppButton>
@@ -83,7 +82,7 @@ const handleGoogleRegistration = () => {
     class="flex flex-col"
     novalidate
   >
-    <label for="email" class="text-sm font-medium pb-0.5 self-start">Email</label>
+    <label for="email" class="text-sm font-medium pb-1 self-start">Email</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28]
@@ -115,7 +114,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="emailClientError" :serverError="emailServerError" />
-    <label for="phone" class="text-sm font-medium pb-0.5 mt-4 self-start">Номер телефона</label>
+    <label for="phone" class="text-sm font-medium pb-1 mt-4 self-start">Номер телефона</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -131,8 +130,8 @@ const handleGoogleRegistration = () => {
       "
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
-    <p class="text-white/60 font-light italic mt-2">Достаточно указать одно из полей</p>
-    <div class="flex gap-6 mt-6">
+    <p class="text-sm text-white/60 mt-4 mb-6">Достаточно указать одно из полей</p>
+    <div class="flex gap-6">
       <AppButton
         variant="secondary"
         @click="step = 1"
@@ -156,7 +155,7 @@ const handleGoogleRegistration = () => {
     @submit.prevent="goToNextStep"
     class="flex flex-col"
   >
-    <label for="code" class="text-sm font-medium pb-0.5 self-start">Код подтверждения</label>
+    <label for="code" class="text-sm font-medium pb-1 self-start">Код подтверждения</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28]
@@ -189,22 +188,22 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
-    <p class="text-white/60 font-light italic mt-2">
+    <p class="text-sm text-white/60 mt-4 mb-6">
       Чтобы получить код:<br>
       1. Перейдите в Telegram-бота — 
       <a 
         href="https://t.me/rovely_bot" 
         target="_blank" 
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="hover:text-white transition-all focus-visible:outline-none focus-visible:text-white"
+        class="font-medium text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
       >
-        @rovely_bot (ссылка)
+        @rovely_bot
       </a><br>
       2. Активируйте его нажав на кнопку либо через /start<br>
-      3. Отправьте боту свой номер телефона (кнопкой)<br>
+      3. Кнопкой отправьте боту свой номер телефона<br>
       4. Нажмите на самолетик справа от поля ввода кода
     </p>
-    <div class="flex gap-6 mt-6">
+    <div class="flex gap-6">
       <AppButton
         variant="secondary"
         @click="step = 2"
@@ -228,7 +227,7 @@ const handleGoogleRegistration = () => {
     @submit="register"
     class="flex flex-col"
   >
-    <label for="login" class="text-sm font-medium pb-0.5 self-start">Логин</label>
+    <label for="login" class="text-sm font-medium pb-1 self-start">Логин</label>
     <input 
       v-model="login"
       @blur="onLoginBlur"
@@ -243,7 +242,7 @@ const handleGoogleRegistration = () => {
       "
     >
     <InputError :clientError="loginClientError" :serverError="loginServerError" />
-    <label for="password" class="text-sm font-medium pb-0.5 mt-4 self-start">Пароль</label>
+    <label for="password" class="text-sm font-medium pb-1 mt-4 self-start">Пароль</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="
@@ -277,7 +276,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="passwordClientError" />
-    <p class="text-white/60 font-light italic mt-2">
+    <p class="text-sm text-white/60 mt-4 mb-6">
       <span>Регистрируясь, вы принимаете </span> 
       <RouterLink 
         :to="{ name: 'Terms' }" 
@@ -298,7 +297,7 @@ const handleGoogleRegistration = () => {
         политику
       </RouterLink>
     </p>
-    <div class="flex gap-6 mt-6">
+    <div class="flex gap-6">
       <AppButton
         variant="secondary"
         @click="step = 2"
@@ -317,9 +316,9 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <div class="flex items-center my-6 text-sm text-white/60">  
+  <div class="flex items-center my-6">  
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
-      <span class="mx-4 select-none">
+      <span class="text-sm text-white/60 mx-4 select-none">
         или
       </span>
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />

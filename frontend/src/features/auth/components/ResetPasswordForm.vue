@@ -31,9 +31,9 @@ const showPassword = ref<boolean>(false)
       @submit.prevent="reset"
       class="flex flex-col"
     >
-      <p class="text-4xl font-medium cursor-default">Сброс пароля</p>
-      <p class="text-white/60 mt-1 mb-8 cursor-default">Введите новый пароль</p>
-      <label for="password" class="text-sm font-medium pb-0.5 self-start">Новый пароль</label>
+      <p class="text-3xl font-semibold cursor-default">Сброс пароля</p>
+      <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Введите новый пароль</p>
+      <label for="password" class="text-sm font-medium pb-1 self-start">Новый пароль</label>
       <div 
         class="
         group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28] 

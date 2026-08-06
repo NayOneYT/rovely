@@ -29,10 +29,10 @@ const handleGoogleLogin = () => {
 </script>
 
 <template>
-  <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
-  <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт</p>
+  <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
+  <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Войдите в аккаунт</p>
   <form @submit.prevent="login" class="flex flex-col">
-    <label for="identifier" class="text-sm font-medium pb-0.5 self-start">Логин, email или номер телефона</label>
+    <label for="identifier" class="text-sm font-medium pb-1 self-start">Логин, email или номер телефона</label>
     <input 
       :value="identifierString"
       @input="onIdentifierInput"
@@ -50,7 +50,7 @@ const handleGoogleLogin = () => {
       "
     >
     <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
-    <label for="password" class="text-sm font-medium pb-0.5 mt-4 self-start">Пароль</label>
+    <label for="password" class="text-sm font-medium pb-1 mt-4 self-start">Пароль</label>
     <div 
       class="
       group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28] 
@@ -82,7 +82,7 @@ const handleGoogleLogin = () => {
       </AppButton>
     </div>
     <InputError :clientError="passwordClientError" :serverError="passwordServerError" />
-    <div class="flex justify-between text-sm font-medium mt-4 mb-5">
+    <div class="flex justify-between text-sm font-medium mt-4 mb-6">
       <label class="group flex items-center gap-1.5 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
         <input 
           :disabled="isProcessing"
@@ -118,9 +118,9 @@ const handleGoogleLogin = () => {
       {{ isProcessing ? "Проверка..." : "Войти" }}
     </AppButton>
   </form>
-  <div class="flex items-center my-6 text-sm text-white/60">  
+  <div class="flex items-center my-6">  
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
-      <span class="mx-4 select-none">
+      <span class="text-sm text-white/60 mx-4 select-none">
         или
       </span>
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />

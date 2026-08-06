@@ -9,7 +9,7 @@ defineProps<{
   <Transition name="error">
     <p 
       v-if="serverError || clientError" 
-      class="text-[14px]"
+      class="text-sm mt-1"
       :class="serverError? 'text-red-400' : 'text-yellow-300'"
     >
       {{ serverError || clientError }}

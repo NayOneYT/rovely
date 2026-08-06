@@ -14,14 +14,14 @@ const {
 </script>
 
 <template>
-  <p class="text-4xl font-medium cursor-default">Восстановление пароля</p>
-  <p class="text-white/60 mt-1 mb-8 cursor-default">{{ step === 1 ? "Что за аккаунт?" : "Как будем восстанавливать?" }}</p>
+  <p class="text-3xl font-semibold cursor-default">Восстановление пароля</p>
+  <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">{{ step === 1 ? "Что за аккаунт?" : "Как будем восстанавливать?" }}</p>
   <form 
     v-if="step === 1"
     @submit.prevent="getContacts"
     lass="flex flex-col"
   >
-    <label for="identifier" class="text-sm font-medium pb-0.5 self-start">Логин, email или номер телефона</label>
+    <label for="identifier" class="text-sm font-medium pb-1 self-start">Логин, email или номер телефона</label>
     <input 
       :value="identifierString"
       @input="onIdentifierInput"
