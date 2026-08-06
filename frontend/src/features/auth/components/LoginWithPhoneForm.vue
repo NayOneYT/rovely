@@ -81,24 +81,27 @@ const handleGoogleLogin = () => {
       </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
-    <div class="flex justify-between mt-4 mb-5">
-      <label class="group flex items-center" :class="isProcessing ? 'pointer-events-none' : ''">
-        <input 
-          :disabled="isProcessing"
-          v-model="rememberMe"
-          type="checkbox" 
-          class="peer sr-only"
-        >
-        <div 
-          class="w-5 h-5 cursor-pointer bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center 
-          peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all
-          "
-        >
-          <Check class="size-4 stroke-5 -mb-0.5" />
-        </div>
-        <span class="pl-1 cursor-pointer select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
-      </label>
-    </div>
+    <label class="group flex items-center gap-2 mt-4 mb-5 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
+      <input 
+        :disabled="isProcessing"
+        v-model="rememberMe"
+        type="checkbox" 
+        class="peer sr-only"
+      >
+      <div 
+        class="
+        size-5 flex items-center bg-[#060e0b] rounded border border-[#1c2e28] text-[#060e0b]
+        peer-focus-visible:border-[#13d373] peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:border-[#13d373] 
+        group-hover:shadow-[0_0_6px_#13d373] peer-checked:border-[#13d373] peer-checked:bg-[#13d373] transition-all duration-200
+        "
+      >
+        <Check 
+          class="stroke-5 -mb-px transition-all duration-200" 
+          :class="rememberMe ? 'opacity-100' : 'opacity-0'"
+        />
+      </div>
+      <span class="select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
+    </label>
     <AppButton
       variant="primary"
       type="submit"
