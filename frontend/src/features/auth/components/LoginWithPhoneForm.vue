@@ -31,7 +31,7 @@ const handleGoogleLogin = () => {
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт</p>
   <form @submit="login" class="flex flex-col">
-    <label for="phone" class="texl-lg pb-0.5 self-start">Телефон</label>
+    <label for="phone" class="text-lg pb-0.5 self-start">Телефон</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -47,7 +47,7 @@ const handleGoogleLogin = () => {
       "
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
-    <label for="code" class="texl-lg pb-0.5 mt-4 self-start">Код подтверждения</label>
+    <label for="code" class="text-lg pb-0.5 mt-4 self-start">Код подтверждения</label>
     <div 
       class="
       group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]

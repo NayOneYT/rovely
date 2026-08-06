@@ -27,7 +27,7 @@ const { isProcessing, currentForm } = useAuthWidget()
             ? 'text-[#060e0b] font-semibold' 
             : 'cursor-pointer text-white/60 hover:text-white focus-visible:text-white'
         ]"
-        class="relative w-full text-center texl-lg p-3 rounded-4xl transition-all duration-200 focus-visible:outline-none" 
+        class="relative w-full text-center text-lg p-3 rounded-4xl transition-all duration-200 focus-visible:outline-none" 
       >
         Вход
       </RouterLink>
@@ -40,7 +40,7 @@ const { isProcessing, currentForm } = useAuthWidget()
             ? 'text-[#060e0b] font-semibold' 
             : 'cursor-pointer text-white/60 hover:text-white focus-visible:text-white'
         ]"
-        class="relative w-full text-center texl-lg p-3 rounded-4xl transition-all duration-200 focus-visible:outline-none"
+        class="relative w-full text-center text-lg p-3 rounded-4xl transition-all duration-200 focus-visible:outline-none"
       >
         Регистрация
       </RouterLink>

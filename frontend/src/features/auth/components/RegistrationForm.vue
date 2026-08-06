@@ -37,7 +37,7 @@ const handleGoogleRegistration = () => {
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Расскажите нам о себе</p>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 1">
-    <label for="name" class="texl-lg pb-0.5 self-start">Отображаемое имя</label>
+    <label for="name" class="text-lg pb-0.5 self-start">Отображаемое имя</label>
     <input 
       v-model="name"
       @blur="onNameBlur"
@@ -51,7 +51,7 @@ const handleGoogleRegistration = () => {
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="nameClientError" />
-    <label for="username" class="texl-lg pb-0.5 mt-4 self-start">Имя пользователя</label>
+    <label for="username" class="text-lg pb-0.5 mt-4 self-start">Имя пользователя</label>
     <input 
       v-model="username"
       @blur="onUsernameBlur"
@@ -75,7 +75,7 @@ const handleGoogleRegistration = () => {
     </AppButton>
   </form>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2" novalidate>
-    <label for="email" class="texl-lg pb-0.5 self-start">Email</label>
+    <label for="email" class="text-lg pb-0.5 self-start">Email</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
@@ -107,7 +107,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="emailClientError" :serverError="emailServerError" />
-    <label for="phone" class="texl-lg pb-0.5 mt-4 self-start">Номер телефона</label>
+    <label for="phone" class="text-lg pb-0.5 mt-4 self-start">Номер телефона</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -144,7 +144,7 @@ const handleGoogleRegistration = () => {
     </div>
   </form>
   <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2.5">
-    <label for="code" class="texl-lg pb-0.5 self-start">Код подтверждения</label>
+    <label for="code" class="text-lg pb-0.5 self-start">Код подтверждения</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
@@ -212,7 +212,7 @@ const handleGoogleRegistration = () => {
     </div>
   </form>
   <form @submit="register" class="flex flex-col" v-if="step === 3">
-    <label for="login" class="texl-lg pb-0.5 self-start">Логин</label>
+    <label for="login" class="text-lg pb-0.5 self-start">Логин</label>
     <input 
       v-model="login"
       @blur="onLoginBlur"
@@ -227,7 +227,7 @@ const handleGoogleRegistration = () => {
       "
     >
     <InputError :clientError="loginClientError" :serverError="loginServerError" />
-    <label for="password" class="texl-lg pb-0.5 mt-4 self-start">Пароль</label>
+    <label for="password" class="text-lg pb-0.5 mt-4 self-start">Пароль</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="
