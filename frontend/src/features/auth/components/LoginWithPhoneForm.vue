@@ -42,7 +42,7 @@ const handleGoogleLogin = () => {
       type="tel"
       placeholder="+375 29 123 45 67"
       class="
-      w-full placeholder:text-white/40 bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
+      w-full placeholder:text-white/40 bg-[#060e0b] rounded-lg p-3 px-4 border border-[#1c2e28]
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
       "
     >
@@ -50,7 +50,7 @@ const handleGoogleLogin = () => {
     <label for="code" class="text-lg font-medium pb-0.5 mt-4 self-start">Код подтверждения</label>
     <div 
       class="
-      group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28]
+      group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28]
       focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
       "
     >

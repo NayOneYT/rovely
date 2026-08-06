@@ -34,7 +34,7 @@ const {
       placeholder="NayOne | email@example.com | +375 29 123 45 67" 
       spellcheck="false"
       class="
-      w-full placeholder:text-white/40 bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
+      w-full placeholder:text-white/40 bg-[#060e0b] rounded-lg p-3 px-4 border border-[#1c2e28]
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
       "
     >

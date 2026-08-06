@@ -36,7 +36,7 @@ const showPassword = ref<boolean>(false)
       <label for="password" class="text-lg font-medium pb-0.5 self-start">Новый пароль</label>
       <div 
         class="
-        group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28] 
+        group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28] 
         focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
         "
       >
