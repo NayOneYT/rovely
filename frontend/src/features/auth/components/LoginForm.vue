@@ -32,7 +32,7 @@ const handleGoogleLogin = () => {
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт</p>
   <form @submit.prevent="login" class="flex flex-col">
-    <label for="identifier" class="text-lg pb-0.5 self-start">Логин, email или номер телефона</label>
+    <label for="identifier" class="text-lg font-medium pb-0.5 self-start">Логин, email или номер телефона</label>
     <input 
       :value="identifierString"
       @input="onIdentifierInput"
@@ -50,7 +50,7 @@ const handleGoogleLogin = () => {
       "
     >
     <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
-    <label for="password" class="text-lg pb-0.5 mt-4 self-start">Пароль</label>
+    <label for="password" class="text-lg font-medium pb-0.5 mt-4 self-start">Пароль</label>
     <div 
       class="
       group flex items-center w-full bg-[#060e0b] rounded-2xl border border-[#1c2e28] 

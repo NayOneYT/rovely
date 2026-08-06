@@ -21,7 +21,7 @@ const {
     @submit.prevent="getContacts"
     lass="flex flex-col"
   >
-    <label for="identifier" class="text-lg pb-0.5 self-start">Логин, email или номер телефона</label>
+    <label for="identifier" class="text-lg font-medium pb-0.5 self-start">Логин, email или номер телефона</label>
     <input 
       :value="identifierString"
       @input="onIdentifierInput"
