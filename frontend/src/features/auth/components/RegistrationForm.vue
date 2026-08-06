@@ -324,15 +324,13 @@ const handleGoogleRegistration = () => {
       </span>
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
   </div>
-  <button
+  <AppButton
+    variant="social"
     @click="handleGoogleRegistration"
     :disabled="isProcessing"
-    :class="isProcessing ? 'pointer-events-none' : ''"
-    class="w-full p-3 rounded-4xl mt-2 bg-[#060e0b] border border-[#1c2e28] text-white flex items-center justify-center gap-2 
-    select-none cursor-pointer hover:border-[#13d373] hover:text-white hover:shadow-[0_0_6px_#13d373] 
-    focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all duration-200"
+    class="w-full"
   >
     <GoogleIcon class="size-5" />
     Продолжить с Google
-  </button>
+  </AppButton>
 </template>

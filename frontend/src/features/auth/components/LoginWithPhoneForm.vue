@@ -3,7 +3,7 @@ import { useLocalStorage } from "@vueuse/core"
 import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
-import { Check } from "@lucide/vue"
+import { Check, RectangleEllipsis } from "@lucide/vue"
 import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
@@ -117,35 +117,21 @@ const handleGoogleLogin = () => {
       </span>
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
   </div>
-  <RouterLink
+  <AppButton
+    variant="social"
     :to="{ name: 'Login' }"
-    :tabindex="isProcessing ? -1 : 0"
-    :class="isProcessing ? 'pointer-events-none' : ''"
-    class="
-    block p-3 rounded-4xl bg-[#060e0b] border border-[#1c2e28] text-white text-center
-    hover:border-[#13d373] hover:text-white transition-all duration-200
-    hover:shadow-[0_0_6px_#13d373] cursor-pointer select-none
-    focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]
-    "
+    :disabled="isProcessing"
   >
+    <RectangleEllipsis class="size-6 text-[#13d373]" />
     Войти с паролем
-  </RouterLink>
-  <button
+  </AppButton>
+  <AppButton
+    variant="social"
     @click="handleGoogleLogin"
     :disabled="isProcessing"
-    :class="isProcessing ? 'pointer-events-none' : ''"
-    class="
-    w-full p-3 rounded-4xl mt-2
-    bg-[#060e0b] border border-[#1c2e28]
-    text-white
-    hover:border-[#13d373] hover:text-white
-    flex items-center justify-center gap-2
-    transition-all duration-200
-    hover:shadow-[0_0_6px_#13d373] cursor-pointer select-none
-    focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]
-    "
+    class="w-full mt-2.5"
   >
     <GoogleIcon class="size-5" />
     Войти через Google
-  </button>
+  </AppButton>
 </template>
