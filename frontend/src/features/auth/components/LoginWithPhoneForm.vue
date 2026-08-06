@@ -31,7 +31,7 @@ const handleGoogleLogin = () => {
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт</p>
   <form @submit.prevent="login" class="flex flex-col">
-    <label for="phone" class="text-lg font-medium pb-0.5 self-start">Телефон</label>
+    <label for="phone" class="text-sm font-medium pb-0.5 self-start">Телефон</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -47,7 +47,7 @@ const handleGoogleLogin = () => {
       "
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
-    <label for="code" class="text-lg font-medium pb-0.5 mt-4 self-start">Код подтверждения</label>
+    <label for="code" class="text-sm font-medium pb-0.5 mt-4 self-start">Код подтверждения</label>
     <div 
       class="
       group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28]
@@ -81,7 +81,7 @@ const handleGoogleLogin = () => {
       </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
-    <label class="group flex items-center gap-2 mt-4 mb-5 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
+    <label class="group flex items-center text-sm font-medium gap-1.5 mt-4 mb-5 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
       <input 
         :disabled="isProcessing"
         v-model="rememberMe"
@@ -95,12 +95,9 @@ const handleGoogleLogin = () => {
         group-hover:shadow-[0_0_6px_#13d373] peer-checked:border-[#13d373] peer-checked:bg-[#13d373] transition-all duration-200
         "
       >
-        <Check 
-          class="stroke-5 -mb-px transition-all duration-200" 
-          :class="rememberMe ? 'opacity-100' : 'opacity-0'"
-        />
+        <Check class="stroke-4 -mb-px" />
       </div>
-      <span class="select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
+      Запомнить меня
     </label>
     <AppButton
       variant="primary"

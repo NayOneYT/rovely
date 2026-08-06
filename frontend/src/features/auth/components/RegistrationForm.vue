@@ -40,7 +40,7 @@ const handleGoogleRegistration = () => {
     @submit.prevent="goToNextStep"
     class="flex flex-col"
   >
-    <label for="name" class="text-lg font-medium pb-0.5 self-start">Отображаемое имя</label>
+    <label for="name" class="text-sm font-medium pb-0.5 self-start">Отображаемое имя</label>
     <input 
       v-model="name"
       @blur="onNameBlur"
@@ -54,7 +54,7 @@ const handleGoogleRegistration = () => {
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="nameClientError" />
-    <label for="username" class="text-lg font-medium pb-0.5 mt-4 self-start">Имя пользователя</label>
+    <label for="username" class="text-sm font-medium pb-0.5 mt-4 self-start">Имя пользователя</label>
     <input 
       v-model="username"
       @blur="onUsernameBlur"
@@ -83,7 +83,7 @@ const handleGoogleRegistration = () => {
     class="flex flex-col"
     novalidate
   >
-    <label for="email" class="text-lg font-medium pb-0.5 self-start">Email</label>
+    <label for="email" class="text-sm font-medium pb-0.5 self-start">Email</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28]
@@ -115,7 +115,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="emailClientError" :serverError="emailServerError" />
-    <label for="phone" class="text-lg font-medium pb-0.5 mt-4 self-start">Номер телефона</label>
+    <label for="phone" class="text-sm font-medium pb-0.5 mt-4 self-start">Номер телефона</label>
     <input
       :value="phoneString"
       @input="onPhoneInput"
@@ -156,7 +156,7 @@ const handleGoogleRegistration = () => {
     @submit.prevent="goToNextStep"
     class="flex flex-col"
   >
-    <label for="code" class="text-lg font-medium pb-0.5 self-start">Код подтверждения</label>
+    <label for="code" class="text-sm font-medium pb-0.5 self-start">Код подтверждения</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28]
@@ -228,7 +228,7 @@ const handleGoogleRegistration = () => {
     @submit="register"
     class="flex flex-col"
   >
-    <label for="login" class="text-lg font-medium pb-0.5 self-start">Логин</label>
+    <label for="login" class="text-sm font-medium pb-0.5 self-start">Логин</label>
     <input 
       v-model="login"
       @blur="onLoginBlur"
@@ -243,7 +243,7 @@ const handleGoogleRegistration = () => {
       "
     >
     <InputError :clientError="loginClientError" :serverError="loginServerError" />
-    <label for="password" class="text-lg font-medium pb-0.5 mt-4 self-start">Пароль</label>
+    <label for="password" class="text-sm font-medium pb-0.5 mt-4 self-start">Пароль</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
       class="

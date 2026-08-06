@@ -32,7 +32,7 @@ const handleGoogleLogin = () => {
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт</p>
   <form @submit.prevent="login" class="flex flex-col">
-    <label for="identifier" class="text-lg font-medium pb-0.5 self-start">Логин, email или номер телефона</label>
+    <label for="identifier" class="text-sm font-medium pb-0.5 self-start">Логин, email или номер телефона</label>
     <input 
       :value="identifierString"
       @input="onIdentifierInput"
@@ -50,7 +50,7 @@ const handleGoogleLogin = () => {
       "
     >
     <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
-    <label for="password" class="text-lg font-medium pb-0.5 mt-4 self-start">Пароль</label>
+    <label for="password" class="text-sm font-medium pb-0.5 mt-4 self-start">Пароль</label>
     <div 
       class="
       group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28] 
@@ -82,8 +82,8 @@ const handleGoogleLogin = () => {
       </AppButton>
     </div>
     <InputError :clientError="passwordClientError" :serverError="passwordServerError" />
-    <div class="flex justify-between mt-4 mb-5">
-      <label class="group flex items-center gap-2 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
+    <div class="flex justify-between text-sm font-medium mt-4 mb-5">
+      <label class="group flex items-center gap-1.5 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
         <input 
           :disabled="isProcessing"
           v-model="rememberMe"
@@ -97,12 +97,9 @@ const handleGoogleLogin = () => {
           group-hover:shadow-[0_0_6px_#13d373] peer-checked:border-[#13d373] peer-checked:bg-[#13d373] transition-all duration-200
           "
         >
-          <Check 
-            class="stroke-5 -mb-px transition-all duration-200" 
-            :class="rememberMe ? 'opacity-100' : 'opacity-0'"
-          />
+          <Check class="stroke-4 -mb-px" />
         </div>
-        <span class="select-none text-white/60 peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all">Запомнить меня</span>
+        Запомнить меня
       </label>
       <RouterLink
         :to="{ name: 'PasswordRecovery' }"
