@@ -80,7 +80,7 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         </nav>
       </section>
     </aside>
-    <footer class="col-span-4 mt-10 border-t border-[#1c2e28] bg-[#111b18]/50 text-sm text-white/40">
+    <footer class="col-span-4 mt-10 border-t border-[#1c2e28] bg-[#111b18]/50 text-sm text-white/60">
       <div class="flex flex-row items-center justify-around px-6 py-8">
         <div>
           <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>

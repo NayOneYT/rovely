@@ -117,7 +117,7 @@ const handleGoogleLogin = () => {
       {{ isProcessing ? "Проверка..." : "Войти" }}
     </AppButton>
   </form>
-  <div class="flex items-center my-6 text-sm text-white/40">  
+  <div class="flex items-center my-6 text-sm text-white/60">  
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
       <span class="mx-4 select-none">
         или

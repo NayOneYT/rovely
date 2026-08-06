@@ -67,7 +67,7 @@ const handleGoogleRegistration = () => {
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="usernameClientError" :serverError="usernameServerError" />
-    <p class="text-white/40 font-light mt-2"><i>Вас смогут найти по @{{ username || "username" }}</i></p>
+    <p class="text-white/60 font-light mt-2"><i>Вас смогут найти по @{{ username || "username" }}</i></p>
     <AppButton
       variant="primary"
       type="submit"
@@ -131,7 +131,7 @@ const handleGoogleRegistration = () => {
       "
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
-    <p class="text-white/40 font-light mt-2"><i>Достаточно указать одно из полей</i></p>
+    <p class="text-white/60 font-light mt-2"><i>Достаточно указать одно из полей</i></p>
     <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
@@ -189,7 +189,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
-    <p class="text-white/40 font-light mt-2">
+    <p class="text-white/60 font-light mt-2">
       <i>Чтобы получить код:<br>
       1. Перейдите в Telegram-бота — 
       <a 
@@ -277,7 +277,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="passwordClientError" />
-    <p class="text-white/40 font-light mt-2">
+    <p class="text-white/60 font-light mt-2">
       <i>
         <span>Регистрируясь, вы принимаете </span> 
         <RouterLink 
@@ -319,7 +319,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <div class="flex items-center my-6 text-sm text-white/40">  
+  <div class="flex items-center my-6 text-sm text-white/60">  
     <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
       <span class="mx-4 select-none">
         или
