@@ -92,7 +92,7 @@ const handleGoogleLogin = () => {
         >
         <div 
           class="
-          size-5 flex items-center bg-[#060e0b] rounded border border-[#1c2e28] text-[#060e0b]
+          size-5 flex items-center bg-[#060e0b] rounded-[5px] border border-[#1c2e28] text-[#060e0b]
           peer-focus-visible:border-[#13d373] peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:border-[#13d373] 
           group-hover:shadow-[0_0_6px_#13d373] peer-checked:border-[#13d373] peer-checked:bg-[#13d373] transition-all duration-200
           "
