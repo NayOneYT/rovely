@@ -7,9 +7,9 @@ type ButtonVariant = "primary" | "secondary" | "social" | "icon"
 const baseClasses = "flex justify-center items-center select-none cursor-pointer focus:outline-none transition-all duration-200"
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "text-black text-lg font-bold px-3.5 py-2 rounded-full bg-[#13d373] hover:shadow-[0_0_15px_#13d373] focus-visible:shadow-[0_0_15px_#13d373]",
-  secondary: "text-white/60 text-lg font-normal px-3.5 py-2 rounded-full bg-[#060e0b] hover:text-white focus-visible:text-white",
-  social: "gap-2 text-white text-base font-normal px-3.5 py-2.25 border border-[#1c2e28] rounded-full bg-[#060e0b] hover:border-[#13d373] hover:shadow-[0_0_6px_#13d373] focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]",
+  primary: "text-black text-base font-bold px-5 py-3 rounded-full bg-[#13d373] hover:shadow-[0_0_15px_#13d373] focus-visible:shadow-[0_0_15px_#13d373]",
+  secondary: "text-white/60 text-base font-normal px-5 py-3 rounded-full bg-[#060e0b] hover:text-white focus-visible:text-white",
+  social: "text-white text-base font-normal px-4 py-2.75 border border-[#1c2e28] rounded-full bg-[#060e0b] gap-2 hover:border-[#13d373] hover:shadow-[0_0_6px_#13d373] focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]",
   icon: "text-sm size-10 text-white/60 hover:text-white focus-visible:text-white"
 }
 

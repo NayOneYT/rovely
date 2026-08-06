@@ -45,7 +45,7 @@ const handleGoogleLogin = () => {
       placeholder="NayOne | email@example.com | +375 29 123 45 67" 
       spellcheck="false"
       class="
-      w-full placeholder:text-white/40 bg-[#060e0b] rounded-lg p-3 px-4 border border-[#1c2e28]
+      w-full placeholder:text-white/40 bg-[#060e0b] rounded-lg px-4 py-2.75 border border-[#1c2e28]
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
       "
     >
@@ -65,7 +65,7 @@ const handleGoogleLogin = () => {
         id="password"
         autocomplete="current-password"
         maxlength="72"
-        class="flex-1 bg-transparent py-3 px-4 focus-visible:outline-none"
+        class="flex-1 bg-transparent px-4 py-2.75 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
       <AppButton
