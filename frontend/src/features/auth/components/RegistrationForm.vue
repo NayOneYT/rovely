@@ -50,7 +50,7 @@ const handleGoogleRegistration = () => {
       type="text"
       maxlength="30"
       placeholder="Гуру успешного успеха 😎💸"
-      class="w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
+      class="w-full placeholder:text-white/40 bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="nameClientError" />
@@ -63,7 +63,7 @@ const handleGoogleRegistration = () => {
       type="text"
       maxlength="30"
       placeholder="username"
-      class="w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
+      class="w-full placeholder:text-white/40 bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="usernameClientError" :serverError="usernameServerError" />
@@ -98,7 +98,7 @@ const handleGoogleRegistration = () => {
         type="email"
         maxlength="254"
         placeholder="email@example.com"
-        class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
+        class="flex-1 placeholder:text-white/40 bg-transparent p-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
       <AppButton
@@ -126,7 +126,7 @@ const handleGoogleRegistration = () => {
       type="tel"
       placeholder="+375 29 123 45 67"
       class="
-      w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
+      w-full placeholder:text-white/40 bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
       "
     >
@@ -172,7 +172,7 @@ const handleGoogleRegistration = () => {
         inputmode="numeric"
         maxlength="6"
         placeholder="123456"
-        class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
+        class="flex-1 placeholder:text-white/40 bg-transparent p-3 px-4 focus-visible:outline-none"
       >
       <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
       <AppButton
@@ -238,7 +238,7 @@ const handleGoogleRegistration = () => {
       maxlength="50"
       placeholder="NayOne"
       class="
-      w-full bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
+      w-full placeholder:text-white/40 bg-[#060e0b] rounded-2xl p-3 px-4 border border-[#1c2e28]
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
       "
     >
