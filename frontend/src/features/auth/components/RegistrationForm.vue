@@ -10,7 +10,6 @@ import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 const showPassword = ref(false)
-const acceptedTerms = ref(false)
 
 const {
  name, nameClientError, onNameBlur,
@@ -278,47 +277,29 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="passwordClientError" />
-    <div class="flex justify-between mt-4 mb-5">
-      <label class="group flex items-center">
-        <input
-          v-model="acceptedTerms"
-          :disabled="isProcessing"
-          type="checkbox" 
-          class="peer sr-only"
-        >
-        <div 
+    <p class="text-white/40 font-light mt-2">
+      <i>
+        <span>Регистрируясь, вы принимаете </span> 
+        <RouterLink 
+          :to="{ name: 'Terms' }" 
+          target="_blank"
+          :tabindex="isProcessing ? -1 : 0"
           :class="isProcessing ? 'pointer-events-none' : ''"
-          class="w-5 h-5 bg-[#060e0b] rounded-full border border-[#1c2e28] text-[#060e0b] flex items-center justify-center
-          cursor-pointer peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:text-[#13d373] transition-all"
+          class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
         >
-          <Check class="size-4 stroke-5 -mb-0.5" />
-        </div>
-        <span 
+          условия</RouterLink> <!-- if you move </RouterLink> to a new line, the space before "и" will also be underlined -->
+        <span> и </span> 
+        <RouterLink 
+          :to="{ name: 'Privacy' }" 
+          target="_blank"
+          :tabindex="isProcessing ? -1 : 0"
           :class="isProcessing ? 'pointer-events-none' : ''"
-          class="pl-1 select-none text-white/60 cursor-pointer peer-checked:text-white peer-focus-visible:text-white group-hover:text-white transition-all"
+          class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
         >
-          <span>Я принимаю </span> 
-          <RouterLink 
-            :to="{ name: 'Terms' }" 
-            target="_blank"
-            :tabindex="isProcessing ? -1 : 0"
-            :class="isProcessing ? 'pointer-events-none' : ''"
-            class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
-          >
-            условия</RouterLink> <!-- if you move </RouterLink> to a new line, the space before "и" will also be underlined -->
-          <span> и </span> 
-          <RouterLink 
-            :to="{ name: 'Privacy' }" 
-            target="_blank"
-            :tabindex="isProcessing ? -1 : 0"
-            :class="isProcessing ? 'pointer-events-none' : ''"
-            class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
-          >
-            политику
-          </RouterLink>
-        </span>
-      </label>
-    </div>
+          политику
+        </RouterLink>
+      </i>
+    </p>
     <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
@@ -331,7 +312,7 @@ const handleGoogleRegistration = () => {
       <AppButton
         variant="primary"
         type="submit"
-        :disabled="isProcessing || !acceptedTerms"
+        :disabled="isProcessing"
         class="flex-1"
       >
         Завершить
