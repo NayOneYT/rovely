@@ -17,7 +17,7 @@ const {
   <p class="text-4xl font-medium cursor-default">Восстановление пароля</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">{{ step === 1 ? "Что за аккаунт?" : "Как будем восстанавливать?" }}</p>
   <form v-if="step === 1" @submit="getContacts" class="flex flex-col">
-    <label for="identifier" class="texl-lg pb-0.5 self-start">Логин, email или номер телефона</label>
+    <label for="identifier" class="text-lg pb-0.5 self-start">Логин, email или номер телефона</label>
     <input 
       :value="identifierString"
       @input="onIdentifierInput"
@@ -36,15 +36,14 @@ const {
     >
     <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
     <div class="flex gap-6 mt-6">
-      <RouterLink
+      <AppButton
+        variant="secondary"
         :to="{ name: 'Login' }"
-        :tabindex="isProcessing ? -1 : 0"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        class="flex-1 texl-lg text-center bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
-        cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
+        :disabled="isProcessing"
+        class="flex-1"
       >
         На главную
-      </RouterLink>
+      </AppButton>
       <AppButton
         variant="primary"
         type="submit"
@@ -64,12 +63,12 @@ const {
     >
       Письмо на {{ blurredEmail }}
       <Mail class="ml-2 mr-1 size-6" />
-      <p 
+      <span
         v-if="!!sendEmailCooldown" 
         class="text-sm"
       >
         {{ sendEmailCooldown }}
-      </p>
+      </span>
     </AppButton>
     <AppButton
       v-if="blurredPhone"
@@ -80,21 +79,20 @@ const {
     >
       Сообщение на {{ blurredPhone }}
       <TelegramIcon class="ml-2.5 mr-0.5 size-6 scale-125" />
-      <p 
+      <span 
         v-if="!!sendTelegramMessageCooldown" 
         class="text-sm"
       >
         {{ sendTelegramMessageCooldown }}
-      </p>
+      </span>
     </AppButton>
-    <button
+    <AppButton
+      variant="secondary"
       @click="step = 1"
       :disabled="isProcessing"
-      :class="isProcessing ? 'pointer-events-none' : ''"
-      class="w-wull mt-6 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
-      cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
+      class="mt-6"
     >
       Назад
-    </button>
+    </AppButton>
   </div>
 </template>

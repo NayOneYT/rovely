@@ -125,16 +125,14 @@ const handleGoogleRegistration = () => {
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
     <p class="text-white/40 font-light mt-2"><i>Достаточно указать одно из полей</i></p>
     <div class="flex gap-6 mt-6">
-      <button
-        @click.prevent="step = 1"
+      <AppButton
+        variant="secondary"
+        @click="step = 1"
         :disabled="isProcessing"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        type="button"
-        class="flex-1 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
-        cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
+        class="flex-1"
       >
         Назад
-      </button>
+      </AppButton>
       <AppButton
         variant="primary"
         type="submit"
@@ -195,16 +193,14 @@ const handleGoogleRegistration = () => {
       4. Нажмите на самолетик справа от поля ввода кода</i>
     </p>
     <div class="flex gap-6 mt-6">
-      <button
-        @click.prevent="step = 2"
+      <AppButton
+        variant="secondary"
+        @click="step = 2"
         :disabled="isProcessing"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        type="button"
-        class="flex-1 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
-        cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
+        class="flex-1"
       >
         Назад
-      </button>
+      </AppButton>
       <AppButton
         variant="primary"
         type="submit"
@@ -307,16 +303,14 @@ const handleGoogleRegistration = () => {
       </label>
     </div>
     <div class="flex gap-6 mt-6">
-      <button
-        @click.prevent="step = 2"
+      <AppButton
+        variant="secondary"
+        @click="step = 2"
         :disabled="isProcessing"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        type="button"
-        class="flex-1 texl-lg bg-[#060e0b] select-none p-3 rounded-4xl text-white/60
-        cursor-pointer hover:text-white focus-visible:outline-none focus-visible:text-white transition-all"
+        class="flex-1"
       >
         Назад
-      </button>
+      </AppButton>
       <AppButton
         variant="primary"
         type="submit"
