@@ -67,7 +67,7 @@ const handleGoogleRegistration = () => {
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
     >
     <InputError :clientError="usernameClientError" :serverError="usernameServerError" />
-    <p class="text-white/60 font-light mt-2"><i>Вас смогут найти по @{{ username || "username" }}</i></p>
+    <p class="text-white/60 font-light italic mt-2">Вас смогут найти по @{{ username || "username" }}</p>
     <AppButton
       variant="primary"
       type="submit"
@@ -131,7 +131,7 @@ const handleGoogleRegistration = () => {
       "
     >
     <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
-    <p class="text-white/60 font-light mt-2"><i>Достаточно указать одно из полей</i></p>
+    <p class="text-white/60 font-light italic mt-2">Достаточно указать одно из полей</p>
     <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
@@ -189,8 +189,8 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
-    <p class="text-white/60 font-light mt-2">
-      <i>Чтобы получить код:<br>
+    <p class="text-white/60 font-light italic mt-2">
+      Чтобы получить код:<br>
       1. Перейдите в Telegram-бота — 
       <a 
         href="https://t.me/rovely_bot" 
@@ -202,7 +202,7 @@ const handleGoogleRegistration = () => {
       </a><br>
       2. Активируйте его нажав на кнопку либо через /start<br>
       3. Отправьте боту свой номер телефона (кнопкой)<br>
-      4. Нажмите на самолетик справа от поля ввода кода</i>
+      4. Нажмите на самолетик справа от поля ввода кода
     </p>
     <div class="flex gap-6 mt-6">
       <AppButton
@@ -277,28 +277,26 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="passwordClientError" />
-    <p class="text-white/60 font-light mt-2">
-      <i>
-        <span>Регистрируясь, вы принимаете </span> 
-        <RouterLink 
-          :to="{ name: 'Terms' }" 
-          target="_blank"
-          :tabindex="isProcessing ? -1 : 0"
-          :class="isProcessing ? 'pointer-events-none' : ''"
-          class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
-        >
-          условия</RouterLink> <!-- if you move </RouterLink> to a new line, the space before "и" will also be underlined -->
-        <span> и </span> 
-        <RouterLink 
-          :to="{ name: 'Privacy' }" 
-          target="_blank"
-          :tabindex="isProcessing ? -1 : 0"
-          :class="isProcessing ? 'pointer-events-none' : ''"
-          class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
-        >
-          политику
-        </RouterLink>
-      </i>
+    <p class="text-white/60 font-light italic mt-2">
+      <span>Регистрируясь, вы принимаете </span> 
+      <RouterLink 
+        :to="{ name: 'Terms' }" 
+        target="_blank"
+        :tabindex="isProcessing ? -1 : 0"
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+      >
+        условия</RouterLink> <!-- if you move </RouterLink> to a new line, the space before "и" will also be underlined -->
+      <span> и </span> 
+      <RouterLink 
+        :to="{ name: 'Privacy' }" 
+        target="_blank"
+        :tabindex="isProcessing ? -1 : 0"
+        :class="isProcessing ? 'pointer-events-none' : ''"
+        class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+      >
+        политику
+      </RouterLink>
     </p>
     <div class="flex gap-6 mt-6">
       <AppButton
