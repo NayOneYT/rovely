@@ -28,7 +28,7 @@ const showPassword = ref<boolean>(false)
     </p>
     <form
       v-else-if="status === 'READY' || status === 'RESETTING'"
-      @submit="reset"
+      @submit.prevent="reset"
       class="flex flex-col"
     >
       <p class="text-4xl font-medium cursor-default">Сброс пароля</p>

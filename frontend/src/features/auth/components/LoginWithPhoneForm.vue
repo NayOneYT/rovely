@@ -30,7 +30,7 @@ const handleGoogleLogin = () => {
 <template>
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Войдите в аккаунт</p>
-  <form @submit="login" class="flex flex-col">
+  <form @submit.prevent="login" class="flex flex-col">
     <label for="phone" class="text-lg pb-0.5 self-start">Телефон</label>
     <input
       :value="phoneString"

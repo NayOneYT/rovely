@@ -36,7 +36,11 @@ const handleGoogleRegistration = () => {
 <template>
   <p class="text-4xl font-medium cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
   <p class="text-white/60 mt-1 mb-8 cursor-default">Расскажите нам о себе</p>
-  <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 1">
+  <form
+    v-if="step === 1"
+    @submit.prevent="goToNextStep"
+    class="flex flex-col"
+  >
     <label for="name" class="text-lg pb-0.5 self-start">Отображаемое имя</label>
     <input 
       v-model="name"
@@ -74,7 +78,12 @@ const handleGoogleRegistration = () => {
       Далее
     </AppButton>
   </form>
-  <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2" novalidate>
+  <form
+    v-if="step === 2"
+    @submit.prevent="goToNextStep"
+    class="flex flex-col"
+    novalidate
+  >
     <label for="email" class="text-lg pb-0.5 self-start">Email</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
@@ -143,7 +152,11 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <form @submit.prevent="goToNextStep" class="flex flex-col" v-if="step === 2.5">
+  <form
+    v-if="step === 2.5"
+    @submit.prevent="goToNextStep"
+    class="flex flex-col"
+  >
     <label for="code" class="text-lg pb-0.5 self-start">Код подтверждения</label>
     <div 
       :class="isProcessing ? 'pointer-events-none' : ''"
@@ -211,7 +224,11 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <form @submit="register" class="flex flex-col" v-if="step === 3">
+  <form
+    v-if="step === 3"
+    @submit="register"
+    class="flex flex-col"
+  >
     <label for="login" class="text-lg pb-0.5 self-start">Логин</label>
     <input 
       v-model="login"
