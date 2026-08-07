@@ -19,6 +19,7 @@ export const useParticlesCanvas = (canvasRef: Ref<HTMLCanvasElement | undefined>
       const count = Math.floor(area / 36000)
       return isPowerfulDevice ? count * 2 : count
     }
+
     const createParticle = () => ({
       x: Math.random() * currentWidth,
       y: Math.random() * currentHeight,
@@ -82,7 +83,6 @@ export const useParticlesCanvas = (canvasRef: Ref<HTMLCanvasElement | undefined>
       const elapsed = now - lastTime
       if (elapsed < fpsInterval) return
       lastTime = now - (elapsed % fpsInterval)
-
       ctx.clearRect(0, 0, currentWidth, currentHeight)
 
       particles.forEach(particle => {

@@ -9,13 +9,13 @@ const { isProcessing, currentForm } = useAuthWidget()
 </script>
 
 <template>
-  <section class="bg-[#111b18] w-full border border-[#1c2e28] rounded-4xl p-10">
-    <div 
+  <div class="w-full bg-[#101312] border border-[#222a27] rounded-[40px] p-10">
+    <nav 
       v-if="currentForm !== PasswordRecoveryForm"
-      class="relative flex mb-6 bg-[#060e0b] rounded-full select-none"
+      class="relative flex mb-6 bg-[#070908] rounded-full select-none"
     >
-      <div 
-        class="absolute top-0 bottom-0 w-1/2 bg-[#13d373] rounded-4xl transition-all duration-200"
+      <div
+        class="absolute top-0 bottom-0 w-1/2 bg-[#13d373] rounded-full transition-all duration-200"
         :style="{ transform: currentForm === RegistrationForm ? 'translateX(100%)' : 'translateX(0)' }"
       />
       <RouterLink
@@ -44,10 +44,10 @@ const { isProcessing, currentForm } = useAuthWidget()
       >
         Регистрация
       </RouterLink>
-    </div>
+    </nav>
     <component 
       :is="currentForm"
       v-model="isProcessing"
     />
-  </section>
+  </div>
 </template>

@@ -15,7 +15,7 @@ const showPassword = ref<boolean>(false)
 <template>
   <div
     :class="status === 'READY' || status === 'RESETTING' ? 'w-130' : ''"
-    class="z-1 rounded-4xl border border-[#1c2e28] bg-[#111b18] p-10 mt-4 transition-all"
+    class="z-1 rounded-[40px] border border-[#222a27] bg-[#101312] p-10 mt-4 transition-all"
   >
     <p v-if="status === 'CHECKING'">
       <LoaderCircle class="size-10 animate-spin" />
@@ -36,7 +36,7 @@ const showPassword = ref<boolean>(false)
       <label for="password" class="text-sm font-medium pb-1 self-start">Новый пароль</label>
       <div 
         class="
-        group flex items-center w-full bg-[#060e0b] rounded-lg border border-[#1c2e28] 
+        group flex items-center w-full bg-[#070908] rounded-[13.5px] border border-[#222a27] 
         focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
         "
       >
@@ -50,7 +50,7 @@ const showPassword = ref<boolean>(false)
           maxlength="72"
           class="flex-1 bg-transparent p-3 px-4 focus-visible:outline-none"
         >
-        <div class="w-px h-6 transition-all bg-[#1c2e28] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
+        <div class="w-px h-6 transition-all bg-[#222a27] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
         <AppButton
           variant="icon"
           @click="showPassword = !showPassword"

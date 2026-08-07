@@ -8,8 +8,8 @@ const baseClasses = "flex justify-center items-center select-none cursor-pointer
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "text-black text-base font-bold px-5 py-3 rounded-full bg-[#13d373] hover:shadow-[0_0_15px_#13d373] focus-visible:shadow-[0_0_15px_#13d373]",
-  secondary: "text-white/60 text-base font-normal px-5 py-3 rounded-full bg-[#060e0b] hover:text-white focus-visible:text-white",
-  social: "text-white text-base font-normal px-4 py-2.75 border border-[#1c2e28] rounded-full bg-[#060e0b] gap-2 hover:border-[#13d373] hover:shadow-[0_0_6px_#13d373] focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]",
+  secondary: "text-white/60 text-base font-normal px-5 py-3 rounded-full bg-[#070908] hover:text-white focus-visible:text-white",
+  social: "text-white text-base font-normal px-4 py-2.75 border border-[#222a27] rounded-full bg-[#070908] gap-2 hover:border-[#13d373] hover:shadow-[0_0_6px_#13d373] focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]",
   icon: "text-sm size-10 text-white/60 hover:text-white focus-visible:text-white"
 }
 

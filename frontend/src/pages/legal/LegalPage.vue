@@ -5,7 +5,7 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
 </script>
 
 <template>
-  <div class="grid grid-cols-4 bg-[#060e0b]">
+  <div class="grid grid-cols-4 bg-[#070908]">
     <main lang="ru" class="col-start-2 col-span-2 text-white">
       <h1 class="my-10 text-2xl text-center">{{ currentTitle }}</h1>
       <section
@@ -34,14 +34,14 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
           <div
             v-for="(table, tableIndex) in section.tables"
             :key="`table-${sectionIndex}-${tableIndex}`"
-            class="my-6 border border-[#1c2e28] rounded-2xl bg-[#111b18]/50"
+            class="my-6 border border-[#222a27] rounded-[10px] bg-[#101312]/50"
           >
             <div 
               v-for="(value, key, rowIndex) in table"
               :key="`row-${sectionIndex}-${tableIndex}-${rowIndex}`"
-              class="grid grid-cols-7 border-b border-[#1c2e28]"
+              class="grid grid-cols-7 border-b border-[#222a27]"
             >
-              <span class="col-span-2 px-3 py-2 border-r border-[#1c2e28]">{{ key }}</span>
+              <span class="col-span-2 px-3 py-2 border-r border-[#222a27]">{{ key }}</span>
               <component
                 :is="typeof(value) === 'string' ? 'span' : 'div'"
                 class="col-span-5 px-3 py-2"
@@ -64,9 +64,9 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
       </section>
     </main>
     <aside class="col-span-1">
-      <section class="fixed top-10 mx-10 p-3 border border-[#1c2e28] rounded-2xl bg-[#111b18]">
-        <h3 class="text-lg text-white text-center pb-2">Навигация</h3>
-        <nav class="flex flex-col gap-2">
+      <section class="fixed top-10 mx-10 p-3 border border-[#222a27] rounded-[12px] bg-[#101312]">
+        <h3 class="text-lg text-white text-center">Навигация</h3>
+        <nav class="flex flex-col gap-2 mt-4">
           <RouterLink
             v-for="(section, index) in currentSections" 
             :key="`nav-${index}`"
@@ -80,7 +80,7 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         </nav>
       </section>
     </aside>
-    <footer class="col-span-4 mt-10 border-t border-[#1c2e28] bg-[#111b18]/50 text-sm text-white/60">
+    <footer class="col-span-4 mt-10 border-t border-[#222a27] bg-[#101312]/50 text-sm text-white/60">
       <div class="flex flex-row items-center justify-around px-6 py-8">
         <div>
           <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>
