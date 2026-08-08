@@ -16,7 +16,7 @@ const { isProcessing, currentForm } = useAuthWidget()
     >
       <div
         class="absolute top-0 bottom-0 w-1/2 bg-[#13d373] rounded-full transition-all duration-200"
-        :style="{ transform: currentForm === RegistrationForm ? 'translateX(100%)' : 'translateX(0)' }"
+        :class="currentForm === RegistrationForm ? 'translate-x-full' : 'translate-x-0'"
       />
       <RouterLink
         :to="{ name: 'Login' }"
