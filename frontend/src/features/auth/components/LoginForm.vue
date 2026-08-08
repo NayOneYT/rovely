@@ -71,7 +71,6 @@ const handleGoogleLogin = () => {
       <AppButton
         variant="icon"
         @click="showPassword = !showPassword"
-        @mousedown.prevent
         :disabled="isProcessing"
         class="m-1 mr-1.5"
       >

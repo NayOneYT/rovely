@@ -25,6 +25,7 @@ defineProps<{
     :is="!!to ? RouterLink : 'button'"
     :to="to"
     :type="!!to ? undefined : 'button'"
+    @mousedown="(event: MouseEvent) => variant === 'icon' && event.preventDefault()"
     :disabled="!!to ? undefined : disabled"
     :tabindex="disabled ? -1 : 0"
     :class="[

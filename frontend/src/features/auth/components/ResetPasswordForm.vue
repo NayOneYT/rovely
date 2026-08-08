@@ -54,7 +54,6 @@ const showPassword = ref<boolean>(false)
         <AppButton
           variant="icon"
           @click="showPassword = !showPassword"
-          @mousedown.prevent
           :disabled="status === 'RESETTING'"
           class="m-1 mr-1.5"
           :class="showPassword ? 'p-1' : 'p-2'"

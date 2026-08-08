@@ -70,7 +70,6 @@ const handleGoogleLogin = () => {
       <AppButton
         variant="icon"
         @click="send"
-        @mousedown.prevent
         :disabled="isProcessing || !!sendCooldown"
         class="m-1 mr-1.5 flex flex-col items-center"
       >

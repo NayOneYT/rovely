@@ -103,7 +103,6 @@ const handleGoogleRegistration = () => {
       <AppButton
         variant="icon"
         @click="handleSendEmailVerification"
-        @mousedown.prevent
         :disabled="isProcessing || isEmailVerified || !!sendEmailCooldown"
         class="m-1 mr-1.5 flex flex-col items-center"
       >
@@ -177,7 +176,6 @@ const handleGoogleRegistration = () => {
       <AppButton
         variant="icon"
         @click="handleSendPhoneVerification"
-        @mousedown.prevent
         :disabled="isProcessing || !!sendTelegramMessageCooldown"
         class="m-1 mr-1.5 flex flex-col items-center"
       >
@@ -264,7 +262,6 @@ const handleGoogleRegistration = () => {
       <AppButton
         variant="icon"
         @click="showPassword = !showPassword"
-        @mousedown.prevent
         :disabled="isProcessing"
         class="m-1 mr-1.5"
         :class="showPassword ? 'p-1' : 'p-2'"
