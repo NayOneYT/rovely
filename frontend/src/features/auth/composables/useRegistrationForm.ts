@@ -1,6 +1,7 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { registerSchema, type CheckAvailabilityDto } from "../schema"
+import { usePasswordField } from "@/shared/composables/fields"
 import { ref, computed, watch, type Ref } from "vue"
 import { authApi } from "../api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
@@ -52,15 +53,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     validateOnValueUpdate: false
   })
 
-  const {
-    value: password,
-    errorMessage: passwordClientError,
-    validate: passwordValidate,
-    meta: passwordMeta,
-    handleBlur: passwordHandleBlur
-  } = useField("password", undefined, {
-    validateOnValueUpdate: false
-  })
+  const password = usePasswordField()
 
   const emailVerification = useEmailVerification(isProcessing, name)
   const phoneVerification = usePhoneVerification(isProcessing, name)
@@ -82,10 +75,6 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     if (loginMeta.touched) loginValidate()
   })
 
-  watch(password, () => {
-    if (passwordMeta.touched) passwordValidate()
-  })
-
   const onNameBlur = () => {
     if (nameMeta.dirty) {
       nameHandleBlur()
@@ -104,13 +93,6 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     if (loginMeta.dirty) {
       loginHandleBlur()
       loginValidate()
-    }
-  }
-
-  const onPasswordBlur = () => {
-    if (passwordMeta.dirty) {
-      passwordHandleBlur()
-      passwordValidate()
     }
   }
 
@@ -275,7 +257,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     onPhoneInput: phoneVerification.onPhoneInput, phoneString: phoneVerification.phoneString, onPhoneBlur: phoneVerification.onPhoneBlur, phoneClientError: phoneVerification.phoneClientError, phoneServerError: phoneVerification.phoneServerError,
     onCodeInput: phoneVerification.onCodeInput, codeString: phoneVerification.codeString, onCodeBlur: phoneVerification.onCodeBlur, codeClientError: phoneVerification.codeClientError, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
     login, loginClientError, loginServerError, onLoginBlur,
-    password, passwordClientError, onPasswordBlur,
+    password,
     step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
   }
 }

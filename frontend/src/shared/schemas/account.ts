@@ -5,15 +5,41 @@ export const accountIdSchema = z
   .string()
   .cuid()
 
+export const passwordSchema = z
+  .string({ required_error: "Обязательное поле" })
+  .min(1, "Обязательное поле")
+  .min(6, "Минимум 6 символов")
+  .max(72)
+  .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы")
+
+export const loginSchema = z
+  .string({ required_error: "Обязательное поле" })
+  .min(1, "Обязательное поле")
+  .min(4, "Минимум 4 символа")
+  .max(50)
+  .regex(/^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/, "Только латиница, кирилица, цифры и ._-")
+
+export const emailSchema = z
+  .string({ required_error: "Обязательное поле" })
+  .min(1, "Обязательное поле")
+  .email("Неверный формат")
+
 export const phoneSchema = z
   .string({ required_error: "Обязательное поле" })
   .min(1, "Обязательное поле")
   .refine((value) => parsePhoneNumberFromString(value)?.isValid(), "Неверный формат")
 
-export const nameSchema = z
+export const identifierSchema = z
   .string({ required_error: "Обязательное поле" })
   .min(1, "Обязательное поле")
-  .max(30)
+  .min(4, "Минимум 4 символа")
+  .max(254)
+  .refine((value) => {
+    const isLogin = loginSchema.safeParse(value).success
+    const isEmail = emailSchema.safeParse(value).success
+    const isPhone = phoneSchema.safeParse(value).success
+    return isEmail || isLogin || isPhone
+  }, "Неверный формат")
 
 export const usernameSchema = z
   .string({ required_error: "Обязательное поле" })
@@ -22,7 +48,7 @@ export const usernameSchema = z
   .max(30)
   .regex(/^[a-zA-Z0-9]+$/, "Неверный формат")
 
-export const emailSchema = z
+export const nameSchema = z
   .string({ required_error: "Обязательное поле" })
   .min(1, "Обязательное поле")
-  .email("Неверный формат")
+  .max(30)

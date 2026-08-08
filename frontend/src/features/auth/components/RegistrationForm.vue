@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { useLocalStorage } from "@vueuse/core"
-import { ref } from "vue"
 import { useRegistrationForm } from "../composables/useRegistrationForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
-import { Mail, Eye, EyeOff, Check } from "@lucide/vue"
+import { Mail } from "@lucide/vue"
 import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
+import { PasswordField } from "@/shared/components/ui/fields"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
-const showPassword = ref(false)
 
 const {
  name, nameClientError, onNameBlur,
@@ -18,7 +17,7 @@ const {
   onPhoneInput, phoneString, onPhoneBlur, phoneClientError, phoneServerError,
   onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendTelegramMessageCooldown,
   login, loginClientError, loginServerError, onLoginBlur,
-  password, passwordClientError, onPasswordBlur,
+  password,
   step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
 } = useRegistrationForm(isProcessing)
 
@@ -240,39 +239,10 @@ const handleGoogleRegistration = () => {
       "
     >
     <InputError :clientError="loginClientError" :serverError="loginServerError" />
-    <label for="password" class="text-sm font-medium pb-1 mt-4 self-start">Пароль</label>
-    <div 
-      :class="isProcessing ? 'pointer-events-none' : ''"
-      class="
-      group flex items-center w-full bg-[#070908] rounded-[13.5px] border border-[#222a27]
-      focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
-      "
-    >
-      <input
-        v-model="password"
-        @blur="onPasswordBlur"
-        :disabled="isProcessing"
-        :type="showPassword ? 'text' : 'password'"
-        id="password"
-        autocomplete="current-password"
-        maxlength="72"
-        class="flex-1 bg-transparent px-4 py-2.75 focus-visible:outline-none"
-      >
-      <div class="w-px h-6 transition-all bg-[#222a27] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <AppButton
-        variant="icon"
-        @click="showPassword = !showPassword"
-        :disabled="isProcessing"
-        class="m-1 mr-1.5"
-        :class="showPassword ? 'p-1' : 'p-2'"
-      >
-        <component 
-          :is="showPassword ? Eye : EyeOff"
-          :class="showPassword ? 'size-7' : 'size-6'"
-        />
-      </AppButton>
-    </div>
-    <InputError :clientError="passwordClientError" />
+    <PasswordField 
+      :field="password"
+      :disabled="isProcessing"
+    />
     <p class="text-sm text-white/60 mt-4 mb-6">
       <span>Регистрируясь, вы принимаете </span> 
       <RouterLink 

@@ -17,7 +17,7 @@ export type SendPasswordRecoveryResult = {
   timeLeftMs: number
 }
 
-export type SendPasswordRecoveryStatus = "VALIDATION_ERROR" | "SUCCESS" | "ERROR"
+export type SendPasswordRecoveryStatus = "SUCCESS" | "ERROR"
 export type ResetPasswordStatus = "CHECKING" | "TOKEN_INVALID" | "READY" | "RESETTING" | "SUCCESS"
 
 export type MeDto = {

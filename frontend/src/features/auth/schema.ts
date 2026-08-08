@@ -1,28 +1,8 @@
 import { z } from "zod"
-import parsePhoneNumberFromString from "libphonenumber-js"
 import {
   makeOptional,
-  codeSchema, nameSchema, usernameSchema, emailSchema, phoneSchema, tokenSchema,
+  passwordSchema, loginSchema as loginFieldSchema, emailSchema, phoneSchema, identifierSchema, codeSchema, nameSchema, usernameSchema, tokenSchema,
 } from "@/shared/schemas"
-
-const identifierSchema = z
-  .string({ required_error: "Обязательное поле" })
-  .min(1, "Обязательное поле")
-  .min(4, "Минимум 4 символа")
-  .max(254)
-  .refine((value) => {
-    const isLogin = /^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/.test(value)
-    const isEmail = z.string().email().safeParse(value).success
-    const isPhone = parsePhoneNumberFromString(value)?.isValid()
-    return isEmail || isLogin || isPhone
-  }, "Неверный формат")
-
-const passwordSchema = z
-  .string({ required_error: "Обязательное поле" })
-  .min(1, "Обязательное поле")
-  .min(6, "Минимум 6 символов")
-  .max(72)
-  .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы")
 
 const rememberMeSchema = z
   .boolean()
@@ -58,12 +38,7 @@ export const registerSchema = z.object({
   username: makeOptional(usernameSchema),
   email: makeOptional(emailSchema),
   phone: makeOptional(phoneSchema),
-  login: z
-    .string({ required_error: "Обязательное поле" })
-    .min(1, "Обязательное поле")
-    .min(4, "Минимум 4 символа")
-    .max(50)
-    .regex(/^[a-zA-Zа-яА-ЯёЁ0-9._-]+$/, "Только латиница, кирилица, цифры и ._-"),
+  login: loginFieldSchema,
   password: passwordSchema
 })
 

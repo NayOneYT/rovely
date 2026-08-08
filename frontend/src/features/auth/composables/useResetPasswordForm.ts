@@ -2,7 +2,8 @@ import { useForm, useField } from "vee-validate"
 import { useRoute } from "vue-router"
 import { toTypedSchema } from "@vee-validate/zod"
 import { resetPasswordSchema } from "../schema"
-import { ref, watch } from "vue"
+import { usePasswordField } from "@/shared/composables/fields"
+import { ref } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../api"
 import { ApiError } from "@/shared/api/types"
@@ -30,26 +31,7 @@ export const useResetPasswordForm = () => {
     initialValue: externalToken
   })
 
-  const {
-    value: password,
-    errorMessage: passwordClientError,
-    validate: passwordValidate,
-    meta: passwordMeta,
-    handleBlur: passwordHandleBlur
-  } = useField("password", undefined, {
-    validateOnValueUpdate: false
-  })
-
-  watch(password, () => {
-    if (passwordMeta.touched) passwordValidate()
-  })
-
-  const onPasswordBlur = () => {
-    if (passwordMeta.dirty) {
-      passwordHandleBlur()
-      passwordValidate()
-    }
-  }
+  const password = usePasswordField()
 
   const checkMutation = useMutation({
     mutationFn: authApi.checkPasswordRecoveryToken,
@@ -92,7 +74,7 @@ export const useResetPasswordForm = () => {
   })
 
   return {
-    password, passwordClientError, onPasswordBlur,
+    password,
     status, reset
   }
 }

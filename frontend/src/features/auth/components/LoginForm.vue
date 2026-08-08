@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import { useLocalStorage } from "@vueuse/core"
-import { ref } from "vue"
 import { useLoginForm } from "../composables/useLoginForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { InputError, AppButton } from "@/shared/components/ui"
-import { Eye, EyeOff, Check, Phone } from "@lucide/vue"
+import { IdentifierField, PasswordField } from "@/shared/components/ui/fields"
+import { AppButton } from "@/shared/components/ui"
+import { Check, Phone } from "@lucide/vue"
 import { GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
-const showPassword = ref(false)
 
 const { 
-  identifierString, identifierClientError, identifierServerError, onIdentifierInput, onIdentifierBlur,
-  password, passwordClientError, passwordServerError, onPasswordBlur,
+  identifier, identifierServerError,
+  password, passwordServerError,
   rememberMe,
   login
 } = useLoginForm(isProcessing)
@@ -32,55 +31,16 @@ const handleGoogleLogin = () => {
   <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Войдите в аккаунт</p>
   <form @submit.prevent="login" class="flex flex-col">
-    <label for="identifier" class="text-sm font-medium pb-1 self-start">Логин, email или номер телефона</label>
-    <input 
-      :value="identifierString"
-      @input="onIdentifierInput"
-      @blur="onIdentifierBlur"
+    <IdentifierField
+      :field="identifier"
+      :serverError="identifierServerError"
       :disabled="isProcessing"
-      id="identifier"
-      autocomplete="username"
-      type="text"
-      maxlength="254"
-      placeholder="NayOne | email@example.com | +375 29 123 45 67" 
-      spellcheck="false"
-      class="
-      w-full placeholder:text-white/40 bg-[#070908] rounded-[13.5px] px-4 py-2.75 border border-[#222a27]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
-      "
-    >
-    <InputError :clientError="identifierClientError" :serverError="identifierServerError" />
-    <label for="password" class="text-sm font-medium pb-1 mt-4 self-start">Пароль</label>
-    <div 
-      class="
-      group flex items-center w-full bg-[#070908] rounded-[13.5px] border border-[#222a27] 
-      focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
-      "
-    >
-      <input
-        v-model="password"
-        @blur="onPasswordBlur"
-        :disabled="isProcessing"
-        :type="showPassword ? 'text' : 'password'"
-        id="password"
-        autocomplete="current-password"
-        maxlength="72"
-        class="flex-1 bg-transparent px-4 py-2.75 focus-visible:outline-none"
-      >
-      <div class="w-px h-6 transition-all bg-[#222a27] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <AppButton
-        variant="icon"
-        @click="showPassword = !showPassword"
-        :disabled="isProcessing"
-        class="m-1 mr-1.5"
-      >
-        <component 
-          :is="showPassword ? Eye : EyeOff"
-          :class="showPassword ? 'size-7' : 'size-6'"
-        />
-      </AppButton>
-    </div>
-    <InputError :clientError="passwordClientError" :serverError="passwordServerError" />
+    />
+    <PasswordField
+      :field="password"
+      :serverError="passwordServerError"
+      :disabled="isProcessing"
+    />
     <div class="flex justify-between text-sm font-medium mt-4 mb-6">
       <label class="group flex items-center gap-1.5 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
         <input 
