@@ -1,10 +1,10 @@
 import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { identifierSchema } from "@/shared/schemas"
+import { phoneSchema } from "@/shared/schemas"
+import { ref, watch } from "vue"
 import { AsYouType } from "libphonenumber-js"
-import { watch } from "vue"
 
-export const useIdentifierField = () => {
+export const usePhoneField = () => {
   const {
     value,
     errorMessage: clientError,
@@ -12,17 +12,14 @@ export const useIdentifierField = () => {
     meta,
     handleBlur,
     handleChange
-  } = useField("identifier", toTypedSchema(identifierSchema), {
+  } = useField("phone", toTypedSchema(phoneSchema), {
     validateOnValueUpdate: false
   })
 
   const onInput = (event: Event) => {
     const input = event.target as HTMLInputElement
-    if (!input.value.startsWith("+")) {
-      handleChange(input.value, false)
-      return
-    }
     let raw = input.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')
+    if (raw && !raw.startsWith('+')) raw = '+' + raw
     const formatted = new AsYouType().input(raw)
     input.value = formatted
     handleChange(formatted, false)
@@ -39,5 +36,5 @@ export const useIdentifierField = () => {
     }
   }
 
-  return { value, clientError, onInput, onBlur }
+  return { value, clientError, validate, onInput, onBlur }
 }

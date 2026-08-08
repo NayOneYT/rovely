@@ -5,8 +5,6 @@ export type SendLoginWithPhoneResult = {
   timeLeftMs: number
 }
 
-export type SendLoginWithPhoneStatus = "VALIDATION_ERROR" | "SUCCESS" | "ERROR"
-
 export type GetPasswordRecoveryContactsResult = {
   email?: string
   phone?: string

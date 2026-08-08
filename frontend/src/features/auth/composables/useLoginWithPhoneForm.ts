@@ -1,8 +1,8 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { loginWithPhoneSchema } from "../schema"
+import { usePhoneField } from "@/shared/composables/fields"
 import { ref, computed, watch, onUnmounted, type Ref } from "vue"
-import { AsYouType } from "libphonenumber-js"
 import { useMessageTimer } from "@/shared/composables/useMessageTimer"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../api"
@@ -10,12 +10,8 @@ import { useRouter } from "vue-router"
 import { useLocalStorage } from "@vueuse/core"
 import { ApiError, ErrorCode } from "@/shared/api/types"
 import { toast } from "vue-sonner"
-import type { SendLoginWithPhoneStatus } from "../types"
 
 export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
-  const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
-
-  const sendCooldown = computed(() => formattedTime(phone.value ?? ""))
 
   const router = useRouter()
   const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -25,25 +21,12 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
     validationSchema: toTypedSchema(loginWithPhoneSchema)
   })
 
-  const {
-    value: phone,
-    errorMessage: phoneClientError,
-    validate: phoneValidate,
-    meta: phoneMeta,
-    handleBlur: phoneHandleBlur,
-    handleChange: phoneHandleChange
-  } = useField<string>("phone")
+  const phone = usePhoneField()
+  const phoneServerError = ref<string>()
+  watch(phone.value, () => phoneServerError.value = undefined)
 
-  const phoneString = ref("")
-  const onPhoneInput = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    let raw = input.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')
-    if (raw && !raw.startsWith('+')) raw = '+' + raw
-    const formatted = new AsYouType().input(raw)
-    input.value = formatted
-    phoneString.value = formatted
-    phoneHandleChange(formatted, false)
-  }
+  const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
+  const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
 
   const {
     value: code,
@@ -67,13 +50,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
     handleChange: rememberMeHandleChange
   } = useField("rememberMe")
 
-  const phoneServerError = ref<string>()
   const codeServerError = ref<string>()
-
-  watch(phone, () => {
-    phoneServerError.value = undefined
-    if (phoneMeta.touched) phoneValidate()
-  })
 
   watch(code, () => {
     codeServerError.value = undefined
@@ -83,13 +60,6 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   watch(rememberMe, () => {
     rememberMeHandleChange(rememberMe.value)
   })
-
-  const onPhoneBlur = () => {
-    if (phoneMeta.dirty) {
-      phoneHandleBlur()
-      phoneValidate()
-    }
-  }
 
   const onCodeBlur = () => {
     if (codeMeta.dirty) {
@@ -136,7 +106,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
     mutationFn: authApi.sendLoginWithPhone,
     onSuccess: (data) => {
       codeServerError.value = undefined
-      startTimer(phone.value, data.timeLeftMs)
+      startTimer(phone.value.value, data.timeLeftMs)
       toast.success("Код для входа отправлен в Telegram")
     },
     onError: (error) => {
@@ -147,7 +117,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Код для входа недавно уже был отправлен")
-            startTimer(phone.value, error.timeLeftMs)
+            startTimer(phone.value.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")
@@ -157,18 +127,14 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
     }
   })
 
-  const send = async (): Promise<SendLoginWithPhoneStatus> => {
+  const send = async () => {
     try {
       isProcessing.value = true
-      const phoneResult = await phoneValidate()
-      if (!phoneResult.valid) return "VALIDATION_ERROR"
-      await sendMutation.mutateAsync({
-        phone: phone.value
-      })
-      return "SUCCESS"
-    } catch {
-      return "ERROR"
-    } finally {
+      const phoneResult = await phone.validate()
+      if (!phoneResult.valid) return
+      await sendMutation.mutateAsync({ phone: phone.value.value })
+      return
+    } catch { } finally {
       isProcessing.value = false
     }
   }
@@ -176,7 +142,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   onUnmounted(clearAllTimers)
 
   return {
-    phoneString, onPhoneInput, onPhoneBlur, phoneClientError, phoneServerError,
+    phone, phoneServerError,
     codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCooldown,
     rememberMe,
     login, send

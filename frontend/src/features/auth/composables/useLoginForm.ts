@@ -21,7 +21,7 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
 
   const identifier = useIdentifierField()
   const identifierServerError = ref<string>()
-  watch(identifier.formattedString, () => identifierServerError.value = undefined)
+  watch(identifier.value, () => identifierServerError.value = undefined)
 
   const password = usePasswordField()
   const passwordServerError = ref<string>()

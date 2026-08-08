@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useIdentifierField } from "@/shared/composables/fields/useIdentifierField"
+import { usePhoneField } from "@/shared/composables/fields";
 import { InputError } from ".."
 
 const {
-  label = "Логин, email или номер телефона"
+  label = "Телефон"
 } = defineProps<{
   label?: string
-  field: ReturnType<typeof useIdentifierField>
+  field: ReturnType<typeof usePhoneField>
   disabled?: boolean
   serverError?: string
 }>()
@@ -14,14 +14,12 @@ const {
 
 <template>
   <div>
-    <label for="identifier" class="text-sm font-medium pb-1 self-start">{{ label }}</label>
+    <label for="phone" class="text-sm font-medium pb-1 self-start">{{ label }}</label>
     <input
-      type="text"
-      autocomplete="username"
-      id="identifier"
-      maxlength="254"
-      placeholder="NayOne | email@example.com | +375 29 123 45 67" 
-      spellcheck="false"
+      type="tel"
+      autocomplete="tel"
+      id="phone"
+      placeholder="+375 29 123 45 67"
       :value="field.value.value"
       @input="field.onInput"
       @blur="field.onBlur"

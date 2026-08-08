@@ -22,11 +22,11 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
 
   const identifier = useIdentifierField()
   const identifierServerError = ref<string>()
-  watch(identifier.formattedString, () => identifierServerError.value = undefined)
+  watch(identifier.value, () => identifierServerError.value = undefined)
 
   const { startTimer, formattedTime, clearAllTimers } = usePasswordRecoveryTimer()
-  const sendEmailCooldown = computed(() => formattedTime("EMAIL", identifier.formattedString.value?.toLowerCase() ?? ""))
-  const sendTelegramMessageCooldown = computed(() => formattedTime("PHONE", identifier.formattedString.value?.toLowerCase() ?? ""))
+  const sendEmailCooldown = computed(() => formattedTime("EMAIL", identifier.value.value?.toLowerCase() ?? ""))
+  const sendTelegramMessageCooldown = computed(() => formattedTime("PHONE", identifier.value.value?.toLowerCase() ?? ""))
 
   const getContactsMutation = useMutation({
     mutationFn: authApi.getPasswordRecoveryContacts,
@@ -57,18 +57,18 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
         ? "Письмо для восстановления отправлено"
         : "Сообщение для восстановления отправлено в Telegram"
       )
-      startTimer(data.to, identifier.formattedString.value!.toLowerCase(), data.timeLeftMs)
+      startTimer(data.to, identifier.value.value.toLowerCase(), data.timeLeftMs)
     },
     onError: (error) => {
       if (error instanceof ApiError) {
         switch (error.code) {
           case ErrorCode.SEND_EMAIL_COOLDOWN:
             toast.info("Письмо для восстановления недавно уже было отправлено")
-            startTimer("EMAIL", identifier.formattedString.value!.toLowerCase(), error.timeLeftMs)
+            startTimer("EMAIL", identifier.value.value.toLowerCase(), error.timeLeftMs)
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Сообщение для восстановления недавно уже было отправлено")
-            startTimer("PHONE", identifier.formattedString.value!, error.timeLeftMs)
+            startTimer("PHONE", identifier.value.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")
@@ -80,7 +80,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
 
   const send = async (to: "EMAIL" | "PHONE"): Promise<SendPasswordRecoveryStatus> => {
     try {
-      await sendMutation.mutateAsync({ identifier: identifier.formattedString.value!, to })
+      await sendMutation.mutateAsync({ identifier: identifier.value.value, to })
       return "SUCCESS"
     } catch {
       return "ERROR"

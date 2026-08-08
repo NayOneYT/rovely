@@ -40,6 +40,7 @@ const handleGoogleLogin = () => {
       :field="password"
       :serverError="passwordServerError"
       :disabled="isProcessing"
+      class="mt-4"
     />
     <div class="flex justify-between mt-4 mb-6">
       <AppCheckbox

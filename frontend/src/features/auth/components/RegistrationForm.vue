@@ -5,7 +5,7 @@ import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
 import { Mail } from "@lucide/vue"
 import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
-import { PasswordField } from "@/shared/components/ui/fields"
+import { PhoneField, PasswordField } from "@/shared/components/ui/fields"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -14,7 +14,7 @@ const {
  name, nameClientError, onNameBlur,
   username, usernameClientError, usernameServerError, onUsernameBlur,
   email, emailClientError, emailServerError, onEmailBlur, isEmailVerified, sendEmailCooldown,
-  onPhoneInput, phoneString, onPhoneBlur, phoneClientError, phoneServerError,
+  phone, phoneServerError,
   onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendTelegramMessageCooldown,
   login, loginClientError, loginServerError, onLoginBlur,
   password,
@@ -112,22 +112,12 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
     <InputError :clientError="emailClientError" :serverError="emailServerError" />
-    <label for="phone" class="text-sm font-medium pb-1 mt-4 self-start">Номер телефона</label>
-    <input
-      :value="phoneString"
-      @input="onPhoneInput"
-      @blur="onPhoneBlur"
+    <PhoneField
+      :field="phone"
+      :serverError="phoneServerError"
       :disabled="isProcessing"
-      id="phone"
-      autocomplete="tel"
-      type="tel"
-      placeholder="+375 29 123 45 67"
-      class="
-      w-full placeholder:text-white/40 bg-[#070908] rounded-[13.5px] px-4 py-2.75 border border-[#222a27]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
-      "
-    >
-    <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
+      class="mt-4"
+    />
     <p class="text-sm text-white/60 mt-4 mb-6">Достаточно указать одно из полей</p>
     <div class="flex gap-6">
       <AppButton

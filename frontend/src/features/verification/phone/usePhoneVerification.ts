@@ -1,39 +1,22 @@
+import { usePhoneField } from "@/shared/composables/fields"
+import { watch, ref, computed, onUnmounted, type Ref, toValue } from "vue"
 import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { phoneSchema, codeSchema } from "@/shared/schemas"
-import { ref, watch, computed, onUnmounted, type Ref, toValue } from "vue"
+import { codeSchema } from "@/shared/schemas"
 import { useMutation } from "@tanstack/vue-query"
 import { phoneVerificationApi } from "./api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
-import { AsYouType } from "libphonenumber-js"
 import { useMessageTimer } from "@/shared/composables/useMessageTimer"
 import { toast } from "vue-sonner"
 import type { CheckRegistrationStatus, SendStatus, VerifyStatus } from "./types"
 
 export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: Ref<string> | string, accountId?: string) => {
+  const phone = usePhoneField()
+  const phoneServerError = ref<string>()
+  watch(phone.value, () => phoneServerError.value = undefined)
+
   const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
-
-  const sendCooldown = computed(() => formattedTime(phone.value ?? ""))
-
-  const {
-    value: phone,
-    errorMessage: phoneClientError,
-    validate: phoneValidate,
-    meta: phoneMeta,
-    handleBlur: phoneHandleBlur,
-    handleChange: phoneHandleChange
-  } = useField<string>("phone", toTypedSchema(phoneSchema))
-
-  const phoneString = ref("")
-  const onPhoneInput = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    let raw = input.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')
-    if (raw && !raw.startsWith('+')) raw = '+' + raw
-    const formatted = new AsYouType().input(raw)
-    input.value = formatted
-    phoneString.value = formatted
-    phoneHandleChange(formatted, false)
-  }
+  const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
 
   const {
     value: code,
@@ -61,25 +44,12 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
     controlled: false
   })
 
-  const phoneServerError = ref<string>()
   const codeServerError = ref<string>()
-
-  watch(phone, () => {
-    phoneServerError.value = undefined
-    if (phoneMeta.touched) phoneValidate()
-  })
 
   watch(code, () => {
     codeServerError.value = undefined
     codeSetErrors("")
   })
-
-  const onPhoneBlur = () => {
-    if (phoneMeta.dirty) {
-      phoneHandleBlur()
-      phoneValidate()
-    }
-  }
 
   const onCodeBlur = () => {
     if (codeMeta.dirty) {
@@ -110,12 +80,12 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
     try {
       isProcessing.value = true
       const [phoneResult, codeResult] = await Promise.all([
-        phoneValidate(),
+        phone.validate(),
         codeValidate()
       ])
       if (!phoneResult.valid || !codeResult.valid) return "VALIDATION_ERROR"
       await verifyMutation.mutateAsync({
-        phone: phone.value,
+        phone: phone.value.value,
         code: code.value,
         accountId
       })
@@ -140,9 +110,9 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
   const checkRegistration = async (): Promise<CheckRegistrationStatus> => {
     try {
       isProcessing.value = true
-      const phoneResult = await phoneValidate()
+      const phoneResult = await phone.validate()
       if (!phoneResult.valid) return "VALIDATION_ERROR"
-      await checkRegistrationMutation.mutateAsync({ phone: phone.value })
+      await checkRegistrationMutation.mutateAsync({ phone: phone.value.value })
       return "VERIFIED"
     } catch {
       return "NOT_VERIFIED"
@@ -155,7 +125,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
     mutationFn: phoneVerificationApi.send,
     onSuccess: (data) => {
       toast.success("Код для подтверждения отправлен в Telegram")
-      startTimer(phone.value, data.timeLeftMs)
+      startTimer(phone.value.value, data.timeLeftMs)
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -168,7 +138,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Код для подтверждения недавно уже был отправлен")
-            startTimer(phone.value, error.timeLeftMs)
+            startTimer(phone.value.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")
@@ -181,10 +151,10 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
   const send = async (): Promise<SendStatus> => {
     try {
       isProcessing.value = true
-      const phoneResult = await phoneValidate()
+      const phoneResult = await phone.validate()
       if (!phoneResult.valid) return "VALIDATION_ERROR"
       await sendMutation.mutateAsync({
-        phone: phone.value,
+        phone: phone.value.value,
         name: toValue(externalName),
         accountId
       })
@@ -200,7 +170,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
   onUnmounted(clearAllTimers)
 
   return {
-    phone, phoneString, onPhoneInput, onPhoneBlur, phoneHandleChange, phoneValidate, phoneClientError, phoneServerError,
+    phone, phoneServerError,
     codeString, onCodeInput, onCodeBlur, codeSetErrors, codeClientError, codeServerError, sendCooldown,
     verify, checkRegistration, send
   }

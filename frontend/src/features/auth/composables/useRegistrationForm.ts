@@ -155,7 +155,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         }
         const [emailResult, phoneResult] = await Promise.all([
           emailVerification.emailValidate(),
-          phoneVerification.phoneValidate()
+          phoneVerification.phone.validate()
         ])
         if (!emailResult.valid || !phoneResult.valid) break
         if (emailVerification.email.value) {
@@ -177,7 +177,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         if (phoneVerification.phone.value) {
           const available = await checkAvailability({
             field: "phone",
-            value: phoneVerification.phone.value
+            value: phoneVerification.phone.value.value
           })
           if (!available) {
             phoneVerification.phoneServerError.value = "Этот номер телефона занят"
@@ -254,7 +254,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     name, nameClientError, onNameBlur,
     username, usernameClientError, usernameServerError, onUsernameBlur,
     email: emailVerification.email, emailClientError: emailVerification.emailClientError, emailServerError: emailVerification.emailServerError, onEmailBlur: emailVerification.onEmailBlur, isEmailVerified, sendEmailCooldown: emailVerification.sendCooldown,
-    onPhoneInput: phoneVerification.onPhoneInput, phoneString: phoneVerification.phoneString, onPhoneBlur: phoneVerification.onPhoneBlur, phoneClientError: phoneVerification.phoneClientError, phoneServerError: phoneVerification.phoneServerError,
+    phone: phoneVerification.phone, phoneServerError: phoneVerification.phoneServerError,
     onCodeInput: phoneVerification.onCodeInput, codeString: phoneVerification.codeString, onCodeBlur: phoneVerification.onCodeBlur, codeClientError: phoneVerification.codeClientError, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
     login, loginClientError, loginServerError, onLoginBlur,
     password,

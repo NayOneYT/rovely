@@ -2,6 +2,7 @@
 import { useLocalStorage } from "@vueuse/core"
 import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
+import { PhoneField } from "@/shared/components/ui/fields"
 import { InputError, AppCheckbox, AppButton } from "@/shared/components/ui"
 import { RectangleEllipsis } from "@lucide/vue"
 import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
@@ -10,7 +11,7 @@ const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 
 const {
-  phoneString, onPhoneInput, onPhoneBlur, phoneClientError, phoneServerError,
+  phone, phoneServerError,
   codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCooldown,
   rememberMe,
   login, send
@@ -31,22 +32,11 @@ const handleGoogleLogin = () => {
   <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
   <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Войдите в аккаунт</p>
   <form @submit.prevent="login" class="flex flex-col">
-    <label for="phone" class="text-sm font-medium pb-1 self-start">Телефон</label>
-    <input
-      :value="phoneString"
-      @input="onPhoneInput"
-      @blur="onPhoneBlur"
+    <PhoneField
+      :field="phone"
+      :serverError="phoneServerError"
       :disabled="isProcessing"
-      id="phone"
-      autocomplete="tel"
-      type="tel"
-      placeholder="+375 29 123 45 67"
-      class="
-      w-full placeholder:text-white/40 bg-[#070908] rounded-[13.5px] px-4 py-2.75 border border-[#222a27]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
-      "
-    >
-    <InputError :clientError="phoneClientError" :serverError="phoneServerError" />
+    />
     <label for="code" class="text-sm font-medium pb-1 mt-4 self-start">Код подтверждения</label>
     <div 
       class="
