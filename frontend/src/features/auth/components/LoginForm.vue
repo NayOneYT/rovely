@@ -3,8 +3,8 @@ import { useLocalStorage } from "@vueuse/core"
 import { useLoginForm } from "../composables/useLoginForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { IdentifierField, PasswordField } from "@/shared/components/ui/fields"
-import { AppButton } from "@/shared/components/ui"
-import { Check, Phone } from "@lucide/vue"
+import { AppCheckbox, AppButton } from "@/shared/components/ui"
+import { Phone } from "@lucide/vue"
 import { GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
@@ -41,30 +41,18 @@ const handleGoogleLogin = () => {
       :serverError="passwordServerError"
       :disabled="isProcessing"
     />
-    <div class="flex justify-between text-sm font-medium mt-4 mb-6">
-      <label class="group flex items-center gap-1.5 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
-        <input 
-          :disabled="isProcessing"
-          v-model="rememberMe"
-          type="checkbox" 
-          class="peer sr-only"
-        >
-        <div 
-          class="
-          size-5 flex items-center bg-[#070908] rounded-[4.75px] border border-[#222a27] text-[#070908]
-          peer-focus-visible:border-[#13d373] peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:border-[#13d373] 
-          group-hover:shadow-[0_0_6px_#13d373] peer-checked:border-[#13d373] peer-checked:bg-[#13d373] transition-all duration-200
-          "
-        >
-          <Check class="stroke-4 -mb-px" />
-        </div>
+    <div class="flex justify-between mt-4 mb-6">
+      <AppCheckbox
+        v-model="rememberMe"
+        :disabled="isProcessing"
+      >
         Запомнить меня
-      </label>
+      </AppCheckbox>
       <RouterLink
         :to="{ name: 'PasswordRecovery' }"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+        class="text-sm font-medium text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
       >
         Забыли пароль?
       </RouterLink>

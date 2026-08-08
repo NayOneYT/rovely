@@ -2,8 +2,8 @@
 import { useLocalStorage } from "@vueuse/core"
 import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { InputError, AppButton } from "@/shared/components/ui"
-import { Check, RectangleEllipsis } from "@lucide/vue"
+import { InputError, AppCheckbox, AppButton } from "@/shared/components/ui"
+import { RectangleEllipsis } from "@lucide/vue"
 import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
@@ -80,24 +80,13 @@ const handleGoogleLogin = () => {
       </AppButton>
     </div>
     <InputError :clientError="codeClientError" :serverError="codeServerError" />
-    <label class="group flex items-center text-sm font-medium gap-1.5 mt-4 mb-6 cursor-pointer" :class="isProcessing ? 'pointer-events-none' : ''">
-      <input 
-        :disabled="isProcessing"
-        v-model="rememberMe"
-        type="checkbox" 
-        class="peer sr-only"
-      >
-      <div 
-        class="
-        size-5 flex items-center bg-[#070908] rounded-[4.75px] border border-[#222a27] text-[#070908]
-        peer-focus-visible:border-[#13d373] peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:border-[#13d373] 
-        group-hover:shadow-[0_0_6px_#13d373] peer-checked:border-[#13d373] peer-checked:bg-[#13d373] transition-all duration-200
-        "
-      >
-        <Check class="stroke-4 -mb-px" />
-      </div>
+    <AppCheckbox
+      v-model="rememberMe"
+      :disabled="isProcessing"
+      class="mt-4 mb-6"
+    >
       Запомнить меня
-    </label>
+    </AppCheckbox>
     <AppButton
       variant="primary"
       type="submit"
