@@ -19,12 +19,16 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
     validationSchema: toTypedSchema(loginSchema)
   })
 
-  const identifier = useIdentifierField()
   const identifierServerError = ref<string>()
-  watch(identifier.value, () => identifierServerError.value = undefined)
+  const passwordServerError = ref<string>()
+
+  const identifier = useIdentifierField()
+  watch(identifier.value, () => {
+    identifierServerError.value = undefined
+    passwordServerError.value = undefined
+  })
 
   const password = usePasswordField()
-  const passwordServerError = ref<string>()
   watch(password.value, () => passwordServerError.value = undefined)
 
   const {

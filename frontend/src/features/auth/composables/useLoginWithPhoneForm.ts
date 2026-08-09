@@ -21,15 +21,19 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
     validationSchema: toTypedSchema(loginWithPhoneSchema)
   })
 
-  const phone = usePhoneField()
   const phoneServerError = ref<string>()
-  watch(phone.value, () => phoneServerError.value = undefined)
+  const codeServerError = ref<string>()
+
+  const phone = usePhoneField()
+  watch(phone.value, () => {
+    phoneServerError.value = undefined
+    codeServerError.value = undefined
+  })
 
   const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
   const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
 
   const code = useCodeField()
-  const codeServerError = ref<string>()
   watch(code.value, () => codeServerError.value = undefined)
 
   const {
