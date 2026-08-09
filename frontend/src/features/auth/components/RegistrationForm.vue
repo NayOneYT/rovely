@@ -4,14 +4,14 @@ import { useRegistrationForm } from "../composables/useRegistrationForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
 import { Mail } from "@lucide/vue"
-import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
-import { PhoneField, CodeField, PasswordField } from "@/shared/components/ui/fields"
+import { GoogleIcon } from "@/shared/components/icons"
+import { NameFiend, PhoneField, CodeField, PasswordField } from "@/shared/components/ui/fields"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 
 const {
- name, nameClientError, onNameBlur,
+  name,
   username, usernameClientError, usernameServerError, onUsernameBlur,
   email, emailClientError, emailServerError, onEmailBlur, isEmailVerified, sendEmailCooldown,
   phone, phoneServerError,
@@ -39,20 +39,10 @@ const handleGoogleRegistration = () => {
     @submit.prevent="goToNextStep"
     class="flex flex-col"
   >
-    <label for="name" class="text-sm font-medium pb-1 self-start">Отображаемое имя</label>
-    <input 
-      v-model="name"
-      @blur="onNameBlur"
+    <NameFiend
+      :field="name"
       :disabled="isProcessing"
-      id="name"
-      autocomplete="name"
-      type="text"
-      maxlength="30"
-      placeholder="Гуру успешного успеха 😎💸"
-      class="w-full placeholder:text-white/40 bg-[#070908] rounded-[13.5px] px-4 py-2.75 border border-[#222a27]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
-    >
-    <InputError :clientError="nameClientError" />
+    />
     <label for="username" class="text-sm font-medium pb-1 mt-4 self-start">Имя пользователя</label>
     <input 
       v-model="username"

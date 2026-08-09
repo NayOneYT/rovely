@@ -14,8 +14,8 @@ defineProps<{
 <template>
   <FieldWithButton
     :label="isNewPassword ? 'Новый пароль' : 'Пароль'"
-    v-model="field.value.value"
     id="password"
+    v-model="field.value.value"
     @click="field.showPassword.value = !field.showPassword.value"
     @blur="field.onBlur"
     :type="field.showPassword.value ? 'text' : 'password'"

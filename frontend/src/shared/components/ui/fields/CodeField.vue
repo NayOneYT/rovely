@@ -18,9 +18,10 @@ const emit = defineEmits<{
 <template>
   <FieldWithButton
     label="Код подтверждения"
-    v-model="field.value.value"
     id="code"
+    :value="field.value.value"
     @click="emit('click')"
+    @input="field.onInput"
     @blur="field.onBlur"
     maxlength="6"
     :disabled
