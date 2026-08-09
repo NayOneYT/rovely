@@ -10,7 +10,7 @@ export const passwordSchema = z
   .min(1, "Обязательное поле")
   .min(6, "Минимум 6 символов")
   .max(72)
-  .regex(/^[^\p{Extended_Pictographic}]+$/u, "Недопустимые символы")
+  .regex(/^[^\p{Extended_Pictographic}]+$/u, "Без эмодзи и стикеров")
 
 export const loginSchema = z
   .string({ required_error: "Обязательное поле" })
