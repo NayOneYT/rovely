@@ -5,7 +5,7 @@ import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
 import { Mail } from "@lucide/vue"
 import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
-import { PhoneField, PasswordField } from "@/shared/components/ui/fields"
+import { PhoneField, CodeField, PasswordField } from "@/shared/components/ui/fields"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -15,7 +15,7 @@ const {
   username, usernameClientError, usernameServerError, onUsernameBlur,
   email, emailClientError, emailServerError, onEmailBlur, isEmailVerified, sendEmailCooldown,
   phone, phoneServerError,
-  onCodeInput, codeString, onCodeBlur, codeClientError, codeServerError, sendTelegramMessageCooldown,
+  code, codeServerError, sendTelegramMessageCooldown,
   login, loginClientError, loginServerError, onLoginBlur,
   password,
   step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
@@ -143,38 +143,13 @@ const handleGoogleRegistration = () => {
     @submit.prevent="goToNextStep"
     class="flex flex-col"
   >
-    <label for="code" class="text-sm font-medium pb-1 self-start">Код подтверждения</label>
-    <div 
-      :class="isProcessing ? 'pointer-events-none' : ''"
-      class="group flex items-center w-full bg-[#070908] rounded-[13.5px] border border-[#222a27]
-      focus-within:border-[#13d373] focus-within:outline-none focus-within:shadow-[0_0_6px_#13d373] transition-all"
-    >
-      <input
-        :value="codeString"
-        @input="onCodeInput"
-        @blur="onCodeBlur"
-        :disabled="isProcessing"
-        id="code"
-        type="text"
-        inputmode="numeric"
-        maxlength="6"
-        placeholder="123456"
-        class="flex-1 placeholder:text-white/40 bg-transparent px-4 py-2.75 focus-visible:outline-none"
-      >
-      <div class="w-px h-6 transition-all bg-[#222a27] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <AppButton
-        variant="icon"
-        @click="handleSendPhoneVerification"
-        :disabled="isProcessing || !!sendTelegramMessageCooldown"
-        class="m-0.75 mr-1.25 flex flex-col items-center"
-      >
-        <TelegramIcon :class="sendTelegramMessageCooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
-        <p v-if="!!sendTelegramMessageCooldown" class="-mb-0.5">
-          {{ sendTelegramMessageCooldown }}
-        </p>
-      </AppButton>
-    </div>
-    <InputError :clientError="codeClientError" :serverError="codeServerError" />
+    <CodeField
+      :field="code"
+      @click="handleSendPhoneVerification"
+      :cooldown="sendTelegramMessageCooldown"
+      :disabled="isProcessing"
+      :serverError="codeServerError"
+    />
     <p class="text-sm text-white/60 mt-4 mb-6">
       Чтобы получить код:<br>
       1. Перейдите в Telegram-бота — 
@@ -232,6 +207,7 @@ const handleGoogleRegistration = () => {
     <PasswordField 
       :field="password"
       :disabled="isProcessing"
+      class="mt-4"
     />
     <p class="text-sm text-white/60 mt-4 mb-6">
       <span>Регистрируясь, вы принимаете </span> 

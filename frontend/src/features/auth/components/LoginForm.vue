@@ -33,13 +33,13 @@ const handleGoogleLogin = () => {
   <form @submit.prevent="login" class="flex flex-col">
     <IdentifierField
       :field="identifier"
-      :serverError="identifierServerError"
       :disabled="isProcessing"
+      :serverError="identifierServerError"
     />
     <PasswordField
       :field="password"
-      :serverError="passwordServerError"
       :disabled="isProcessing"
+      :serverError="passwordServerError"
       class="mt-4"
     />
     <div class="flex justify-between mt-4 mb-6">

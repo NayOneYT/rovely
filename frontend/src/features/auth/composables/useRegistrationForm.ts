@@ -185,9 +185,9 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           }
           const status = await phoneVerification.checkRegistration()
           if (status === "NOT_VERIFIED") {
-            phoneVerification.codeString.value = ""
+            phoneVerification.code.value.value = ""
             phoneVerification.codeServerError.value = undefined
-            phoneVerification.codeSetErrors("")
+            phoneVerification.code.setErrors("")
             step.value = 2.5
             break
           }
@@ -255,7 +255,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     username, usernameClientError, usernameServerError, onUsernameBlur,
     email: emailVerification.email, emailClientError: emailVerification.emailClientError, emailServerError: emailVerification.emailServerError, onEmailBlur: emailVerification.onEmailBlur, isEmailVerified, sendEmailCooldown: emailVerification.sendCooldown,
     phone: phoneVerification.phone, phoneServerError: phoneVerification.phoneServerError,
-    onCodeInput: phoneVerification.onCodeInput, codeString: phoneVerification.codeString, onCodeBlur: phoneVerification.onCodeBlur, codeClientError: phoneVerification.codeClientError, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
+    code: phoneVerification.code, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
     login, loginClientError, loginServerError, onLoginBlur,
     password,
     step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register

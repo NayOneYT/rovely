@@ -8,10 +8,9 @@ const {
   id: string
   label: string
   type?: string
-  autocomplete: string
+  autocomplete?: string
   maxlength: string | number
   disabled?: boolean
-  inputDisabled?: boolean
   buttonDisabled?: boolean
   clientError?: string
   serverError?: string
@@ -38,7 +37,7 @@ const emit = defineEmits<{
       :maxlength
       v-model="model"
       @blur="emit('blur')"
-      :disabled="disabled || inputDisabled"
+      :disabled="disabled"
       class="flex-1 bg-transparent px-4 py-2.75 focus-visible:outline-none"
     >
     <div class="w-px h-6 transition-all bg-[#222a27] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
@@ -46,7 +45,7 @@ const emit = defineEmits<{
       variant="icon"
       @click="emit('click')"
       :disabled="disabled || buttonDisabled"
-      class="m-0.75 mr-1.25"
+      class="flex flex-col items-center m-0.75 mr-1.25"
     >
       <slot />
     </AppButton>

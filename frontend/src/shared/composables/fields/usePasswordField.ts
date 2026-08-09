@@ -3,7 +3,6 @@ import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { passwordSchema } from "@/shared/schemas"
 
-
 export const usePasswordField = () => {
   const showPassword = ref<boolean>(false)
 

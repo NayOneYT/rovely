@@ -13,11 +13,11 @@ defineProps<{
 
 <template>
   <FieldWithButton
+    :label="isNewPassword ? 'Новый пароль' : 'Пароль'"
     v-model="field.value.value"
     id="password"
     @click="field.showPassword.value = !field.showPassword.value"
     @blur="field.onBlur"
-    :label="isNewPassword ? 'Новый пароль' : 'Пароль'"
     :type="field.showPassword.value ? 'text' : 'password'"
     :autocomplete="isNewPassword ? 'new-password' : 'current-password'"
     maxlength="72"

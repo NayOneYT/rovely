@@ -2,10 +2,7 @@
 import { useIdentifierField } from "@/shared/composables/fields/useIdentifierField"
 import { InputError } from ".."
 
-const {
-  label = "Логин, email или номер телефона"
-} = defineProps<{
-  label?: string
+defineProps<{
   field: ReturnType<typeof useIdentifierField>
   disabled?: boolean
   serverError?: string
@@ -13,7 +10,7 @@ const {
 </script>
 
 <template>
-  <label v-bind="$attrs" for="identifier" class="text-sm font-medium pb-1 self-start">{{ label }}</label>
+  <label v-bind="$attrs" for="identifier" class="text-sm font-medium pb-1 self-start">Логин, email или номер телефона</label>
   <input
     type="text"
     autocomplete="username"

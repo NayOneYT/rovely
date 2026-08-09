@@ -2,10 +2,7 @@
 import { usePhoneField } from "@/shared/composables/fields";
 import { InputError } from ".."
 
-const {
-  label = "Телефон"
-} = defineProps<{
-  label?: string
+defineProps<{
   field: ReturnType<typeof usePhoneField>
   disabled?: boolean
   serverError?: string
@@ -13,7 +10,7 @@ const {
 </script>
 
 <template>
-  <label v-bind="$attrs" for="phone" class="text-sm font-medium pb-1 self-start">{{ label }}</label>
+  <label v-bind="$attrs" for="phone" class="text-sm font-medium pb-1 self-start">Телефон</label>
   <input
     type="tel"
     autocomplete="tel"

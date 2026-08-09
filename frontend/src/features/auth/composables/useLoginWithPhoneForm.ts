@@ -1,7 +1,7 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { loginWithPhoneSchema } from "../schema"
-import { usePhoneField } from "@/shared/composables/fields"
+import { usePhoneField, useCodeField } from "@/shared/composables/fields"
 import { ref, computed, watch, onUnmounted, type Ref } from "vue"
 import { useMessageTimer } from "@/shared/composables/useMessageTimer"
 import { useMutation } from "@tanstack/vue-query"
@@ -28,45 +28,17 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
   const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
 
-  const {
-    value: code,
-    errorMessage: codeClientError,
-    validate: codeValidate,
-    meta: codeMeta,
-    handleBlur: codeHandleBlur,
-    handleChange: codeHandleChange
-  } = useField("code")
-
-  const codeString = ref("")
-  const onCodeInput = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    let formatted = input.value.replace(/\D/g, '')
-    input.value = formatted
-    codeString.value = formatted
-    codeHandleChange(formatted, false)
-  }
+  const code = useCodeField()
+  const codeServerError = ref<string>()
+  watch(code.value, () => codeServerError.value = undefined)
 
   const {
     handleChange: rememberMeHandleChange
   } = useField("rememberMe")
 
-  const codeServerError = ref<string>()
-
-  watch(code, () => {
-    codeServerError.value = undefined
-    if (codeMeta.touched) codeValidate()
-  })
-
   watch(rememberMe, () => {
     rememberMeHandleChange(rememberMe.value)
   })
-
-  const onCodeBlur = () => {
-    if (codeMeta.dirty) {
-      codeHandleBlur()
-      codeValidate()
-    }
-  }
 
   const loginMutation = useMutation({
     mutationFn: authApi.loginWithPhone,
@@ -143,7 +115,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
 
   return {
     phone, phoneServerError,
-    codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCooldown,
+    code, codeServerError, sendCooldown,
     rememberMe,
     login, send
   }

@@ -2,17 +2,17 @@
 import { useLocalStorage } from "@vueuse/core"
 import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { PhoneField } from "@/shared/components/ui/fields"
-import { InputError, AppCheckbox, AppButton } from "@/shared/components/ui"
+import { PhoneField, CodeField } from "@/shared/components/ui/fields"
+import { AppCheckbox, AppButton } from "@/shared/components/ui"
 import { RectangleEllipsis } from "@lucide/vue"
-import { TelegramIcon, GoogleIcon } from "@/shared/components/icons"
+import { GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 
 const {
   phone, phoneServerError,
-  codeString, onCodeInput, onCodeBlur, codeClientError, codeServerError, sendCooldown,
+  code, codeServerError, sendCooldown,
   rememberMe,
   login, send
 } = useLoginWithPhoneForm(isProcessing)
@@ -34,42 +34,17 @@ const handleGoogleLogin = () => {
   <form @submit.prevent="login" class="flex flex-col">
     <PhoneField
       :field="phone"
-      :serverError="phoneServerError"
       :disabled="isProcessing"
+      :serverError="phoneServerError"
     />
-    <label for="code" class="text-sm font-medium pb-1 mt-4 self-start">Код подтверждения</label>
-    <div 
-      class="
-      group flex items-center w-full bg-[#070908] rounded-[13.5px] border border-[#222a27]
-      focus-within:outline-none focus-within:border-[#13d373] focus-within:shadow-[0_0_6px_#13d373] transition-all
-      "
-    >
-      <input
-        :value="codeString"
-        @input="onCodeInput"
-        @blur="onCodeBlur"
-        :disabled="isProcessing"
-        id="code"
-        type="text"
-        inputmode="numeric"
-        maxlength="6"
-        placeholder="123456"
-        class="flex-1 placeholder:text-white/40 bg-transparent px-4 py-2.75 focus-visible:outline-none"
-      >
-      <div class="w-px h-6 transition-all bg-[#222a27] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <AppButton
-        variant="icon"
-        @click="send"
-        :disabled="isProcessing || !!sendCooldown"
-        class="m-0.75 mr-1.25 flex flex-col items-center"
-      >
-        <TelegramIcon :class="sendCooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
-        <p v-if="!!sendCooldown" class="-mb-0.5">
-          {{ sendCooldown }}
-        </p>
-      </AppButton>
-    </div>
-    <InputError :clientError="codeClientError" :serverError="codeServerError" />
+    <CodeField
+      :field="code"
+      @click="send"
+      :cooldown="sendCooldown"
+      :disabled="isProcessing"
+      :serverError="codeServerError"
+      class="mt-4"
+    />
     <AppCheckbox
       v-model="rememberMe"
       :disabled="isProcessing"

@@ -1,8 +1,6 @@
-import { usePhoneField } from "@/shared/composables/fields"
+import { usePhoneField, useCodeField } from "@/shared/composables/fields"
 import { watch, ref, computed, onUnmounted, type Ref, toValue } from "vue"
 import { useField } from "vee-validate"
-import { toTypedSchema } from "@vee-validate/zod"
-import { codeSchema } from "@/shared/schemas"
 import { useMutation } from "@tanstack/vue-query"
 import { phoneVerificationApi } from "./api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
@@ -18,45 +16,14 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
   const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
   const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
 
-  const {
-    value: code,
-    errorMessage: codeClientError,
-    validate: codeValidate,
-    meta: codeMeta,
-    handleBlur: codeHandleBlur,
-    setErrors: codeSetErrors,
-    handleChange: codeHandleChange
-  } = useField<string>("code", toTypedSchema(codeSchema), {
-    controlled: false
-  })
-
-  const codeString = ref("")
-  const onCodeInput = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    let formatted = input.value.replace(/\D/g, '')
-    input.value = formatted
-    codeString.value = formatted
-    codeHandleChange(formatted, false)
-  }
+  const code = useCodeField()
+  const codeServerError = ref<string>()
+  watch(code.value, () => codeServerError.value = undefined)
 
   useField("accountId", undefined, {
     initialValue: accountId,
     controlled: false
   })
-
-  const codeServerError = ref<string>()
-
-  watch(code, () => {
-    codeServerError.value = undefined
-    codeSetErrors("")
-  })
-
-  const onCodeBlur = () => {
-    if (codeMeta.dirty) {
-      codeHandleBlur()
-      codeValidate()
-    }
-  }
 
   const verifyMutation = useMutation({
     mutationFn: phoneVerificationApi.verify,
@@ -81,12 +48,12 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
       isProcessing.value = true
       const [phoneResult, codeResult] = await Promise.all([
         phone.validate(),
-        codeValidate()
+        code.validate()
       ])
       if (!phoneResult.valid || !codeResult.valid) return "VALIDATION_ERROR"
       await verifyMutation.mutateAsync({
         phone: phone.value.value,
-        code: code.value,
+        code: code.value.value,
         accountId
       })
       return "SUCCESS"
@@ -171,7 +138,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
 
   return {
     phone, phoneServerError,
-    codeString, onCodeInput, onCodeBlur, codeSetErrors, codeClientError, codeServerError, sendCooldown,
+    code, codeServerError, sendCooldown,
     verify, checkRegistration, send
   }
 }
