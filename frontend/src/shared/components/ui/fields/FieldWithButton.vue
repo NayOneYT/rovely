@@ -8,11 +8,12 @@ const {
   type = "text"
 } = defineProps<{
   id: string
-  type?: string
   label: string
+  type?: string
   placeholder?: string
   autocomplete?: string
-  maxlength: string | number
+  maxlength?: number | string
+  spellcheck?: boolean | "true" | "false"
   disabled?: boolean
   buttonDisabled?: boolean
   clientError?: string
@@ -36,10 +37,11 @@ const emit = defineEmits<{
   >
     <input
       :type
-      :autocomplete
       :id
       :placeholder
+      :autocomplete
       :maxlength
+      :spellcheck
       v-model="model"
       @input="(event) => emit('input', event)"
       @blur="emit('blur')"

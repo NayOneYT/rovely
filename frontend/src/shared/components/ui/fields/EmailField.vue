@@ -18,9 +18,9 @@ const emit = defineEmits<{
 
 <template>
   <FieldWithButton
+    type="email"
     label="Email"
     id="email"
-    type="email"
     placeholder="email@example.com"
     autocomplete="email"
     v-model="field.value.value"
