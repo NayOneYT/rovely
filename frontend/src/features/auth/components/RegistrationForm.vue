@@ -5,14 +5,14 @@ import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
 import { Mail } from "@lucide/vue"
 import { GoogleIcon } from "@/shared/components/icons"
-import { NameFiend, PhoneField, CodeField, PasswordField } from "@/shared/components/ui/fields"
+import { NameFiend, UsernameField, PhoneField, CodeField, PasswordField } from "@/shared/components/ui/fields"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 
 const {
   name,
-  username, usernameClientError, usernameServerError, onUsernameBlur,
+  username, usernameServerError,
   email, emailClientError, emailServerError, onEmailBlur, isEmailVerified, sendEmailCooldown,
   phone, phoneServerError,
   code, codeServerError, sendTelegramMessageCooldown,
@@ -43,20 +43,13 @@ const handleGoogleRegistration = () => {
       :field="name"
       :disabled="isProcessing"
     />
-    <label for="username" class="text-sm font-medium pb-1 mt-4 self-start">Имя пользователя</label>
-    <input 
-      v-model="username"
-      @blur="onUsernameBlur"
+    <UsernameField
+      :field="username"
       :disabled="isProcessing"
-      id="username"
-      type="text"
-      maxlength="30"
-      placeholder="username"
-      class="w-full placeholder:text-white/40 bg-[#070908] rounded-[13.5px] px-4 py-2.75 border border-[#222a27]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all"
-    >
-    <InputError :clientError="usernameClientError" :serverError="usernameServerError" />
-    <p class="text-sm text-white/60 mt-4 mb-6">Вас смогут найти по @{{ username || "username" }}</p>
+      :serverError="usernameServerError"
+      class="mt-4"
+    />
+    <p class="text-sm text-white/60 mt-4 mb-6">Вас смогут найти по @{{ username.value.value || "username" }}</p>
     <AppButton
       variant="primary"
       type="submit"

@@ -1,7 +1,7 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { registerSchema, type CheckAvailabilityDto } from "../schema"
-import { useNameField, usePasswordField } from "@/shared/composables/fields"
+import { useNameField, useUsernameField, usePasswordField } from "@/shared/composables/fields"
 import { ref, computed, watch, type Ref } from "vue"
 import { authApi } from "../api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
@@ -25,15 +25,9 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
 
   const name = useNameField()
 
-  const {
-    value: username,
-    errorMessage: usernameClientError,
-    validate: usernameValidate,
-    meta: usernameMeta,
-    handleBlur: usernameHandleBlur
-  } = useField<string>("username", undefined, {
-    validateOnValueUpdate: false
-  })
+  const username = useUsernameField()
+  const usernameServerError = ref<string>()
+  watch(username.value, () => usernameServerError.value = undefined)
 
   const {
     value: login,
@@ -50,25 +44,12 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const emailVerification = useEmailVerification(isProcessing, name.value)
   const phoneVerification = usePhoneVerification(isProcessing, name.value)
 
-  const usernameServerError = ref<string>()
   const loginServerError = ref<string>()
-
-  watch(username, () => {
-    usernameServerError.value = undefined
-    if (usernameMeta.touched) usernameValidate()
-  })
 
   watch(login, () => {
     loginServerError.value = undefined
     if (loginMeta.touched) loginValidate()
   })
-
-  const onUsernameBlur = () => {
-    if (usernameMeta.dirty) {
-      usernameHandleBlur()
-      usernameValidate()
-    }
-  }
 
   const onLoginBlur = () => {
     if (loginMeta.dirty) {
@@ -113,13 +94,13 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
       case 1:
         const [nameResult, usernameResult] = await Promise.all([
           name.validate(),
-          usernameValidate()
+          username.validate()
         ])
         if (!nameResult.valid || !usernameResult.valid) break
-        if (username.value) {
+        if (username.value.value) {
           const available = await checkAvailability({
             field: "username",
-            value: username.value
+            value: username.value.value
           })
           if (!available) {
             usernameServerError.value = "Этот username занят"
@@ -233,7 +214,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
 
   return {
     name,
-    username, usernameClientError, usernameServerError, onUsernameBlur,
+    username, usernameServerError,
     email: emailVerification.email, emailClientError: emailVerification.emailClientError, emailServerError: emailVerification.emailServerError, onEmailBlur: emailVerification.onEmailBlur, isEmailVerified, sendEmailCooldown: emailVerification.sendCooldown,
     phone: phoneVerification.phone, phoneServerError: phoneVerification.phoneServerError,
     code: phoneVerification.code, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { AppButton, InputError } from ".."
 
+const model = defineModel<string>()
+
 const {
-  modelValue
+  type = "text"
 } = defineProps<{
   id: string
-  modelValue?: string
-  value?: string
+  type?: string
   label: string
   autocomplete?: string
   maxlength: string | number
@@ -17,17 +18,10 @@ const {
 }>()
 
 const emit = defineEmits<{
-  "update:modelValue": [value: string]
   input: [event: Event]
   blur: []
   click: []
 }>()
-
-const handleInput = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  if (modelValue !== undefined) emit("update:modelValue", input.value)
-  else emit("input", event)
-}
 </script>
 
 <template>
@@ -39,12 +33,12 @@ const handleInput = (event: Event) => {
     "
   >
     <input
-      type="text"
+      :type
       :autocomplete
       :id
       :maxlength
-      :value="modelValue ?? value"
-      @input="handleInput"
+      v-model="model"
+      @input="(event) => emit('input', event)"
       @blur="emit('blur')"
       :disabled="disabled"
       class="flex-1 bg-transparent px-4 py-2.75 focus-visible:outline-none"
