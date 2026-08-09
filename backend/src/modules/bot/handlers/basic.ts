@@ -13,7 +13,7 @@ basicComposer.command("start", async (ctx) => {
       { reply_markup: keyboard }
     )
   } else {
-    ctx.reply("Ваш номер телефона уже привязан к этому чату.")
+    ctx.reply("Ваш номер телефона уже привязан к этому чату")
   }
 })
 
@@ -26,7 +26,7 @@ basicComposer.on("message:contact", async (ctx) => {
         : `+${ctx.message.contact.phone_number}`
       await telegramLinkService.save(phone, ctx.from.id)
       ctx.reply(
-        `Теперь номер телефона ${phone} привязан к этому чату.`,
+        `Теперь номер телефона ${phone} привязан к этому чату`,
         { reply_markup: { remove_keyboard: true } }
       )
     } else {
