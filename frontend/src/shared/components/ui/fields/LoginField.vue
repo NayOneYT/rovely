@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLoginField } from "@/shared/composables/fields"
-import { InputError } from ".."
+import FieldError from "./FieldError.vue"
 
 defineProps<{
   field: ReturnType<typeof useLoginField>
@@ -25,5 +25,5 @@ defineProps<{
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all duration-200
     "
   >
-  <InputError :clientError="field.clientError.value" :serverError />
+  <FieldError :clientError="field.clientError.value" :serverError />
 </template>

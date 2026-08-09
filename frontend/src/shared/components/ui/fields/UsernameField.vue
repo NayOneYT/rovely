@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useUsernameField } from "@/shared/composables/fields";
-import { InputError } from ".."
+import { useUsernameField } from "@/shared/composables/fields"
+import FieldError from "./FieldError.vue"
 
 defineProps<{
   field: ReturnType<typeof useUsernameField>
@@ -24,5 +24,5 @@ defineProps<{
       focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all duration-200
     "
   >
-  <InputError :clientError="field.clientError.value" :serverError />
+  <FieldError :clientError="field.clientError.value" :serverError />
 </template>

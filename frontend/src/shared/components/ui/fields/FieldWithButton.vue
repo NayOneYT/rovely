@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { AppButton, InputError } from ".."
+import { AppButton } from ".."
+import FieldError from "./FieldError.vue"
 
 const model = defineModel<string>()
 
@@ -55,5 +56,5 @@ const emit = defineEmits<{
       <slot />
     </AppButton>
   </div>
-  <InputError :clientError :serverError />
+  <FieldError :clientError :serverError />
 </template>
