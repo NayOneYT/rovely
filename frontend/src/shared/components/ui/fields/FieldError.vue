@@ -6,25 +6,21 @@ defineProps<{
 </script>
 
 <template>
-  <Transition name="error">
+  <Transition
+    enterActiveClass="transition-all ease-out duration-200"
+    enterFromClass="opacity-0 -translate-y-2"
+    enterToClass="opacity-100 translate-y-0"
+    leaveActiveClass="transition-all ease-in duration-200"
+    leaveFromClass="opacity-100 translate-y-0"
+    leaveToClass="opacity-0 -translate-y-2"
+  >
     <p 
       v-if="serverError || clientError" 
-      class="text-sm mt-1"
+      role="alert"
+      class="text-sm mt-1 "
       :class="serverError? 'text-red-400' : 'text-yellow-300'"
     >
       {{ serverError || clientError }}
     </p>
   </Transition>
 </template>
-
-<style scoped>
-.error-enter-active,
-.error-leave-active {
-  transition: all 0.2s ease;
-}
-.error-enter-from,
-.error-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-</style>
