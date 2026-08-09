@@ -67,7 +67,7 @@ const {
       variant="primary"
       @click="send('PHONE')"
       :disabled="isProcessing || !!sendTelegramMessageCooldown"
-      class="mt-6"
+      class="mt-4"
     >
       Сообщение на {{ blurredPhone }}
       <TelegramIcon class="ml-2.5 mr-0.5 size-6 scale-125" />

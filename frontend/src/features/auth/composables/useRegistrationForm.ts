@@ -1,7 +1,7 @@
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { registerSchema, type CheckAvailabilityDto } from "../schema"
-import { useNameField, useUsernameField, usePasswordField } from "@/shared/composables/fields"
+import { useNameField, useUsernameField, useLoginField, usePasswordField } from "@/shared/composables/fields"
 import { ref, computed, watch, type Ref } from "vue"
 import { authApi } from "../api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
@@ -29,34 +29,14 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const usernameServerError = ref<string>()
   watch(username.value, () => usernameServerError.value = undefined)
 
-  const {
-    value: login,
-    errorMessage: loginClientError,
-    validate: loginValidate,
-    meta: loginMeta,
-    handleBlur: loginHandleBlur
-  } = useField<string>("login", undefined, {
-    validateOnValueUpdate: false
-  })
-
-  const password = usePasswordField()
-
   const emailVerification = useEmailVerification(isProcessing, name.value)
   const phoneVerification = usePhoneVerification(isProcessing, name.value)
 
+  const login = useLoginField()
   const loginServerError = ref<string>()
+  watch(login.value, () => loginServerError.value = undefined)
 
-  watch(login, () => {
-    loginServerError.value = undefined
-    if (loginMeta.touched) loginValidate()
-  })
-
-  const onLoginBlur = () => {
-    if (loginMeta.dirty) {
-      loginHandleBlur()
-      loginValidate()
-    }
-  }
+  const password = usePasswordField()
 
   const checkAvailabilityMutation = useMutation({
     mutationFn: authApi.checkAvailability,
@@ -218,7 +198,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     email: emailVerification.email, emailServerError: emailVerification.emailServerError, isEmailVerified, sendEmailCooldown: emailVerification.sendCooldown,
     phone: phoneVerification.phone, phoneServerError: phoneVerification.phoneServerError,
     code: phoneVerification.code, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
-    login, loginClientError, loginServerError, onLoginBlur,
+    login, loginServerError,
     password,
     step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
   }

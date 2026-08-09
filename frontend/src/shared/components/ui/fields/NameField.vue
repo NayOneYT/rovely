@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNameField } from "@/shared/composables/fields";
+import { useNameField } from "@/shared/composables/fields"
 import { InputError } from ".."
 
 defineProps<{
@@ -14,6 +14,7 @@ defineProps<{
     type="text"
     autocomplete="name"
     id="name"
+    maxlength="30"
     placeholder="Гуру успешного успеха 😎💸"
     v-model="field.value.value"
     @blur="field.onBlur"

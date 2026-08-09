@@ -2,10 +2,9 @@
 import { useLocalStorage } from "@vueuse/core"
 import { useRegistrationForm } from "../composables/useRegistrationForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { InputError, AppButton } from "@/shared/components/ui"
-import { Mail } from "@lucide/vue"
+import { NameFiend, UsernameField, EmailField, PhoneField, CodeField, LoginField, PasswordField } from "@/shared/components/ui/fields"
+import { AppButton } from "@/shared/components/ui"
 import { GoogleIcon } from "@/shared/components/icons"
-import { NameFiend, UsernameField, EmailField, PhoneField, CodeField, PasswordField } from "@/shared/components/ui/fields"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -16,7 +15,7 @@ const {
   email, emailServerError, isEmailVerified, sendEmailCooldown,
   phone, phoneServerError,
   code, codeServerError, sendTelegramMessageCooldown,
-  login, loginClientError, loginServerError, onLoginBlur,
+  login, loginServerError,
   password,
   step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
 } = useRegistrationForm(isProcessing)
@@ -149,21 +148,11 @@ const handleGoogleRegistration = () => {
     @submit="register"
     class="flex flex-col"
   >
-    <label for="login" class="text-sm font-medium pb-1 self-start">Логин</label>
-    <input 
-      v-model="login"
-      @blur="onLoginBlur"
+    <LoginField
+      :field="login"
       :disabled="isProcessing"
-      id="login"
-      type="text"
-      maxlength="50"
-      placeholder="NayOne"
-      class="
-      w-full placeholder:text-white/40 bg-[#070908] rounded-[13.5px] px-4 py-2.75 border border-[#222a27]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] transition-all
-      "
-    >
-    <InputError :clientError="loginClientError" :serverError="loginServerError" />
+      :serverError="loginServerError"
+    />
     <PasswordField 
       :field="password"
       :disabled="isProcessing"

@@ -18,6 +18,7 @@ const emit = defineEmits<{
 <template>
   <FieldWithButton
     label="Код подтверждения"
+    autocomplete="one-time-code"
     id="code"
     placeholder="123456"
     v-model="field.value.value"

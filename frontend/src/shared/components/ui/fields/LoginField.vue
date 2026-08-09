@@ -1,25 +1,23 @@
 <script setup lang="ts">
-import { useIdentifierField } from "@/shared/composables/fields/useIdentifierField"
+import { useLoginField } from "@/shared/composables/fields"
 import { InputError } from ".."
 
 defineProps<{
-  field: ReturnType<typeof useIdentifierField>
+  field: ReturnType<typeof useLoginField>
   disabled?: boolean
   serverError?: string
 }>()
 </script>
 
 <template>
-  <label v-bind="$attrs" for="identifier" class="text-sm font-medium pb-1 self-start">Логин, email или номер телефона</label>
+  <label v-bind="$attrs" for="login" class="text-sm font-medium pb-1 self-start">Логин</label>
   <input
     type="text"
     autocomplete="username"
-    id="identifier"
-    maxlength="254"
-    placeholder="login | email@example.com | +375 29 123 45 67" 
-    spellcheck="false"
-    :value="field.value.value"
-    @input="field.onInput"
+    id="login"
+    maxlength="50"
+    placeholder="login"
+    v-model="field.value.value"
     @blur="field.onBlur"
     :disabled
     class="
