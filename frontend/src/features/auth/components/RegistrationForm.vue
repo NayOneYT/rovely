@@ -103,7 +103,7 @@ const handleGoogleRegistration = () => {
         variant="icon"
         @click="handleSendEmailVerification"
         :disabled="isProcessing || isEmailVerified || !!sendEmailCooldown"
-        class="m-1 mr-1.5 flex flex-col items-center"
+        class="m-0.75 mr-1.25 flex flex-col items-center"
       >
         <Mail :class="!!sendEmailCooldown && !isEmailVerified ? 'size-5 -mb-0.5' : 'size-8 p-1'"/>
         <p v-if="!!sendEmailCooldown && !isEmailVerified" class="-mb-1">
@@ -166,7 +166,7 @@ const handleGoogleRegistration = () => {
         variant="icon"
         @click="handleSendPhoneVerification"
         :disabled="isProcessing || !!sendTelegramMessageCooldown"
-        class="m-1 mr-1.5 flex flex-col items-center"
+        class="m-0.75 mr-1.25 flex flex-col items-center"
       >
         <TelegramIcon :class="sendTelegramMessageCooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
         <p v-if="!!sendTelegramMessageCooldown" class="-mb-0.5">

@@ -61,7 +61,7 @@ const handleGoogleLogin = () => {
         variant="icon"
         @click="send"
         :disabled="isProcessing || !!sendCooldown"
-        class="m-1 mr-1.5 flex flex-col items-center"
+        class="m-0.75 mr-1.25 flex flex-col items-center"
       >
         <TelegramIcon :class="sendCooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
         <p v-if="!!sendCooldown" class="-mb-0.5">

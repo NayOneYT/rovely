@@ -36,7 +36,7 @@ defineProps<{
         variant="icon"
         @click="field.showPassword.value = !field.showPassword.value"
         :disabled
-        class="m-1 mr-1.5"
+        class="m-0.75 mr-1.25"
       >
         <component 
           :is="field.showPassword.value ? Eye : EyeOff"
