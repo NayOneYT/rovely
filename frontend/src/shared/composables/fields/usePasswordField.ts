@@ -3,7 +3,7 @@ import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { passwordSchema } from "@/shared/schemas"
 
-export const usePasswordField = () => {
+export const usePasswordField = (controlled: boolean = true) => {
   const showPassword = ref<boolean>(false)
 
   const {
@@ -13,7 +13,8 @@ export const usePasswordField = () => {
     meta,
     handleBlur
   } = useField("password", toTypedSchema(passwordSchema), {
-    validateOnValueUpdate: false
+    validateOnValueUpdate: false,
+    controlled
   })
 
   watch(value, () => {

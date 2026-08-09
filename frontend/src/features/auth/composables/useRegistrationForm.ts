@@ -15,7 +15,7 @@ import type { RegistrationStep } from "../types"
 export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const step = ref<RegistrationStep>(1)
   const verifiedEmails = ref<Set<string>>(new Set())
-  const isEmailVerified = computed(() => emailVerification.email.value && verifiedEmails.value.has(emailVerification.email.value.toLowerCase()))
+  const isEmailVerified = computed(() => emailVerification.email.value && verifiedEmails.value.has(emailVerification.email.value.value?.toLowerCase()))
 
   const router = useRouter()
 
@@ -75,12 +75,12 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   }
 
   const handleSendEmailVerification = async () => {
-    if (!emailVerification.email.value) {
+    if (!emailVerification.email.value.value) {
       toast.warning("Сначала укажите email")
       return
     }
     const status = await emailVerification.send()
-    if (status === "ALREADY_VERIFIED") verifiedEmails.value.add(emailVerification.email.value.toLowerCase())
+    if (status === "ALREADY_VERIFIED") verifiedEmails.value.add(emailVerification.email.value.value.toLowerCase())
   }
 
   const handleSendPhoneVerification = async () => {
@@ -111,19 +111,19 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         step.value = 2
         break
       case 2:
-        if (!emailVerification.email.value && !phoneVerification.phone.value.value) {
+        if (!emailVerification.email.value.value && !phoneVerification.phone.value.value) {
           toast.warning("Сначала укажите email или номер телефона")
           break
         }
         const [emailResult, phoneResult] = await Promise.all([
-          emailVerification.emailValidate(),
+          emailVerification.email.validate(),
           phoneVerification.phone.validate()
         ])
         if (!emailResult.valid || !phoneResult.valid) break
-        if (emailVerification.email.value) {
+        if (emailVerification.email.value.value) {
           const available = await checkAvailability({
             field: "email",
-            value: emailVerification.email.value
+            value: emailVerification.email.value.value
           })
           if (!available) {
             emailVerification.emailServerError.value = "Этот email занят"
@@ -131,10 +131,10 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           }
           const status = await emailVerification.checkRegistration()
           if (status === "NOT_VERIFIED") {
-            verifiedEmails.value.delete(emailVerification.email.value.toLowerCase())
+            verifiedEmails.value.delete(emailVerification.email.value.value.toLowerCase())
             break
           }
-          verifiedEmails.value.add(emailVerification.email.value.toLowerCase())
+          verifiedEmails.value.add(emailVerification.email.value.value.toLowerCase())
         }
         if (phoneVerification.phone.value.value) {
           const available = await checkAvailability({
@@ -215,7 +215,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   return {
     name,
     username, usernameServerError,
-    email: emailVerification.email, emailClientError: emailVerification.emailClientError, emailServerError: emailVerification.emailServerError, onEmailBlur: emailVerification.onEmailBlur, isEmailVerified, sendEmailCooldown: emailVerification.sendCooldown,
+    email: emailVerification.email, emailServerError: emailVerification.emailServerError, isEmailVerified, sendEmailCooldown: emailVerification.sendCooldown,
     phone: phoneVerification.phone, phoneServerError: phoneVerification.phoneServerError,
     code: phoneVerification.code, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
     login, loginClientError, loginServerError, onLoginBlur,

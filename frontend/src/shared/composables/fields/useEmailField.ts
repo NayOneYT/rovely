@@ -1,16 +1,16 @@
 import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { usernameSchema } from "@/shared/schemas"
+import { emailSchema } from "@/shared/schemas"
 import { watch } from "vue"
 
-export const useUsernameField = (controlled: boolean = true) => {
+export const useEmailField = (controlled: boolean = true) => {
   const {
     value,
     errorMessage: clientError,
     validate,
     meta,
     handleBlur
-  } = useField("username", toTypedSchema(usernameSchema), {
+  } = useField("email", toTypedSchema(emailSchema), {
     validateOnValueUpdate: false,
     controlled
   })

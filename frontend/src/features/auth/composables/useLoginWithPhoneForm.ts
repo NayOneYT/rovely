@@ -12,7 +12,6 @@ import { ApiError, ErrorCode } from "@/shared/api/types"
 import { toast } from "vue-sonner"
 
 export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
-
   const router = useRouter()
   const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
   const rememberMe = useLocalStorage("rememberMe", false)

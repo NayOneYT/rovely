@@ -3,7 +3,7 @@ import { toTypedSchema } from "@vee-validate/zod"
 import { codeSchema } from "../../schemas"
 import { watch } from "vue"
 
-export const useCodeField = () => {
+export const useCodeField = (controlled: boolean = true) => {
   const {
     value,
     errorMessage: clientError,
@@ -13,7 +13,8 @@ export const useCodeField = () => {
     handleChange,
     setErrors
   } = useField("code", toTypedSchema(codeSchema), {
-    validateOnValueUpdate: false
+    validateOnValueUpdate: false,
+    controlled
   })
 
   const onInput = (event: Event) => {

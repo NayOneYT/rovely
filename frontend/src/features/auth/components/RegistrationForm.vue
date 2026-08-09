@@ -5,7 +5,7 @@ import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { InputError, AppButton } from "@/shared/components/ui"
 import { Mail } from "@lucide/vue"
 import { GoogleIcon } from "@/shared/components/icons"
-import { NameFiend, UsernameField, PhoneField, CodeField, PasswordField } from "@/shared/components/ui/fields"
+import { NameFiend, UsernameField, EmailField, PhoneField, CodeField, PasswordField } from "@/shared/components/ui/fields"
 
 const isProcessing = defineModel<boolean>({ default: false })
 const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
@@ -13,7 +13,7 @@ const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 const {
   name,
   username, usernameServerError,
-  email, emailClientError, emailServerError, onEmailBlur, isEmailVerified, sendEmailCooldown,
+  email, emailServerError, isEmailVerified, sendEmailCooldown,
   phone, phoneServerError,
   code, codeServerError, sendTelegramMessageCooldown,
   login, loginClientError, loginServerError, onLoginBlur,
@@ -64,37 +64,14 @@ const handleGoogleRegistration = () => {
     class="flex flex-col"
     novalidate
   >
-    <label for="email" class="text-sm font-medium pb-1 self-start">Email</label>
-    <div 
-      :class="isProcessing ? 'pointer-events-none' : ''"
-      class="group flex items-center w-full bg-[#070908] rounded-[13.5px] border border-[#222a27]
-      focus-within:border-[#13d373] focus-within:outline-none focus-within:shadow-[0_0_6px_#13d373] transition-all"
-    >
-      <input 
-        v-model="email"
-        @blur="onEmailBlur"
-        :disabled="isProcessing"
-        id="email"
-        autocomplete="email"
-        type="email"
-        maxlength="254"
-        placeholder="email@example.com"
-        class="flex-1 placeholder:text-white/40 bg-transparent px-4 py-2.75 focus-visible:outline-none"
-      >
-      <div class="w-px h-6 transition-all bg-[#222a27] group-focus-within:bg-[#13d373] group-focus-within:shadow-[0_0_6px_#13d373]" />
-      <AppButton
-        variant="icon"
-        @click="handleSendEmailVerification"
-        :disabled="isProcessing || isEmailVerified || !!sendEmailCooldown"
-        class="m-0.75 mr-1.25 flex flex-col items-center"
-      >
-        <Mail :class="!!sendEmailCooldown && !isEmailVerified ? 'size-5 -mb-0.5' : 'size-8 p-1'"/>
-        <p v-if="!!sendEmailCooldown && !isEmailVerified" class="-mb-1">
-          {{ sendEmailCooldown }}
-        </p>
-      </AppButton>
-    </div>
-    <InputError :clientError="emailClientError" :serverError="emailServerError" />
+    <EmailField
+      :field="email"
+      @click="handleSendEmailVerification"
+      :disabled="isProcessing"
+      :cooldown="sendEmailCooldown"
+      :isEmailVerified
+      :serverError="emailServerError"
+    />
     <PhoneField
       :field="phone"
       :serverError="phoneServerError"

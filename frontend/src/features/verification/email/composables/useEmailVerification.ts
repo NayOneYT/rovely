@@ -1,6 +1,4 @@
-import { useField } from "vee-validate"
-import { toTypedSchema } from "@vee-validate/zod"
-import { emailSchema } from "@/shared/schemas"
+import { useEmailField } from "@/shared/composables/fields"
 import { ref, watch, computed, onUnmounted, type Ref, toValue } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import { emailVerificationApi } from "../api"
@@ -10,34 +8,12 @@ import { toast } from "vue-sonner"
 import type { CheckRegistrationStatus, SendStatus } from "../types"
 
 export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: Ref<string> | string, accountId?: string) => {
-  const { startTimer, formattedTime, clearAllTimers } = useEmailVerificationTimer()
-
-  const sendCooldown = computed(() => formattedTime(email.value?.toLowerCase() ?? ""))
-
-  const {
-    value: email,
-    errorMessage: emailClientError,
-    validate: emailValidate,
-    meta: emailMeta,
-    handleBlur: emailHandleBlur,
-    handleChange: emailHandleChange
-  } = useField<string>("email", toTypedSchema(emailSchema), {
-    validateOnValueUpdate: false,
-  })
-
+  const email = useEmailField()
   const emailServerError = ref<string>()
+  watch(email.value, () => emailServerError.value = undefined)
 
-  watch(email, () => {
-    emailServerError.value = undefined
-    if (emailMeta.touched) emailValidate()
-  })
-
-  const onEmailBlur = () => {
-    if (emailMeta.dirty) {
-      emailHandleBlur()
-      emailValidate()
-    }
-  }
+  const { startTimer, formattedTime, clearAllTimers } = useEmailVerificationTimer()
+  const sendCooldown = computed(() => formattedTime(email.value.value?.toLowerCase()))
 
   const checkRegistrationMutation = useMutation({
     mutationFn: emailVerificationApi.checkRegistration,
@@ -51,11 +27,11 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
 
   const checkRegistration = async (): Promise<CheckRegistrationStatus> => {
     try {
-      if (!email.value) return "VALIDATION_ERROR"
+      if (!email.value.value) return "VALIDATION_ERROR"
       isProcessing.value = true
-      const emailResult = await emailValidate()
+      const emailResult = await email.validate()
       if (!emailResult.valid) return "VALIDATION_ERROR"
-      await checkRegistrationMutation.mutateAsync({ email: email.value })
+      await checkRegistrationMutation.mutateAsync({ email: email.value.value })
       return "VERIFIED"
     } catch {
       return "NOT_VERIFIED"
@@ -68,7 +44,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
     mutationFn: emailVerificationApi.send,
     onSuccess: (data) => {
       toast.success("Письмо для подтверждения отправлено")
-      startTimer(email.value.toLowerCase(), data.timeLeftMs)
+      startTimer(email.value.value.toLowerCase(), data.timeLeftMs)
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -78,7 +54,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
             break
           case ErrorCode.SEND_EMAIL_COOLDOWN:
             toast.info("Письмо для подтверждения недавно уже было отправлено")
-            startTimer(email.value.toLowerCase(), error.timeLeftMs)
+            startTimer(email.value.value.toLowerCase(), error.timeLeftMs)
             break
         }
       } else toast.error("Что-то пошло не так, попробуйте позже")
@@ -88,11 +64,11 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
   const send = async (): Promise<SendStatus> => {
     try {
       isProcessing.value = true
-      const emailResult = await emailValidate()
+      const emailResult = await email.validate()
       if (!emailResult.valid) return "VALIDATION_ERROR"
       await sendMutation.mutateAsync({
         name: toValue(externalName),
-        email: email.value,
+        email: email.value.value,
         accountId
       })
       return "SUCCESS"
@@ -107,7 +83,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
   onUnmounted(clearAllTimers)
 
   return {
-    email, onEmailBlur, emailHandleChange, emailValidate, emailClientError, emailServerError, sendCooldown,
+    email, emailServerError, sendCooldown,
     checkRegistration, send
   }
 }

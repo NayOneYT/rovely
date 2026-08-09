@@ -3,7 +3,7 @@ import { toTypedSchema } from "@vee-validate/zod"
 import { nameSchema } from "@/shared/schemas"
 import { watch } from "vue"
 
-export const useNameField = () => {
+export const useNameField = (controlled: boolean = true) => {
   const {
     value,
     errorMessage: clientError,
@@ -11,7 +11,8 @@ export const useNameField = () => {
     meta,
     handleBlur
   } = useField("name", toTypedSchema(nameSchema), {
-    validateOnValueUpdate: false
+    validateOnValueUpdate: false,
+    controlled
   })
 
   watch(value, () => {

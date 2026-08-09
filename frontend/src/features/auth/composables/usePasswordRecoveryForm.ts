@@ -25,8 +25,8 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
   watch(identifier.value, () => identifierServerError.value = undefined)
 
   const { startTimer, formattedTime, clearAllTimers } = usePasswordRecoveryTimer()
-  const sendEmailCooldown = computed(() => formattedTime("EMAIL", identifier.value.value?.toLowerCase() ?? ""))
-  const sendTelegramMessageCooldown = computed(() => formattedTime("PHONE", identifier.value.value?.toLowerCase() ?? ""))
+  const sendEmailCooldown = computed(() => formattedTime("EMAIL", identifier.value.value?.toLowerCase()))
+  const sendTelegramMessageCooldown = computed(() => formattedTime("PHONE", identifier.value.value?.toLowerCase()))
 
   const getContactsMutation = useMutation({
     mutationFn: authApi.getPasswordRecoveryContacts,

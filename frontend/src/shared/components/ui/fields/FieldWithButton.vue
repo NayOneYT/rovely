@@ -9,6 +9,7 @@ const {
   id: string
   type?: string
   label: string
+  placeholder?: string
   autocomplete?: string
   maxlength: string | number
   disabled?: boolean
@@ -36,6 +37,7 @@ const emit = defineEmits<{
       :type
       :autocomplete
       :id
+      :placeholder
       :maxlength
       v-model="model"
       @input="(event) => emit('input', event)"

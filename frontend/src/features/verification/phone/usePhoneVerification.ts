@@ -14,9 +14,9 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
   watch(phone.value, () => phoneServerError.value = undefined)
 
   const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
-  const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
+  const sendCooldown = computed(() => formattedTime(phone.value.value))
 
-  const code = useCodeField()
+  const code = useCodeField(false)
   const codeServerError = ref<string>()
   watch(code.value, () => codeServerError.value = undefined)
 

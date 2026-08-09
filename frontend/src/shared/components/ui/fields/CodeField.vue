@@ -19,6 +19,7 @@ const emit = defineEmits<{
   <FieldWithButton
     label="Код подтверждения"
     id="code"
+    placeholder="123456"
     v-model="field.value.value"
     @click="emit('click')"
     @input="field.onInput"
@@ -30,8 +31,6 @@ const emit = defineEmits<{
     :serverError
   >
     <TelegramIcon :class="!!cooldown ? 'size-6 -mb-1' : 'p-1.25'"/>
-    <p v-if="!!cooldown" class="-mb-0.5">
-      {{ cooldown }}
-    </p>
+    <p v-if="!!cooldown" class="-mb-0.5">{{ cooldown }}</p>
   </FieldWithButton>
 </template>

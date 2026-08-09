@@ -4,7 +4,7 @@ import { phoneSchema } from "@/shared/schemas"
 import { watch } from "vue"
 import { AsYouType } from "libphonenumber-js"
 
-export const usePhoneField = () => {
+export const usePhoneField = (controlled: boolean = true) => {
   const {
     value,
     errorMessage: clientError,
@@ -13,7 +13,8 @@ export const usePhoneField = () => {
     handleBlur,
     handleChange
   } = useField("phone", toTypedSchema(phoneSchema), {
-    validateOnValueUpdate: false
+    validateOnValueUpdate: false,
+    controlled
   })
 
   const onInput = (event: Event) => {
