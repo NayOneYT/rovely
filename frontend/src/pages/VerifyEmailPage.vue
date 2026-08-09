@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useVerifyEmail } from "../features/verification/email/composables/useVerifyEmail"
 import MinimalLayout from "@/shared/layouts/MinimalLayout.vue"
-import { SiteLogo } from "../shared/components/ui"
+import { AppLogo } from "../shared/components/ui"
 import { LoaderCircle } from "@lucide/vue"
 
 const { status } = useVerifyEmail()
@@ -9,7 +9,7 @@ const { status } = useVerifyEmail()
 
 <template>
   <MinimalLayout>
-    <SiteLogo class="text-5xl relative w-full flex justify-center -mt-12" />
+    <AppLogo class="text-5xl relative w-full flex justify-center -mt-12" />
     <div class="z-1 rounded-[40px] border border-[#222a27] bg-[#101312] p-10 mt-4 text-xl transition-all">
       <p v-if="status === 'IDLE'">
         <LoaderCircle class="size-10 animate-spin" />

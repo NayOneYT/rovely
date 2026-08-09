@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { useParticlesCanvas } from './useParticlesCanvas';
-import { SiteLogo } from '@/shared/components/ui'
+import { AppLogo } from '@/shared/components/ui'
 import { WELCOME_FEATURES } from './constants'
 import AuthWidget from '@/features/auth/components/AuthWidget.vue'
 import MinimalLayout from "@/shared/layouts/MinimalLayout.vue";
@@ -15,7 +15,7 @@ useParticlesCanvas(canvasRef)
     <canvas ref="canvasRef" class="absolute size-full opacity-50" />
     <section class="h-full relative flex justify-between items-center gap-10">
       <div class="flex flex-col items-center w-185 cursor-default">
-        <SiteLogo class="text-7xl" />
+        <AppLogo class="text-7xl" />
         <h1 class="my-8 text-center text-lg">
           Пространство для общения, контента и взаимодействий, собранное так, чтобы привычные форматы работали 
           <span class="font-semibold">проще</span>, 
