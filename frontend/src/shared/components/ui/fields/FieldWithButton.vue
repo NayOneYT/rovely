@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FieldLabel from "./FieldLabel.vue"
 import { AppButton } from ".."
 import FieldError from "./FieldError.vue"
 
@@ -28,7 +29,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <label v-bind="$attrs" :for="id" class="text-sm font-medium pb-1 self-start">{{ label }}</label>
+  <FieldLabel v-bind="$attrs" :for="id" :label />
   <div 
     class="
       group flex items-center w-full bg-[#070908] rounded-[13.5px] border border-[#222a27] 
