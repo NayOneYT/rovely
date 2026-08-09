@@ -73,7 +73,7 @@ export const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  const isAuthRoute = to.name === "Login" || to.name === "Registration"
+  const isAuthRoute = to.name === "Login" || to.name === "LoginWithPhone" || to.name === "PasswordRecovery" || to.name === "Registration"
   if (isAuthRoute) {
     try {
       const account = await authApi.me()
