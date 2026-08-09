@@ -11,6 +11,8 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@fontsource-variable/chiron-goround-tc": "^5.3.0",
+    "@fontsource/exo-2": "^5.3.0",
     "@lucide/vue": "^1.28.0",
     "@tanstack/vue-query": "^5.100.5",
     "@vee-validate/zod": "^4.15.1",

@@ -10,11 +10,14 @@ const letters = [
 </script>
 
 <template>
-  <div>
+  <div class="font-logo">
     <span 
       v-for="(letter, index) in letters" 
       :key="index" 
-      class="logo-letter cursor-default select-none"
+      class="
+        cursor-default select-none px-1 first:pl-0 last:pr-0 animate-shimmer transition-all duration-200
+        text-shadow-[0_0_6px_currentColor] hover:text-shadow-[0_0_50px_currentColor]
+      "
       :style="{
         animationDuration: `${letter.duration}s`,
         animationDelay: `${-letter.duration * (index / 6)}s`
@@ -24,35 +27,3 @@ const letters = [
     </span>
   </div>
 </template>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
-
-.logo-letter {
-  font-family: "Exo 2", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 900;
-  transition: text-shadow 0.2s ease;
-  animation: shimmer ease-in-out infinite;
-  text-shadow: 0 0 6px currentColor;
-  padding: 0 4px;
-}
-
-.logo-letter:first-of-type {
-  padding-left: 0;
-}
-
-.logo-letter:last-of-type {
-  padding-right: 0;
-}
-
-.logo-letter:hover {
-  text-shadow: 0 0 50px currentColor;
-}
-
-@keyframes shimmer {
-  0%   { color: #08eb79; }
-  50%  { color: #1a7a42; }
-  100% { color: #08eb79; }
-}
-</style>
