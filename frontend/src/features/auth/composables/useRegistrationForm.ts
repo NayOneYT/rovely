@@ -149,7 +149,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         step.value = 2
         break
       case 2:
-        if (!emailVerification.email.value && !phoneVerification.phone.value) {
+        if (!emailVerification.email.value && !phoneVerification.phone.value.value) {
           toast.warning("Сначала укажите email или номер телефона")
           break
         }
@@ -174,7 +174,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           }
           verifiedEmails.value.add(emailVerification.email.value.toLowerCase())
         }
-        if (phoneVerification.phone.value) {
+        if (phoneVerification.phone.value.value) {
           const available = await checkAvailability({
             field: "phone",
             value: phoneVerification.phone.value.value
