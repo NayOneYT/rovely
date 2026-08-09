@@ -216,7 +216,7 @@ const handleGoogleRegistration = () => {
         target="_blank"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+        class="font-medium text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
       >
         условия</RouterLink> <!-- if you move </RouterLink> to a new line, the space before "и" will also be underlined -->
       <span> и </span> 
@@ -225,7 +225,7 @@ const handleGoogleRegistration = () => {
         target="_blank"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+        class="font-medium text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
       >
         политику
       </RouterLink>

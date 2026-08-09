@@ -80,27 +80,27 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         </nav>
       </section>
     </aside>
-    <footer class="col-span-4 mt-10 border-t border-[#222a27] bg-[#101312]/50 text-sm text-white/60">
+    <footer class="col-span-4 mt-10 border-t border-[#222a27] bg-[#101312] text-sm text-white/60">
       <div class="flex flex-row items-center justify-around px-6 py-8">
         <div>
           <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>
           <p class="mt-1">{{ currentFooterNote }}</p>
         </div>
-        <div class="text-white/60">
+        <div class="text-sm font-medium text-[#13d373]">
           <RouterLink
             :to="currentLink.to"
-            class="block hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200"
+            class="hover:underline focus-visible:outline-none focus-visible:underline"
           >
             {{ currentLink.label }}
           </RouterLink>
           <div class="flex gap-6">
             <RouterLink 
               :to="{ name: 'Login' }" 
-              class="hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200"
+              class="hover:underline focus-visible:outline-none focus-visible:underline"
             >
               Главная
             </RouterLink>
-            <a href="mailto:nayone.tapok@gmail.com" class="hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200">Почта поддержки</a>
+            <a href="mailto:nayone.tapok@gmail.com" class="hover:underline focus-visible:outline-none focus-visible:underline">Почта поддержки</a>
           </div>
         </div>
       </div>
