@@ -4,12 +4,23 @@ export const useParticlesCanvas = (canvasRef: Ref<HTMLCanvasElement | undefined>
   let animationId: number = 0
   let resizeHandler: EventListenerOrEventListenerObject
 
+  const getBrandRgb = (): string => {
+    const rootStyle = getComputedStyle(document.documentElement)
+    const hex = rootStyle.getPropertyValue('--color-brand')
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    return `${r}, ${g}, ${b}`
+  }
+
   onMounted(() => {
     const canvas = canvasRef.value
     if (!canvas) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+
+    const brandRgb = getBrandRgb()
 
     const isPowerfulDevice = window.navigator.hardwareConcurrency > 4
     const LINK_DIST = isPowerfulDevice ? 130 : 100
@@ -107,7 +118,7 @@ export const useParticlesCanvas = (canvasRef: Ref<HTMLCanvasElement | undefined>
             const transperent = distAlpha * edgeA * edgeB
             if (transperent < 0.1) continue
             ctx.beginPath()
-            ctx.strokeStyle = `rgba(19,211,115,${transperent})`
+            ctx.strokeStyle = `rgba(${brandRgb},${transperent})`
             ctx.lineWidth = transperent * 2.2 + 0.3
             ctx.moveTo(particles[i]!.x, particles[i]!.y)
             ctx.lineTo(particles[j]!.x, particles[j]!.y)
@@ -120,15 +131,15 @@ export const useParticlesCanvas = (canvasRef: Ref<HTMLCanvasElement | undefined>
         const pulse = (Math.sin(particle.phase) + 1) / 2
         const radius = particle.r + pulse
         const glow = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, radius * 5)
-        glow.addColorStop(0, `rgba(19,211,115,${0.18 + pulse * 0.2})`)
-        glow.addColorStop(1, 'rgba(19,211,115,0)')
+        glow.addColorStop(0, `rgba(${brandRgb},${0.18 + pulse * 0.2})`)
+        glow.addColorStop(1, `rgba(${brandRgb},0)`)
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, radius * 5, 0, Math.PI * 2)
         ctx.fillStyle = glow
         ctx.fill()
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, radius, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(19,211,115,${0.65 + pulse * 0.35})`
+        ctx.fillStyle = `rgba(${brandRgb},${0.65 + pulse * 0.35})`
         ctx.fill()
       })
     }

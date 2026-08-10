@@ -7,21 +7,47 @@
 @theme {
   --font-sans: "Chiron GoRound TC Variable", sans-serif;
   --font-logo: "Exo 2", sans-serif;
-  --animate-shimmer: shimmer ease-in-out infinite
+  --animate-shimmer: shimmer ease-in-out infinite;
+  --color-brand: #13d373;
+  --color-bg: #090909;
+  --color-card: #131313;
+  --color-border: #292929;
+  --color-placeholder: #ffffff66;
+  --color-text-main: #ffffff;
+  --color-text-muted: #ffffff99;
+  --color-text-dark: #000000;
+  --color-text-warning: #ffdf20;
+  --color-text-danger: #ff6467;
+  --shadow-glow: 0 0 6px var(--color-brand);
+  --shadow-glow-lg: 0 0 15px var(--color-brand);
 }
 
 @keyframes shimmer {
-  0% {
-    color: #08eb79;
+
+  0%,
+  100% {
+    color: color-mix(var(--color-brand) 80%, white);
   }
 
   50% {
-    color: #1a7a42;
+    color: color-mix(var(--color-brand) 80%, black);
   }
+}
 
-  100% {
-    color: #08eb79;
-  }
+*:focus-visible {
+  outline: none;
+}
+
+body {
+  color: var(--color-text-main);
+  background-color: var(--color-bg);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(var(--color-brand) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-brand) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 input:-webkit-autofill,

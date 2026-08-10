@@ -4,13 +4,23 @@ import {RouterLink, type RouteLocationRaw } from "vue-router"
 
 type ButtonVariant = "primary" | "secondary" | "social" | "icon"
 
-const baseClasses = "flex justify-center items-center select-none cursor-pointer focus:outline-none transition-all duration-200"
+const baseClasses = "flex justify-center items-center select-none cursor-pointer transition-all duration-200"
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "text-black text-base font-bold px-5 py-3 rounded-full bg-[#13d373] hover:shadow-[0_0_15px_#13d373] focus-visible:shadow-[0_0_15px_#13d373]",
-  secondary: "text-white/60 text-base font-normal px-5 py-3 rounded-full bg-[#070908] hover:text-white focus-visible:text-white",
-  social: "text-white text-base font-normal px-4 py-2.75 border border-[#222a27] rounded-full bg-[#070908] gap-2 hover:border-[#13d373] hover:shadow-[0_0_6px_#13d373] focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373]",
-  icon: "text-sm size-10 text-white/60 hover:text-white focus-visible:text-white"
+  primary: `
+    text-text-dark text-base font-bold px-5 py-3 rounded-full bg-brand
+    hover:shadow-glow-lg focus-visible:shadow-glow-lg
+  `,
+  secondary: `
+    text-text-muted text-base font-normal px-5 py-3 rounded-full bg-bg 
+    hover:text-text-main focus-visible:text-text-main
+  `,
+  social: `
+    text-text-main text-base font-normal px-4 py-2.75 border border-border rounded-full bg-bg gap-2 
+    hover:border-brand hover:shadow-glow 
+    focus-visible:border-brand focus-visible:shadow-glow
+  `,
+  icon: "text-sm size-10 text-text-muted hover:text-text-main focus-visible:text-text-main"
 }
 
 defineProps<{

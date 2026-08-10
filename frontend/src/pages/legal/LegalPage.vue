@@ -5,43 +5,42 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
 </script>
 
 <template>
-  <div class="grid grid-cols-4 bg-[#070908]">
-    <main lang="ru" class="col-start-2 col-span-2 text-white">
-      <h1 class="my-10 text-2xl text-center">{{ currentTitle }}</h1>
+  <div class="grid grid-cols-4">
+    <main lang="ru" class="col-start-2 col-span-2">
+      <h1 class="my-10 text-3xl text-center">{{ currentTitle }}</h1>
       <section
         v-for="(section, sectionIndex) in currentSections"
         :key="`section-${sectionIndex}`"
         :id="section.id"
+        class="mt-6 text-justify hyphens-auto"
       >
-        <h2 class="text-xl my-6">
-          <RouterLink 
-            :to="{ hash: `#${section.id}` }"
-            class="relative group hover:text-[#00ff8c] focus-visible:outline-none focus-visible:text-[#00ff8c] transition-all duration-200"
-          >
-            <span class="absolute -left-5 font-thin opacity-0 group-hover:opacity-100 group-hover:text-[#00ff8c] transition-all duration-200">#</span>
-            {{ section.title }}
-          </RouterLink>
-        </h2>
-        <p class="text-lg text-justify leading-relaxed hyphens-auto font-light my-6">{{ section.intro }}</p>
-        <div class="ml-10 text-lg">
+        <RouterLink
+          :to="{ hash: `#${section.id}` }"
+          class="relative block group text-xl"
+        >
+          <span class="
+            absolute -left-5 pr-2 text-brand opacity-0 group-hover:opacity-100 transition-all duration-200">#</span>
+          {{ section.title }}
+        </RouterLink>
+        <p class="text-lg mt-4">{{ section.intro }}</p>
+        <div class="mt-4 ml-10">
           <p 
             v-for="(subsection, index) in section.subsections" 
-            :key="`subsection-${sectionIndex}-${index}`" 
-            class="text-justify leading-relaxed hyphens-auto font-light"
+            :key="`subsection-${sectionIndex}-${index}`"
           >
             {{ subsection }}
           </p>
           <div
             v-for="(table, tableIndex) in section.tables"
             :key="`table-${sectionIndex}-${tableIndex}`"
-            class="my-6 border border-[#222a27] rounded-[10px] bg-[#101312]/50"
+            class="mt-4 border border-border rounded-[10px] bg-card"
           >
             <div 
               v-for="(value, key, rowIndex) in table"
               :key="`row-${sectionIndex}-${tableIndex}-${rowIndex}`"
-              class="grid grid-cols-7 border-b border-[#222a27]"
+              class="grid grid-cols-7 border-b border-border"
             >
-              <span class="col-span-2 px-3 py-2 border-r border-[#222a27]">{{ key }}</span>
+              <span class="col-span-2 px-3 py-2 border-r border-border">{{ key }}</span>
               <component
                 :is="typeof(value) === 'string' ? 'span' : 'div'"
                 class="col-span-5 px-3 py-2"
@@ -49,12 +48,12 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
                 <template v-if="typeof(value) === 'string'">
                   {{ value }}
                 </template>
-                <ul v-else class="list-disc pl-5 text-[#00ff8c]">
+                <ul v-else class="list-disc pl-5">
                   <li 
                     v-for="(item, index) in value"
                     :key="`item-${sectionIndex}-${tableIndex}-${rowIndex}-${index}`"
                   >
-                    <span class="text-white">{{ item }}</span>
+                    {{ item }}
                   </li>
                 </ul>
               </component>
@@ -64,43 +63,43 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
       </section>
     </main>
     <aside class="col-span-1">
-      <section class="fixed top-10 mx-10 p-3 border border-[#222a27] rounded-[12px] bg-[#101312]">
-        <h3 class="text-lg text-white text-center">Навигация</h3>
-        <nav class="flex flex-col gap-2 mt-4">
+      <section class="fixed top-10 mx-10 p-4 bg-card border border-border rounded-2xl">
+        <h2 class="text-xl text-center">Навигация</h2>
+        <nav class="flex flex-col mt-1">
           <RouterLink
             v-for="(section, index) in currentSections" 
             :key="`nav-${index}`"
             :to="{ hash: `#${section.id}` }"
             :tabindex="activeSections.has(section.id) ? -1 : 0"
-            :class="activeSections.has(section.id) ? 'text-[#00ff8c] pointer-events-none' : 'text-white/60 hover:text-white focus-visible:text-white'"
-            class="leading-tight focus-visible:outline-none transition-all duration-200"
+            :class="activeSections.has(section.id) ? 'text-text-main pointer-events-none' : 'text-text-muted hover:text-text-main focus-visible:text-text-main'"
+            class="py-0.5 transition-all duration-200"
           >
             {{ section.title }}
           </RouterLink>
         </nav>
       </section>
     </aside>
-    <footer class="col-span-4 mt-10 border-t border-[#222a27] bg-[#101312] text-sm text-white/60">
+    <footer class="col-span-4 mt-10 border-t border-border bg-card text-sm">
       <div class="flex flex-row items-center justify-around px-6 py-8">
-        <div>
+        <div class="text-text-muted">
           <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>
-          <p class="mt-1">{{ currentFooterNote }}</p>
+          <p class="mt-2">{{ currentFooterNote }}</p>
         </div>
-        <div class="text-sm font-medium text-[#13d373]">
+        <div class="font-medium text-brand">
           <RouterLink
             :to="currentLink.to"
-            class="hover:underline focus-visible:outline-none focus-visible:underline"
+            class="hover:underline focus-visible:underline"
           >
             {{ currentLink.label }}
           </RouterLink>
-          <div class="flex gap-6">
+          <div class="flex gap-5 mt-2">
             <RouterLink 
               :to="{ name: 'Login' }" 
-              class="hover:underline focus-visible:outline-none focus-visible:underline"
+              class="hover:underline focus-visible:underline"
             >
               Главная
             </RouterLink>
-            <a href="mailto:nayone.tapok@gmail.com" class="hover:underline focus-visible:outline-none focus-visible:underline">Почта поддержки</a>
+            <a href="mailto:nayone.tapok@gmail.com" class="hover:underline focus-visible:underline">Почта поддержки</a>
           </div>
         </div>
       </div>

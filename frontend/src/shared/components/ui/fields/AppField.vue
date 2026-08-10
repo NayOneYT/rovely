@@ -39,9 +39,8 @@ const emit = defineEmits<{
     @blur="emit('blur')"
     :disabled
     class="
-      w-full placeholder:text-white/40 bg-[#070908] rounded-[13.5px] px-4 py-2.75 border border-[#222a27]
-      focus-visible:outline-none focus-visible:border-[#13d373] focus-visible:shadow-[0_0_6px_#13d373] 
-      transition-all duration-200
+      w-full placeholder:text-placeholder bg-bg rounded-[13.5px] px-4 py-2.75 border border-border
+      focus-visible:border-brand focus-visible:shadow-glow transition-all duration-200
     "
   >
   <FieldError :clientError :serverError />

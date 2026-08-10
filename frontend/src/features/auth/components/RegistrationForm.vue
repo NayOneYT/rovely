@@ -32,11 +32,11 @@ const handleGoogleRegistration = () => {
 
 <template>
   <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
-  <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Расскажите нам о себе</p>
+  <p class="text-sm text-text-muted mt-1 cursor-default">Расскажите нам о себе</p>
   <form
     v-if="step === 1"
     @submit.prevent="goToNextStep"
-    class="flex flex-col"
+    class="flex flex-col mt-6"
   >
     <NameFiend
       :field="name"
@@ -48,11 +48,12 @@ const handleGoogleRegistration = () => {
       :serverError="usernameServerError"
       class="mt-4"
     />
-    <p class="text-sm text-white/60 mt-4 mb-6">Вас смогут найти по @{{ username.value.value || "username" }}</p>
+    <p class="text-sm text-text-muted mt-4">Вас смогут найти по @{{ username.value.value || "username" }}</p>
     <AppButton
       variant="primary"
       type="submit"
       :disabled="isProcessing"
+      class="mt-6"
     >
       Далее
     </AppButton>
@@ -60,7 +61,7 @@ const handleGoogleRegistration = () => {
   <form
     v-if="step === 2"
     @submit.prevent="goToNextStep"
-    class="flex flex-col"
+    class="flex flex-col mt-6"
     novalidate
   >
     <EmailField
@@ -77,8 +78,8 @@ const handleGoogleRegistration = () => {
       :disabled="isProcessing"
       class="mt-4"
     />
-    <p class="text-sm text-white/60 mt-4 mb-6">Достаточно указать одно из полей</p>
-    <div class="flex gap-6">
+    <p class="text-sm text-text-muted mt-4">Достаточно указать одно из полей</p>
+    <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
         @click="step = 1"
@@ -100,7 +101,7 @@ const handleGoogleRegistration = () => {
   <form
     v-if="step === 2.5"
     @submit.prevent="goToNextStep"
-    class="flex flex-col"
+    class="flex flex-col mt-6"
   >
     <CodeField
       :field="code"
@@ -109,14 +110,14 @@ const handleGoogleRegistration = () => {
       :disabled="isProcessing"
       :serverError="codeServerError"
     />
-    <p class="text-sm text-white/60 mt-4 mb-6">
+    <p class="text-sm text-text-muted mt-4">
       Чтобы получить код:<br>
       1. Перейдите в Telegram-бота — 
       <a 
         href="https://t.me/rovely_bot" 
         target="_blank" 
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="font-medium text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+        class="font-medium text-brand hover:underline focus-visible:underline"
       >
         @rovely_bot
       </a><br>
@@ -124,7 +125,7 @@ const handleGoogleRegistration = () => {
       3. Кнопкой отправьте боту свой номер телефона<br>
       4. Нажмите на самолетик справа от поля ввода кода
     </p>
-    <div class="flex gap-6">
+    <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
         @click="step = 2"
@@ -146,7 +147,7 @@ const handleGoogleRegistration = () => {
   <form
     v-if="step === 3"
     @submit="register"
-    class="flex flex-col"
+    class="flex flex-col mt-6"
   >
     <LoginField
       :field="login"
@@ -158,14 +159,14 @@ const handleGoogleRegistration = () => {
       :disabled="isProcessing"
       class="mt-4"
     />
-    <p class="text-sm text-white/60 mt-4 mb-6">
+    <p class="text-sm text-text-muted mt-4">
       <span>Регистрируясь, вы принимаете </span> 
       <RouterLink 
         :to="{ name: 'Terms' }" 
         target="_blank"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="font-medium text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+        class="font-medium text-brand hover:underline focus-visible:underline"
       >
         условия</RouterLink> <!-- if you move </RouterLink> to a new line, the space before "и" will also be underlined -->
       <span> и </span> 
@@ -174,12 +175,12 @@ const handleGoogleRegistration = () => {
         target="_blank"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="font-medium text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+        class="font-medium text-brand hover:underline focus-visible:underline"
       >
         политику
       </RouterLink>
     </p>
-    <div class="flex gap-6">
+    <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
         @click="step = 2"
@@ -198,18 +199,18 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <div class="flex items-center my-6">  
-    <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
-      <span class="text-sm text-white/60 mx-4 select-none">
+  <div class="flex items-center mt-6">  
+    <div class="flex-1 h-px bg-linear-to-r from-transparent via-brand" />
+      <span class="text-sm text-text-muted mx-4 select-none">
         или
       </span>
-    <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
+    <div class="flex-1 h-px bg-linear-to-r from-transparent via-brand" />
   </div>
   <AppButton
     variant="social"
     @click="handleGoogleRegistration"
     :disabled="isProcessing"
-    class="w-full"
+    class="w-full mt-6"
   >
     <GoogleIcon class="size-5" />
     Продолжить с Google

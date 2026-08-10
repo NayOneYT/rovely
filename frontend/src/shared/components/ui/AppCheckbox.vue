@@ -20,10 +20,13 @@ defineProps<{
       class="peer sr-only"
     >
     <div
-      class="flex items-center size-5 bg-[#070908] rounded-[4.75px] border border-[#222a27] text-[#070908] transition-all duration-200"
+      class="
+        flex items-center size-5 bg-bg rounded-[4.75px] border border-border text-bg
+        transition-all duration-200
+      "
       :class="disabled ? '' : `
-        peer-focus-visible:border-[#13d373] group-hover:border-[#13d373] peer-checked:border-[#13d373] 
-        peer-focus-visible:shadow-[0_0_6px_#13d373] group-hover:shadow-[0_0_6px_#13d373] peer-checked:bg-[#13d373]
+        peer-focus-visible:border-brand group-hover:border-brand peer-checked:border-brand 
+        peer-focus-visible:shadow-glow group-hover:shadow-glow peer-checked:bg-brand
       `"
     >
       <Check class="stroke-4 -mb-px" />

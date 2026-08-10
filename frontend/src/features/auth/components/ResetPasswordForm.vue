@@ -13,14 +13,14 @@ const {
 <template>
   <div
     :class="status === 'READY' || status === 'RESETTING' ? 'w-130' : ''"
-    class="z-1 rounded-[40px] border border-[#222a27] bg-[#101312] p-10 mt-4 transition-all"
+    class="bg-card p-10 rounded-[40px] border border-border"
   >
     <p v-if="status === 'CHECKING'">
       <LoaderCircle class="size-10 animate-spin" />
     </p>
     <p 
       v-else-if="status === 'TOKEN_INVALID'"
-      class="text-red-400 text-xl"
+      class="text-text-danger text-xl"
     >
       Запросите новую ссылку
     </p>
@@ -30,11 +30,12 @@ const {
       class="flex flex-col"
     >
       <p class="text-3xl font-semibold cursor-default">Сброс пароля</p>
-      <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Введите новый пароль</p>
+      <p class="text-sm text-text-muted mt-1 cursor-default">Введите новый пароль</p>
       <PasswordField
         :field="password"
         :isNewPassword="true"
         :disabled="status === 'RESETTING'"
+        class="mt-6"
       />
       <AppButton
         variant="primary"

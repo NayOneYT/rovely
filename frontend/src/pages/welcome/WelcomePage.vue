@@ -13,7 +13,7 @@ useParticlesCanvas(canvasRef)
 <template>
   <MinimalLayout>
     <canvas ref="canvasRef" class="absolute size-full opacity-50" />
-    <section class="h-full relative flex justify-between items-center gap-10">
+    <section class="relative flex justify-center items-center gap-10">
       <div class="flex flex-col items-center w-185 cursor-default">
         <AppLogo class="text-7xl" />
         <h1 class="my-8 text-center text-lg">
@@ -26,18 +26,15 @@ useParticlesCanvas(canvasRef)
           <div
             v-for="feature in WELCOME_FEATURES"
             :key="feature.title"
-            class="p-4 bg-[#101312]/60 border border-[#222a27] rounded-[12px] backdrop-blur-xs hover:bg-[#101312] transition-all duration-200"
+            class="p-4 bg-card/60 border border-border/60 rounded-2xl backdrop-blur-xs
+            hover:bg-card hover:border-border transition-all duration-200"
           >
-            <div class="flex gap-4">
-              <div>
-                <h2 class="text-xl font-semibold">
-                  {{ feature.title }}
-                </h2>
-                <p class="text-sm text-white/60 mt-1">
-                  {{ feature.description }}
-                </p>
-              </div>
-            </div>
+            <h2 class="text-xl font-semibold">
+              {{ feature.title }}
+            </h2>
+            <p class="text-sm text-text-muted mt-1">
+              {{ feature.description }}
+            </p>
           </div>
         </div>
       </div>

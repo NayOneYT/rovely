@@ -29,8 +29,8 @@ const handleGoogleLogin = () => {
 
 <template>
   <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
-  <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">Войдите в аккаунт</p>
-  <form @submit.prevent="login" class="flex flex-col">
+  <p class="text-sm text-text-muted mt-1 cursor-default">Войдите в аккаунт</p>
+  <form @submit.prevent="login" class="flex flex-col mt-6">
     <IdentifierField
       :field="identifier"
       :disabled="isProcessing"
@@ -42,7 +42,7 @@ const handleGoogleLogin = () => {
       :serverError="passwordServerError"
       class="mt-4"
     />
-    <div class="flex justify-between mt-4 mb-6">
+    <div class="flex justify-between mt-4">
       <AppCheckbox
         v-model="rememberMe"
         :disabled="isProcessing"
@@ -53,7 +53,7 @@ const handleGoogleLogin = () => {
         :to="{ name: 'PasswordRecovery' }"
         :tabindex="isProcessing ? -1 : 0"
         :class="isProcessing ? 'pointer-events-none' : ''"
-        class="text-sm font-medium text-[#13d373] hover:underline focus-visible:outline-none focus-visible:underline"
+        class="text-sm font-medium text-brand hover:underline focus-visible:underline"
       >
         Забыли пароль?
       </RouterLink>
@@ -62,30 +62,32 @@ const handleGoogleLogin = () => {
       variant="primary"
       type="submit"
       :disabled="isProcessing"
+      class="mt-6"
     >
       {{ isProcessing ? "Проверка..." : "Войти" }}
     </AppButton>
   </form>
-  <div class="flex items-center my-6">  
-    <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
-      <span class="text-sm text-white/60 mx-4 select-none">
+  <div class="flex items-center mt-6">  
+    <div class="flex-1 h-px bg-linear-to-r from-transparent via-brand" />
+      <span class="text-sm text-text-muted mx-4 select-none">
         или
       </span>
-    <div class="flex-1 h-px bg-linear-to-r from-transparent via-[#13d373]" />
+    <div class="flex-1 h-px bg-linear-to-r from-transparent via-brand" />
   </div>
   <AppButton
     variant="social"
     :to="{ name: 'LoginWithPhone' }"
     :disabled="isProcessing"
+    class="mt-6"
   >
-    <Phone class="size-5.5 text-[#13d373]" />
+    <Phone class="size-5.5 text-brand" />
     Войти по номеру телефона
   </AppButton>
   <AppButton
     variant="social"
     @click="handleGoogleLogin"
     :disabled="isProcessing"
-    class="w-full mt-2.5"
+    class="w-full mt-4"
   >
     <GoogleIcon class="size-5" />
     Войти через Google

@@ -18,7 +18,7 @@ defineProps<{
       v-if="serverError || clientError" 
       role="alert"
       class="text-sm mt-1 "
-      :class="serverError? 'text-red-400' : 'text-yellow-300'"
+      :class="serverError? 'text-text-danger' : 'text-text-warning'"
     >
       {{ serverError || clientError }}
     </p>

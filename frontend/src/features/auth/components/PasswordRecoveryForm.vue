@@ -16,11 +16,11 @@ const {
 
 <template>
   <p class="text-3xl font-semibold cursor-default">Восстановление пароля</p>
-  <p class="text-sm text-white/60 mt-1 mb-6 cursor-default">{{ step === 1 ? "Что за аккаунт?" : "Как будем восстанавливать?" }}</p>
+  <p class="text-sm text-text-muted mt-1 cursor-default">{{ step === 1 ? "Что за аккаунт?" : "Как будем восстанавливать?" }}</p>
   <form 
     v-if="step === 1"
     @submit.prevent="getContacts"
-    lass="flex flex-col"
+    class="flex flex-col mt-6"
   >
     <IdentifierField
       :field="identifier"
@@ -46,7 +46,7 @@ const {
       </AppButton>
     </div>
   </form>
-  <div v-else class="flex flex-col">
+  <div v-else class="flex flex-col mt-6">
     <AppButton
       v-if="blurredEmail"
       variant="primary"
