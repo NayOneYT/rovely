@@ -12,8 +12,8 @@ const {
 
 <template>
   <div
-    :class="status === 'READY' || status === 'RESETTING' ? 'w-130' : ''"
-    class="bg-card p-10 rounded-[40px] border border-border"
+    :class="status === 'READY' || status === 'RESETTING' ? 'w-130 rounded-[64px]' : 'rounded-[40px]'"
+    class="bg-card p-10 border border-border"
   >
     <p v-if="status === 'CHECKING'">
       <LoaderCircle class="size-10 animate-spin" />

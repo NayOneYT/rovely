@@ -6,8 +6,8 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
 
 <template>
   <div class="grid grid-cols-4">
-    <main lang="ru" class="col-start-2 col-span-2">
-      <h1 class="my-10 text-3xl text-center">{{ currentTitle }}</h1>
+    <main lang="ru" class="col-start-2 col-span-2 p-10 m-2">
+      <h1 class="text-3xl text-center">{{ currentTitle }}</h1>
       <section
         v-for="(section, sectionIndex) in currentSections"
         :key="`section-${sectionIndex}`"
@@ -38,7 +38,7 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
             <div 
               v-for="(value, key, rowIndex) in table"
               :key="`row-${sectionIndex}-${tableIndex}-${rowIndex}`"
-              class="grid grid-cols-7 border-b border-border"
+              class="grid grid-cols-7 not-last:border-b border-border"
             >
               <span class="col-span-2 px-3 py-2 border-r border-border">{{ key }}</span>
               <component
@@ -62,8 +62,8 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         </div>
       </section>
     </main>
-    <aside class="col-span-1">
-      <section class="fixed top-10 mx-10 p-4 bg-card border border-border rounded-2xl">
+    <aside class="col-span-1 flex justify-center">
+      <section class="fixed mt-2 mr-2 px-5 py-3 rounded-2xl bg-card border border-border">
         <h2 class="text-xl text-center">Навигация</h2>
         <nav class="flex flex-col mt-1">
           <RouterLink
@@ -71,7 +71,9 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
             :key="`nav-${index}`"
             :to="{ hash: `#${section.id}` }"
             :tabindex="activeSections.has(section.id) ? -1 : 0"
-            :class="activeSections.has(section.id) ? 'text-text-main pointer-events-none' : 'text-text-muted hover:text-text-main focus-visible:text-text-main'"
+            :class="activeSections.has(section.id) 
+              ? 'text-text-main pointer-events-none' 
+              : 'text-text-muted hover:text-text-main focus-visible:text-text-main'"
             class="py-0.5 transition-all duration-200"
           >
             {{ section.title }}
@@ -79,28 +81,26 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         </nav>
       </section>
     </aside>
-    <footer class="col-span-4 mt-10 border-t border-border bg-card text-sm">
-      <div class="flex flex-row items-center justify-around px-6 py-8">
-        <div class="text-text-muted">
-          <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>
-          <p class="mt-2">{{ currentFooterNote }}</p>
-        </div>
-        <div class="font-medium text-brand">
-          <RouterLink
-            :to="currentLink.to"
+    <footer class="col-start-2 col-span-2 flex justify-between text-sm p-10 rounded-[40px] mb-2 border border-border bg-card">
+      <div class="text-text-muted">
+        <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>
+        <p class="mt-2">{{ currentFooterNote }}</p>
+      </div>
+      <div class="flex flex-col items-end font-medium text-brand">
+        <RouterLink
+          :to="currentLink.to"
+          class="hover:underline focus-visible:underline"
+        >
+          {{ currentLink.label }}
+        </RouterLink>
+        <div class="flex gap-5 mt-2">
+          <RouterLink 
+            :to="{ name: 'Login' }" 
             class="hover:underline focus-visible:underline"
           >
-            {{ currentLink.label }}
+            Главная
           </RouterLink>
-          <div class="flex gap-5 mt-2">
-            <RouterLink 
-              :to="{ name: 'Login' }" 
-              class="hover:underline focus-visible:underline"
-            >
-              Главная
-            </RouterLink>
-            <a href="mailto:nayone.tapok@gmail.com" class="hover:underline focus-visible:underline">Почта поддержки</a>
-          </div>
+          <a href="mailto:nayone.tapok@gmail.com" class="hover:underline focus-visible:underline">Почта поддержки</a>
         </div>
       </div>
     </footer>
