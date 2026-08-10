@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useResetPasswordForm } from "../composables/useResetPasswordForm"
+import { AuthFormHeader, AppButton } from "@/shared/components/ui"
 import { PasswordField } from "@/shared/components/ui/fields"
-import { AppButton } from "@/shared/components/ui"
 import { LoaderCircle } from "@lucide/vue"
 
 const { 
@@ -24,18 +24,15 @@ const {
     >
       Запросите новую ссылку
     </p>
-    <form
-      v-else-if="status === 'READY' || status === 'RESETTING'"
-      @submit.prevent="reset"
-      class="flex flex-col"
-    >
-      <p class="text-3xl font-semibold cursor-default">Сброс пароля</p>
-      <p class="text-sm text-text-muted mt-1 cursor-default">Введите новый пароль</p>
+    <form v-else-if="status === 'READY' || status === 'RESETTING'" @submit.prevent="reset">
+      <AuthFormHeader
+        title="Сброс пароля"
+        subtitle="Измените пароль"
+      />
       <PasswordField
         :field="password"
         :isNewPassword="true"
         :disabled="status === 'RESETTING'"
-        class="mt-6"
       />
       <AppButton
         variant="primary"

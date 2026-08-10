@@ -6,5 +6,5 @@ defineProps<{
 </script>
 
 <template>
-  <label :for class="text-sm font-medium pb-1 self-start">{{ label }}</label>
+  <label :for class="text-sm font-medium select-none pb-1 self-start">{{ label }}</label>
 </template>

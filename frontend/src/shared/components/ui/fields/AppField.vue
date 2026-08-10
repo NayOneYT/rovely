@@ -39,7 +39,7 @@ const emit = defineEmits<{
     @blur="emit('blur')"
     :disabled
     class="
-      w-full placeholder:text-placeholder bg-bg rounded-[13.5px] px-4 py-2.75 border border-border
+      w-full bg-bg rounded-[13.5px] px-4 py-2.75 border border-border
       focus-visible:border-brand focus-visible:shadow-glow transition-all duration-200
     "
   >

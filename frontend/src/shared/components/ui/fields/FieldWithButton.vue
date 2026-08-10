@@ -47,7 +47,7 @@ const emit = defineEmits<{
       @input="(event) => emit('input', event)"
       @blur="emit('blur')"
       :disabled="disabled"
-      class="flex-1 bg-transparent placeholder:text-placeholder px-4 py-2.75"
+      class="flex-1 bg-transparent px-4 py-2.75"
     >
     <div class="w-px h-6 transition-all bg-border group-focus-within:bg-brand group-focus-within:shadow-glow" />
     <AppButton

@@ -1,3 +1,5 @@
 export { default as AppLogo } from "./AppLogo.vue"
 export { default as AppButton } from "./AppButton.vue"
 export { default as AppCheckbox } from "./AppCheckbox.vue"
+export { default as AuthFormHeader } from "./AuthFormHeader.vue"
+export { default as AuthDivider } from "./AuthDivider.vue"

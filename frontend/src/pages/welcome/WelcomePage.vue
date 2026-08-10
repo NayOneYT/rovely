@@ -14,7 +14,7 @@ useParticlesCanvas(canvasRef)
   <MinimalLayout>
     <canvas ref="canvasRef" class="absolute size-full opacity-50" />
     <section class="relative flex justify-center items-center gap-10">
-      <div class="flex flex-col items-center w-185 cursor-default">
+      <div class="flex flex-col items-center w-185">
         <AppLogo class="text-7xl" />
         <h1 class="my-8 text-center text-lg">
           Пространство для общения, контента и взаимодействий, собранное так, чтобы привычные форматы работали 
@@ -32,7 +32,7 @@ useParticlesCanvas(canvasRef)
             <h2 class="text-xl font-semibold">
               {{ feature.title }}
             </h2>
-            <p class="text-sm text-text-muted mt-1">
+            <p class="text-hint mt-1">
               {{ feature.description }}
             </p>
           </div>

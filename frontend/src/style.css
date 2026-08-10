@@ -12,7 +12,6 @@
   --color-bg: #090909;
   --color-card: #131313;
   --color-border: #292929;
-  --color-placeholder: #ffffff66;
   --color-text-main: #ffffff;
   --color-text-muted: #ffffff99;
   --color-text-dark: #000000;
@@ -34,6 +33,10 @@
   }
 }
 
+@utility text-hint {
+  @apply text-sm text-text-muted
+}
+
 *:focus-visible {
   outline: none;
 }
@@ -43,11 +46,21 @@ body {
   background-color: var(--color-bg);
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+}
+
 .bg-grid {
   background-image:
     linear-gradient(var(--color-brand) 1px, transparent 1px),
     linear-gradient(90deg, var(--color-brand) 1px, transparent 1px);
   background-size: 48px 48px;
+}
+
+::placeholder {
+  color: #ffffff66;
+  user-select: none;
 }
 
 input:-webkit-autofill,

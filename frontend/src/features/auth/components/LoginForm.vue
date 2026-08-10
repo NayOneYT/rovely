@@ -2,8 +2,8 @@
 import { useLocalStorage } from "@vueuse/core"
 import { useLoginForm } from "../composables/useLoginForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
+import { AuthFormHeader, AppCheckbox, AppButton, AuthDivider } from "@/shared/components/ui"
 import { IdentifierField, PasswordField } from "@/shared/components/ui/fields"
-import { AppCheckbox, AppButton } from "@/shared/components/ui"
 import { Phone } from "@lucide/vue"
 import { GoogleIcon } from "@/shared/components/icons"
 
@@ -28,9 +28,11 @@ const handleGoogleLogin = () => {
 </script>
 
 <template>
-  <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "О, знакомое лицо" : "Знакомы?" }}</p>
-  <p class="text-sm text-text-muted mt-1 cursor-default">Войдите в аккаунт</p>
-  <form @submit.prevent="login" class="flex flex-col mt-6">
+  <AuthFormHeader
+    :title="theUserLoggedInOnce ? 'О, знакомое лицо' : 'Знакомы?'"
+    subtitle="Войдите в аккаунт"
+  />
+  <form @submit.prevent="login">
     <IdentifierField
       :field="identifier"
       :disabled="isProcessing"
@@ -67,18 +69,11 @@ const handleGoogleLogin = () => {
       {{ isProcessing ? "Проверка..." : "Войти" }}
     </AppButton>
   </form>
-  <div class="flex items-center mt-6">  
-    <div class="flex-1 h-px bg-linear-to-r from-transparent via-brand" />
-      <span class="text-sm text-text-muted mx-4 select-none">
-        или
-      </span>
-    <div class="flex-1 h-px bg-linear-to-r from-transparent via-brand" />
-  </div>
+  <AuthDivider />
   <AppButton
     variant="social"
     :to="{ name: 'LoginWithPhone' }"
     :disabled="isProcessing"
-    class="mt-6"
   >
     <Phone class="size-5.5 text-brand" />
     Войти по номеру телефона

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePasswordRecoveryForm } from "../composables/usePasswordRecoveryForm"
+import { AuthFormHeader, AppButton } from "@/shared/components/ui"
 import { IdentifierField } from "@/shared/components/ui/fields"
-import { AppButton } from "@/shared/components/ui"
 import { Mail } from "@lucide/vue"
 import { TelegramIcon } from "@/shared/components/icons"
 
@@ -15,13 +15,11 @@ const {
 </script>
 
 <template>
-  <p class="text-3xl font-semibold cursor-default">Восстановление пароля</p>
-  <p class="text-sm text-text-muted mt-1 cursor-default">{{ step === 1 ? "Что за аккаунт?" : "Как будем восстанавливать?" }}</p>
-  <form 
-    v-if="step === 1"
-    @submit.prevent="getContacts"
-    class="flex flex-col mt-6"
-  >
+  <AuthFormHeader
+    title="Восстановление пароля"
+    :subtitle="step === 1 ? 'Что за аккаунт?' : 'Как будем восстанавливать?'"
+  />
+  <form v-if="step === 1" @submit.prevent="getContacts">
     <IdentifierField
       :field="identifier"
       :serverError="identifierServerError"

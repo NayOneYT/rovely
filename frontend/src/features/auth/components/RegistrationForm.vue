@@ -2,8 +2,10 @@
 import { useLocalStorage } from "@vueuse/core"
 import { useRegistrationForm } from "../composables/useRegistrationForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { NameFiend, UsernameField, EmailField, PhoneField, CodeField, LoginField, PasswordField } from "@/shared/components/ui/fields"
-import { AppButton } from "@/shared/components/ui"
+import { AuthFormHeader, AppButton, AuthDivider } from "@/shared/components/ui"
+import { 
+  NameFiend, UsernameField, EmailField, PhoneField, CodeField, LoginField, PasswordField 
+} from "@/shared/components/ui/fields"
 import { GoogleIcon } from "@/shared/components/icons"
 
 const isProcessing = defineModel<boolean>({ default: false })
@@ -31,13 +33,11 @@ const handleGoogleRegistration = () => {
 </script>
 
 <template>
-  <p class="text-3xl font-semibold cursor-default">{{ theUserLoggedInOnce ? "Снова знакомимся?" : "Давайте знакомиться" }}</p>
-  <p class="text-sm text-text-muted mt-1 cursor-default">Расскажите нам о себе</p>
-  <form
-    v-if="step === 1"
-    @submit.prevent="goToNextStep"
-    class="flex flex-col mt-6"
-  >
+  <AuthFormHeader
+    :title="theUserLoggedInOnce ? 'Снова знакомимся?' : 'Давайте знакомиться'"
+    subtitle="Расскажите о себе"
+  />
+  <form v-if="step === 1" @submit.prevent="goToNextStep">
     <NameFiend
       :field="name"
       :disabled="isProcessing"
@@ -48,7 +48,7 @@ const handleGoogleRegistration = () => {
       :serverError="usernameServerError"
       class="mt-4"
     />
-    <p class="text-sm text-text-muted mt-4">Вас смогут найти по @{{ username.value.value || "username" }}</p>
+    <p class="text-hint mt-4">Вас смогут найти по @{{ username.value.value || "username" }}</p>
     <AppButton
       variant="primary"
       type="submit"
@@ -58,12 +58,7 @@ const handleGoogleRegistration = () => {
       Далее
     </AppButton>
   </form>
-  <form
-    v-if="step === 2"
-    @submit.prevent="goToNextStep"
-    class="flex flex-col mt-6"
-    novalidate
-  >
+  <form v-if="step === 2" @submit.prevent="goToNextStep" novalidate>
     <EmailField
       :field="email"
       @click="handleSendEmailVerification"
@@ -78,7 +73,7 @@ const handleGoogleRegistration = () => {
       :disabled="isProcessing"
       class="mt-4"
     />
-    <p class="text-sm text-text-muted mt-4">Достаточно указать одно из полей</p>
+    <p class="text-hint mt-4">Достаточно указать одно из полей</p>
     <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
@@ -98,11 +93,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <form
-    v-if="step === 2.5"
-    @submit.prevent="goToNextStep"
-    class="flex flex-col mt-6"
-  >
+  <form v-if="step === 2.5" @submit.prevent="goToNextStep">
     <CodeField
       :field="code"
       @click="handleSendPhoneVerification"
@@ -110,7 +101,7 @@ const handleGoogleRegistration = () => {
       :disabled="isProcessing"
       :serverError="codeServerError"
     />
-    <p class="text-sm text-text-muted mt-4">
+    <p class="text-hint mt-4">
       Чтобы получить код:<br>
       1. Перейдите в Telegram-бота — 
       <a 
@@ -144,11 +135,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <form
-    v-if="step === 3"
-    @submit="register"
-    class="flex flex-col mt-6"
-  >
+  <form v-if="step === 3" @submit="register">
     <LoginField
       :field="login"
       :disabled="isProcessing"
@@ -159,7 +146,7 @@ const handleGoogleRegistration = () => {
       :disabled="isProcessing"
       class="mt-4"
     />
-    <p class="text-sm text-text-muted mt-4">
+    <p class="text-hint mt-4">
       <span>Регистрируясь, вы принимаете </span> 
       <RouterLink 
         :to="{ name: 'Terms' }" 
@@ -199,13 +186,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <div class="flex items-center mt-6">  
-    <div class="flex-1 h-px bg-linear-to-r from-transparent via-brand" />
-      <span class="text-sm text-text-muted mx-4 select-none">
-        или
-      </span>
-    <div class="flex-1 h-px bg-linear-to-r from-transparent via-brand" />
-  </div>
+  <AuthDivider />
   <AppButton
     variant="social"
     @click="handleGoogleRegistration"
