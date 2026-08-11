@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useLegalPage } from './useLegalPage'
+import { AppTextLink } from "@/shared/components/ui"
 
 const { currentTitle, currentSections, activeSections, currentFooterNote, currentLink } = useLegalPage()
 </script>
@@ -87,20 +88,16 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         <p class="mt-2">{{ currentFooterNote }}</p>
       </div>
       <div class="flex flex-col items-end font-medium text-brand">
-        <RouterLink
-          :to="currentLink.to"
-          class="hover:underline focus-visible:underline"
-        >
+        <AppTextLink :to="currentLink.to">
           {{ currentLink.label }}
-        </RouterLink>
+        </AppTextLink>
         <div class="flex gap-5 mt-2">
-          <RouterLink 
-            :to="{ name: 'Login' }" 
-            class="hover:underline focus-visible:underline"
-          >
+          <AppTextLink :to="{ name: 'Login' }">
             Главная
-          </RouterLink>
-          <a href="mailto:nayone.tapok@gmail.com" class="hover:underline focus-visible:underline">Почта поддержки</a>
+          </AppTextLink>
+          <AppTextLink href="mailto:nayone.tapok@gmail.com">
+            Почта поддержки
+          </AppTextLink>
         </div>
       </div>
     </footer>

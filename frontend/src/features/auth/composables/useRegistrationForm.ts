@@ -130,9 +130,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           }
           const status = await phoneVerification.checkRegistration()
           if (status === "NOT_VERIFIED") {
-            phoneVerification.code.value.value = ""
             phoneVerification.codeServerError.value = undefined
-            phoneVerification.code.setErrors("")
             step.value = 2.5
             break
           }

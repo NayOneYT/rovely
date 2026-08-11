@@ -34,7 +34,7 @@
 }
 
 @utility text-hint {
-  @apply text-sm text-text-muted
+  @apply text-sm font-normal text-text-muted
 }
 
 *:focus-visible {

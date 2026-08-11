@@ -18,6 +18,8 @@ export type SendPasswordRecoveryResult = {
 export type SendPasswordRecoveryStatus = "SUCCESS" | "ERROR"
 export type ResetPasswordStatus = "CHECKING" | "TOKEN_INVALID" | "READY" | "RESETTING" | "SUCCESS"
 
+export type CheckAvailabilityResult = "AVAILABLE" | "TAKEN" | "ERROR"
+
 export type MeDto = {
   profile: {
     username: string

@@ -2,7 +2,7 @@
 import { useLocalStorage } from "@vueuse/core"
 import { useLoginForm } from "../composables/useLoginForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
-import { AuthFormHeader, AppCheckbox, AppButton, AuthDivider } from "@/shared/components/ui"
+import { AuthFormHeader, AppCheckbox, AppTextLink, AppButton, AuthDivider } from "@/shared/components/ui"
 import { IdentifierField, PasswordField } from "@/shared/components/ui/fields"
 import { Phone } from "@lucide/vue"
 import { GoogleIcon } from "@/shared/components/icons"
@@ -51,14 +51,13 @@ const handleGoogleLogin = () => {
       >
         Запомнить меня
       </AppCheckbox>
-      <RouterLink
+      <AppTextLink
         :to="{ name: 'PasswordRecovery' }"
-        :tabindex="isProcessing ? -1 : 0"
-        :class="isProcessing ? 'pointer-events-none' : ''"
-        class="text-sm font-medium text-brand hover:underline focus-visible:underline"
+        :disabled="isProcessing"
+        class="text-sm"
       >
         Забыли пароль?
-      </RouterLink>
+      </AppTextLink>
     </div>
     <AppButton
       variant="primary"
