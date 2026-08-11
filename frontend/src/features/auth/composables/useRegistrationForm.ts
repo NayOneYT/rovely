@@ -15,7 +15,7 @@ import type { RegistrationStep, CheckAvailabilityResult } from "../types"
 export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const step = ref<RegistrationStep>(1)
   const verifiedEmails = ref<Set<string>>(new Set())
-  const isEmailVerified = computed(() => emailVerification.email.value && verifiedEmails.value.has(emailVerification.email.value.value?.toLowerCase()))
+  const isEmailVerified = computed(() => emailVerification.email.value.value && verifiedEmails.value.has(emailVerification.email.value.value.toLowerCase()))
 
   const router = useRouter()
 
