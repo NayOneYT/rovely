@@ -10,7 +10,7 @@ import { useRouter } from "vue-router"
 import { useEmailVerification } from "@/features/verification/email/composables/useEmailVerification"
 import { usePhoneVerification } from "@/features/verification/phone/usePhoneVerification"
 import { toast } from "vue-sonner"
-import type { RegistrationStep } from "../types"
+import type { RegistrationStep, CheckAvailabilityResult } from "../types"
 
 export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const step = ref<RegistrationStep>(1)
@@ -45,12 +45,13 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     }
   })
 
-  const checkAvailability = async (data: CheckAvailabilityDto) => {
+  const checkAvailability = async (data: CheckAvailabilityDto): Promise<CheckAvailabilityResult> => {
     try {
       await checkAvailabilityMutation.mutateAsync(data)
-      return true
-    } catch {
-      return false
+      return "AVAILABLE"
+    } catch (error) {
+      if (error instanceof ApiError) return "TAKEN"
+      return "ERROR"
     }
   }
 
@@ -78,16 +79,16 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         ])
         if (!nameResult.valid || !usernameResult.valid) break
         if (username.value.value) {
-          const available = await checkAvailability({
+          const checkResult = await checkAvailability({
             field: "username",
             value: username.value.value
           })
-          if (!available) {
-            usernameServerError.value = "Этот username занят"
+          if (checkResult === "AVAILABLE") usernameServerError.value = undefined
+          else {
+            if (checkResult === "TAKEN") usernameServerError.value = "Этот username занят"
             break
           }
         }
-        usernameServerError.value = undefined
         step.value = 2
         break
       case 2:
@@ -101,12 +102,13 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         ])
         if (!emailResult.valid || !phoneResult.valid) break
         if (emailVerification.email.value.value) {
-          const available = await checkAvailability({
+          const checkResult = await checkAvailability({
             field: "email",
             value: emailVerification.email.value.value
           })
-          if (!available) {
-            emailVerification.emailServerError.value = "Этот email занят"
+          if (checkResult === "AVAILABLE") emailVerification.emailServerError.value = undefined
+          else {
+            if (checkResult === "TAKEN") emailVerification.emailServerError.value = "Этот email занят"
             break
           }
           const status = await emailVerification.checkRegistration()
@@ -117,12 +119,13 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           verifiedEmails.value.add(emailVerification.email.value.value.toLowerCase())
         }
         if (phoneVerification.phone.value.value) {
-          const available = await checkAvailability({
+          const checkResult = await checkAvailability({
             field: "phone",
             value: phoneVerification.phone.value.value
           })
-          if (!available) {
-            phoneVerification.phoneServerError.value = "Этот номер телефона занят"
+          if (checkResult === "AVAILABLE") phoneVerification.phoneServerError.value = undefined
+          else {
+            if (checkResult === "TAKEN") phoneVerification.phoneServerError.value = "Этот номер телефона занят"
             break
           }
           const status = await phoneVerification.checkRegistration()
