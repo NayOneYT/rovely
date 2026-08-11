@@ -1,4 +1,4 @@
-import { useForm, useField } from "vee-validate"
+import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { registerSchema, type CheckAvailabilityDto } from "../schema"
 import { useNameField, useUsernameField, useLoginField, usePasswordField } from "@/shared/composables/fields"

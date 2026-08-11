@@ -1,21 +1,9 @@
-import { useField } from "vee-validate"
-import { toTypedSchema } from "@vee-validate/zod"
+import { useAppField } from "./useAppField"
 import { phoneSchema } from "@/shared/schemas"
-import { watch } from "vue"
 import { AsYouType } from "libphonenumber-js"
 
 export const usePhoneField = (controlled: boolean = true) => {
-  const {
-    value,
-    errorMessage: clientError,
-    validate,
-    meta,
-    handleBlur,
-    handleChange
-  } = useField("phone", toTypedSchema(phoneSchema), {
-    validateOnValueUpdate: false,
-    controlled
-  })
+  const field = useAppField("phone", phoneSchema, controlled)
 
   const onInput = (event: Event) => {
     const input = event.target as HTMLInputElement
@@ -23,19 +11,8 @@ export const usePhoneField = (controlled: boolean = true) => {
     if (raw && !raw.startsWith('+')) raw = '+' + raw
     const formatted = new AsYouType().input(raw)
     input.value = formatted
-    handleChange(formatted, false)
+    field.handleChange(formatted, false)
   }
 
-  watch(value, () => {
-    if (meta.touched) validate()
-  })
-
-  const onBlur = () => {
-    if (meta.dirty) {
-      handleBlur()
-      validate()
-    }
-  }
-
-  return { value, clientError, validate, onInput, onBlur }
+  return { ...field, onInput }
 }
