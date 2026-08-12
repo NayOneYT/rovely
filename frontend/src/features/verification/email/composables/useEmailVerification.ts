@@ -64,6 +64,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
   const send = async (): Promise<SendStatus> => {
     try {
       isProcessing.value = true
+      emailServerError.value = undefined
       const emailResult = await email.validate()
       if (!emailResult.valid) return "VALIDATION_ERROR"
       await sendMutation.mutateAsync({

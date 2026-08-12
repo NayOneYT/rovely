@@ -51,6 +51,8 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
         code.validate()
       ])
       if (!phoneResult.valid || !codeResult.valid) return "VALIDATION_ERROR"
+      phoneServerError.value = undefined
+      codeServerError.value = undefined
       await verifyMutation.mutateAsync({
         phone: phone.value.value,
         code: code.value.value,
@@ -120,6 +122,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
       isProcessing.value = true
       const phoneResult = await phone.validate()
       if (!phoneResult.valid) return "VALIDATION_ERROR"
+      phoneServerError.value = undefined
       await sendMutation.mutateAsync({
         phone: phone.value.value,
         name: toValue(externalName),

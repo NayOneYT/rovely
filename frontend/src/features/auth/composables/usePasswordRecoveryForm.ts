@@ -43,6 +43,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
   const getContacts = handleSubmit(async (values) => {
     try {
       isProcessing.value = true
+      identifierServerError.value = undefined
       await getContactsMutation.mutateAsync(values)
       step.value = 2
     } catch { } finally {
@@ -80,6 +81,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
 
   const send = async (to: "EMAIL" | "PHONE"): Promise<SendPasswordRecoveryStatus> => {
     try {
+      isProcessing.value = true
       await sendMutation.mutateAsync({ identifier: identifier.value.value, to })
       return "SUCCESS"
     } catch {

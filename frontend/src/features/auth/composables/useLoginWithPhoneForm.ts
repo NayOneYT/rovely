@@ -71,6 +71,8 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const login = handleSubmit(async (values) => {
     try {
       isProcessing.value = true
+      phoneServerError.value = undefined
+      codeServerError.value = undefined
       await loginMutation.mutateAsync(values)
     } catch { } finally {
       isProcessing.value = false
@@ -80,7 +82,6 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const sendMutation = useMutation({
     mutationFn: authApi.sendLoginWithPhone,
     onSuccess: (data) => {
-      codeServerError.value = undefined
       startTimer(phone.value.value, data.timeLeftMs)
       toast.success("Код для входа отправлен в Telegram")
     },
@@ -105,6 +106,8 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const send = async () => {
     try {
       isProcessing.value = true
+      phoneServerError.value = undefined
+      codeServerError.value = undefined
       const phoneResult = await phone.validate()
       if (!phoneResult.valid) return
       await sendMutation.mutateAsync({ phone: phone.value.value })

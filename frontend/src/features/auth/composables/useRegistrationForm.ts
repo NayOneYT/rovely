@@ -79,12 +79,12 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         ])
         if (!nameResult.valid || !usernameResult.valid) break
         if (username.value.value) {
+          usernameServerError.value = undefined
           const checkResult = await checkAvailability({
             field: "username",
             value: username.value.value
           })
-          if (checkResult === "AVAILABLE") usernameServerError.value = undefined
-          else {
+          if (checkResult === "TAKEN" || checkResult === "ERROR") {
             if (checkResult === "TAKEN") usernameServerError.value = "Этот username занят"
             break
           }
@@ -102,12 +102,12 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
         ])
         if (!emailResult.valid || !phoneResult.valid) break
         if (emailVerification.email.value.value) {
+          emailVerification.emailServerError.value = undefined
           const checkResult = await checkAvailability({
             field: "email",
             value: emailVerification.email.value.value
           })
-          if (checkResult === "AVAILABLE") emailVerification.emailServerError.value = undefined
-          else {
+          if (checkResult === "TAKEN" || checkResult === "ERROR") {
             if (checkResult === "TAKEN") emailVerification.emailServerError.value = "Этот email занят"
             break
           }
@@ -119,12 +119,12 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           verifiedEmails.value.add(emailVerification.email.value.value.toLowerCase())
         }
         if (phoneVerification.phone.value.value) {
+          phoneVerification.phoneServerError.value = undefined
           const checkResult = await checkAvailability({
             field: "phone",
             value: phoneVerification.phone.value.value
           })
-          if (checkResult === "AVAILABLE") phoneVerification.phoneServerError.value = undefined
-          else {
+          if (checkResult === "TAKEN" || checkResult === "ERROR") {
             if (checkResult === "TAKEN") phoneVerification.phoneServerError.value = "Этот номер телефона занят"
             break
           }
@@ -187,6 +187,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
   const register = handleSubmit(async (values) => {
     try {
       isProcessing.value = true
+      loginServerError.value = undefined
       await registerMutation.mutateAsync(values)
     } catch { } finally {
       isProcessing.value = false

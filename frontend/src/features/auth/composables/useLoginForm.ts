@@ -67,6 +67,8 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
   const login = handleSubmit(async (values) => {
     try {
       isProcessing.value = true
+      identifierServerError.value = undefined
+      passwordServerError.value = undefined
       await loginMutation.mutateAsync(values)
     } catch { } finally {
       isProcessing.value = false
