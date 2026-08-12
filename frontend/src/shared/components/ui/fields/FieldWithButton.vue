@@ -29,12 +29,18 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <FieldLabel v-bind="$attrs" :for="id" :label />
+  <FieldLabel
+    v-bind="$attrs"
+    :for="id"
+    :label
+    :disabled
+  />
   <div 
     class="
       group flex items-center w-full bg-bg rounded-[13.5px] border border-border 
       focus-within:border-brand focus-within:shadow-glow transition-all duration-200
     "
+    :class="disabled ? 'opacity-50' : ''"
   >
     <input
       :type

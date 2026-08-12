@@ -41,7 +41,7 @@ defineProps<{
     :class="[
       baseClasses,
       variantClasses[variant],
-      disabled ? 'pointer-events-none' : ''
+      disabled ? 'opacity-50 pointer-events-none' : ''
     ]"
   >
     <slot />

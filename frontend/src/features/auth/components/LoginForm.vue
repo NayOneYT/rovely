@@ -65,7 +65,7 @@ const handleGoogleLogin = () => {
       :disabled="isProcessing"
       class="mt-6"
     >
-      {{ isProcessing ? "Проверка..." : "Войти" }}
+      Войти
     </AppButton>
   </form>
   <AuthDivider />

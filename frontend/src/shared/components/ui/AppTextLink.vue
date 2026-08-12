@@ -14,8 +14,8 @@ defineProps<{
     :to
     :target
     :tabindex="disabled ? -1 : 0"
-    :class="disabled ? 'pointer-events-none' : ''"
-    class="font-medium text-brand hover:underline focus-visible:underline"
+    :class="disabled ? 'opacity-50 pointer-events-none' : ''"
+    class="font-medium text-brand hover:underline focus-visible:underline transition-all duration-200"
   >
     <slot />
   </RouterLink>
@@ -24,8 +24,8 @@ defineProps<{
     :href
     :target
     :tabindex="disabled ? -1 : 0"
-    :class="disabled ? 'pointer-events-none' : ''"
-    class="font-medium text-brand hover:underline focus-visible:underline"
+    :class="disabled ? 'opacity-50 pointer-events-none' : ''"
+    class="font-medium text-brand hover:underline focus-visible:underline transition-all duration-200"
   >
     <slot />
   </a>

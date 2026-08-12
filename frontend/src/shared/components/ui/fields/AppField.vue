@@ -26,7 +26,12 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <FieldLabel v-bind="$attrs" :for="id" :label />
+  <FieldLabel
+    v-bind="$attrs"
+    :for="id" 
+    :label
+    :disabled
+  />
   <input
     :type
     :id
@@ -39,7 +44,7 @@ const emit = defineEmits<{
     @blur="emit('blur')"
     :disabled
     class="
-      w-full bg-bg rounded-[13.5px] px-4 py-2.75 border border-border
+      w-full bg-bg rounded-[13.5px] px-4 py-2.75 border border-border disabled:opacity-50
       focus-visible:border-brand focus-visible:shadow-glow transition-all duration-200
     "
   >

@@ -25,26 +25,26 @@ const isRegistration = computed<boolean>(() => currentForm.value === Registratio
       <RouterLink
         :to="{ name: 'Login' }"
         :tabindex="isProcessing || isLogin ? -1 : 0"
-        :class="[
-          isProcessing || isLogin ? 'pointer-events-none' : '', 
-          isLogin
-            ? 'text-text-dark font-bold' 
-            : 'text-text-muted cursor-pointer hover:text-text-main focus-visible:text-text-main'
-        ]"
         class="relative w-full text-center px-5 py-3 transition-all duration-200" 
+        :class="[
+          isLogin 
+            ? 'text-text-dark font-bold pointer-events-none' 
+            : 'text-text-muted cursor-pointer hover:text-text-main focus-visible:text-text-main',
+          isProcessing && !isLogin ? 'pointer-events-none opacity-50' : ''
+        ]"
       >
         Вход
       </RouterLink>
       <RouterLink
         :to="{ name: 'Registration' }"
         :tabindex="isProcessing || isRegistration ? -1 : 0"
-        :class="[
-          isProcessing || isRegistration ? 'pointer-events-none' : '', 
-          isRegistration  
-            ? 'text-text-dark font-bold' 
-            : 'text-text-muted cursor-pointer hover:text-text-main focus-visible:text-text-main'
-        ]"
         class="relative w-full text-center px-5 py-3 transition-all duration-200"
+        :class="[
+          isRegistration
+            ? 'text-text-dark font-bold pointer-events-none' 
+            : 'text-text-muted cursor-pointer hover:text-text-main focus-visible:text-text-main',
+          isProcessing && !isRegistration ? 'opacity-50 pointer-events-none' : ''
+        ]"
       >
         Регистрация
       </RouterLink>

@@ -11,7 +11,7 @@ defineProps<{
 <template>
   <label 
     class="group flex items-center gap-1.5 text-sm font-medium"
-    :class="disabled ? '' : 'cursor-pointer'"
+    :class="disabled ? 'opacity-50' : 'cursor-pointer'"
   >
     <input 
       type="checkbox" 
