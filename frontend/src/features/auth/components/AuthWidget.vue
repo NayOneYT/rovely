@@ -19,7 +19,7 @@ const isRegistration = computed<boolean>(() => currentForm.value === Registratio
       class="relative flex mb-6 bg-bg rounded-full select-none"
     >
       <div
-        class="absolute top-0 bottom-0 w-1/2 bg-brand rounded-full transition-all duration-200"
+        class="absolute top-0 bottom-0 w-1/2 border border-brand rounded-full transition-all duration-200"
         :class="isRegistration ? 'translate-x-full' : 'translate-x-0'"
       />
       <RouterLink
@@ -28,7 +28,7 @@ const isRegistration = computed<boolean>(() => currentForm.value === Registratio
         class="relative w-full text-center px-5 py-3 transition-all duration-200" 
         :class="[
           isLogin 
-            ? 'text-text-dark font-bold pointer-events-none' 
+            ? 'text-text-main pointer-events-none' 
             : 'text-text-muted cursor-pointer hover:text-text-main focus-visible:text-text-main',
           isProcessing && !isLogin ? 'pointer-events-none opacity-50' : ''
         ]"
@@ -41,7 +41,7 @@ const isRegistration = computed<boolean>(() => currentForm.value === Registratio
         class="relative w-full text-center px-5 py-3 transition-all duration-200"
         :class="[
           isRegistration
-            ? 'text-text-dark font-bold pointer-events-none' 
+            ? 'text-text-main pointer-events-none' 
             : 'text-text-muted cursor-pointer hover:text-text-main focus-visible:text-text-main',
           isProcessing && !isRegistration ? 'opacity-50 pointer-events-none' : ''
         ]"
