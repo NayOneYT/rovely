@@ -1,19 +1,31 @@
+import { type Ref, watch } from "vue"
 import { useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { watch } from "vue"
 import type { ZodSchema } from "zod"
 
-export const useAppField = (name: string, schema?: ZodSchema, controlled: boolean = true) => {
+export const useAppField = ({
+  name,
+  externalValue,
+  schema,
+  controlled = true
+}: {
+  name: string,
+  externalValue?: Ref<any>,
+  schema?: ZodSchema,
+  controlled?: boolean
+}) => {
   const {
     errorMessage: clientError,
     ...field
   } = useField(name, schema ? toTypedSchema(schema) : undefined, {
     validateOnValueUpdate: false,
+    initialValue: externalValue?.value,
     controlled
   })
 
-  watch(field.value, () => {
+  watch(field.value, (newValue) => {
     if (field.meta.touched) field.validate()
+    if (externalValue) externalValue.value = newValue
   })
 
   const onBlur = () => {

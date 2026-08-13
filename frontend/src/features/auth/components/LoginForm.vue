@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useLocalStorage } from "@vueuse/core"
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 import { useLoginForm } from "../composables/useLoginForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { AuthFormHeader, AppCheckbox, AppTextLink, AppButton, AuthDivider } from "@/shared/components/ui"
@@ -7,19 +8,17 @@ import { IdentifierField, PasswordField } from "@/shared/components/ui/fields"
 import { Phone } from "@lucide/vue"
 import { GoogleIcon } from "@/shared/components/icons"
 
-const isProcessing = defineModel<boolean>({ default: false })
-const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
+const { theUserLoggedInOnce, rememberMe, isProcessing } = storeToRefs(useAuthStore())
 
 const { 
   identifier, identifierServerError,
   password, passwordServerError,
-  rememberMe,
   login
-} = useLoginForm(isProcessing)
+} = useLoginForm()
 
 const { 
   googleClient
-} = useGoogleAuth(isProcessing)
+} = useGoogleAuth()
 
 const handleGoogleLogin = () => {
   isProcessing.value = true

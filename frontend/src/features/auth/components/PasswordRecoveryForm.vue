@@ -1,25 +1,29 @@
 <script setup lang="ts">
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 import { usePasswordRecoveryForm } from "../composables/usePasswordRecoveryForm"
 import { AuthFormHeader, AppButton } from "@/shared/components/ui"
 import { IdentifierField } from "@/shared/components/ui/fields"
 import { Mail } from "@lucide/vue"
 import { TelegramIcon } from "@/shared/components/icons"
 
-const isProcessing = defineModel<boolean>({ default: false })
+const { 
+  passwordRecoveryStep, passwordRecoveryBlurredEmail, passwordRecoveryBlurredPhone, isProcessing
+} = storeToRefs(useAuthStore())
 
 const {
   identifier, identifierServerError,
-  step, blurredEmail, blurredPhone, sendEmailCooldown, sendTelegramMessageCooldown,
+  sendEmailCooldown, sendTelegramMessageCooldown,
   getContacts, send
-} = usePasswordRecoveryForm(isProcessing)
+} = usePasswordRecoveryForm()
 </script>
 
 <template>
   <AuthFormHeader
     title="Восстановление пароля"
-    :subtitle="step === 1 ? 'Что за аккаунт?' : 'Как будем восстанавливать?'"
+    :subtitle="passwordRecoveryStep === 1 ? 'Что за аккаунт?' : 'Как будем восстанавливать?'"
   />
-  <form v-if="step === 1" @submit.prevent="getContacts">
+  <form v-if="passwordRecoveryStep === 1" @submit.prevent="getContacts">
     <IdentifierField
       :field="identifier"
       :serverError="identifierServerError"
@@ -46,12 +50,12 @@ const {
   </form>
   <div v-else class="flex flex-col mt-6">
     <AppButton
-      v-if="blurredEmail"
+      v-if="passwordRecoveryBlurredEmail"
       variant="primary"
       @click="send('EMAIL')"
       :disabled="isProcessing || !!sendEmailCooldown"
     >
-      Письмо на {{ blurredEmail }}
+      Письмо на {{ passwordRecoveryBlurredEmail }}
       <Mail class="ml-2 mr-1 size-6" />
       <span
         v-if="!!sendEmailCooldown" 
@@ -61,13 +65,13 @@ const {
       </span>
     </AppButton>
     <AppButton
-      v-if="blurredPhone"
+      v-if="passwordRecoveryBlurredPhone"
       variant="primary"
       @click="send('PHONE')"
       :disabled="isProcessing || !!sendTelegramMessageCooldown"
       class="mt-4"
     >
-      Сообщение на {{ blurredPhone }}
+      Сообщение на {{ passwordRecoveryBlurredPhone }}
       <TelegramIcon class="ml-2.5 mr-0.5 size-6 scale-125" />
       <span 
         v-if="!!sendTelegramMessageCooldown" 
@@ -78,7 +82,7 @@ const {
     </AppButton>
     <AppButton
       variant="secondary"
-      @click="step = 1"
+      @click="passwordRecoveryStep = 1"
       :disabled="isProcessing"
       class="mt-6"
     >

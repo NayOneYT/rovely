@@ -14,7 +14,7 @@ const checkRegistrationSchema = z.object({
   phone: phoneSchema
 })
 
-const sendSchema = z.object({
+export const sendSchema = z.object({
   phone: phoneSchema,
   name: makeOptional(nameSchema),
   accountId: makeOptional(accountIdSchema)

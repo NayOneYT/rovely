@@ -1,19 +1,19 @@
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { loginSchema } from "../schema"
 import { useIdentifierField, usePasswordField } from "@/shared/composables/fields"
-import { ref, watch, type Ref } from "vue"
+import { ref, watch } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../api"
 import { useRouter } from "vue-router"
 import { ApiError, ErrorCode } from "@/shared/api/types"
-import { useLocalStorage } from "@vueuse/core"
 import { toast } from "vue-sonner"
 
-export const useLoginForm = (isProcessing: Ref<boolean>) => {
+export const useLoginForm = () => {
+  const { theUserLoggedInOnce, loginIdentifier, loginPassword, rememberMe, isProcessing } = storeToRefs(useAuthStore())
   const router = useRouter()
-  const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
-  const rememberMe = useLocalStorage("rememberMe", false)
 
   const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(loginSchema)
@@ -22,13 +22,13 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
   const identifierServerError = ref<string>()
   const passwordServerError = ref<string>()
 
-  const identifier = useIdentifierField()
+  const identifier = useIdentifierField(loginIdentifier)
   watch(identifier.value, () => {
     identifierServerError.value = undefined
     passwordServerError.value = undefined
   })
 
-  const password = usePasswordField()
+  const password = usePasswordField(loginPassword)
   watch(password.value, () => passwordServerError.value = undefined)
 
   const {
@@ -78,7 +78,6 @@ export const useLoginForm = (isProcessing: Ref<boolean>) => {
   return {
     identifier, identifierServerError,
     password, passwordServerError,
-    rememberMe,
     login
   }
 }

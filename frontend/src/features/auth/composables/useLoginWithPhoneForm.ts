@@ -1,20 +1,35 @@
+import { useTimer } from "@/shared/composables"
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { loginWithPhoneSchema } from "../schema"
 import { usePhoneField, useCodeField } from "@/shared/composables/fields"
-import { ref, computed, watch, onUnmounted, type Ref } from "vue"
-import { useMessageTimer } from "@/shared/composables/useMessageTimer"
+import { ref, computed, watch } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../api"
 import { useRouter } from "vue-router"
-import { useLocalStorage } from "@vueuse/core"
 import { ApiError, ErrorCode } from "@/shared/api/types"
 import { toast } from "vue-sonner"
 
-export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
+export const useLoginWithPhoneForm = () => {
+  const {
+    theUserLoggedInOnce,
+    loginWithPhonePhone, loginWithPhoneCode, loginWithPhoneSendCooldownsUntilMs,
+    rememberMe,
+    isProcessing
+  } = storeToRefs(useAuthStore())
+
+  const { createNewTimer, formattedTime } = useTimer(loginWithPhoneSendCooldownsUntilMs)
+  const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
+
+  const now = Date.now()
+  Object.entries(loginWithPhoneSendCooldownsUntilMs.value).forEach(([phone, sendCooldownUntilMs]) => {
+    if (sendCooldownUntilMs <= now) delete loginWithPhoneSendCooldownsUntilMs.value[phone]
+    else createNewTimer(phone, sendCooldownUntilMs)
+  })
+
   const router = useRouter()
-  const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
-  const rememberMe = useLocalStorage("rememberMe", false)
 
   const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(loginWithPhoneSchema)
@@ -23,16 +38,14 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const phoneServerError = ref<string>()
   const codeServerError = ref<string>()
 
-  const phone = usePhoneField()
+  const phone = usePhoneField(loginWithPhonePhone)
   watch(phone.value, () => {
     phoneServerError.value = undefined
     codeServerError.value = undefined
   })
 
-  const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
-  const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
 
-  const code = useCodeField()
+  const code = useCodeField(loginWithPhoneCode)
   watch(code.value, () => codeServerError.value = undefined)
 
   const {
@@ -82,7 +95,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
   const sendMutation = useMutation({
     mutationFn: authApi.sendLoginWithPhone,
     onSuccess: (data) => {
-      startTimer(phone.value.value, data.timeLeftMs)
+      createNewTimer(phone.value.value, data.timeLeftMs)
       toast.success("Код для входа отправлен в Telegram")
     },
     onError: (error) => {
@@ -93,7 +106,7 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Код для входа недавно уже был отправлен")
-            startTimer(phone.value.value, error.timeLeftMs)
+            createNewTimer(phone.value.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")
@@ -117,12 +130,9 @@ export const useLoginWithPhoneForm = (isProcessing: Ref<boolean>) => {
     }
   }
 
-  onUnmounted(clearAllTimers)
-
   return {
     phone, phoneServerError,
     code, codeServerError, sendCooldown,
-    rememberMe,
     login, send
   }
 }

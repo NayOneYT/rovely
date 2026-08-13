@@ -1,38 +1,48 @@
-import { ref, watch, computed, onUnmounted, type Ref } from "vue"
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
+import { useTimer } from "@/shared/composables"
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { passwordRecoveryContactsSchema } from "../schema"
+import { ref, watch, computed } from "vue"
 import { useIdentifierField } from "@/shared/composables/fields"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
 import { toast } from "vue-sonner"
-import { usePasswordRecoveryTimer } from "./usePasswordRecoveryTimer"
-import type { PasswordRecoveryStep, SendPasswordRecoveryStatus } from "../types"
 
-export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
+export const usePasswordRecoveryForm = () => {
+  const {
+    passwordRecoveryStep, passwordRecoveryIdentifier,
+    passwordRecoveryBlurredEmail, passwordRecoverySendEmailCooldownsUntilMs,
+    passwordRecoveryBlurredPhone, passwordRecoverySendTelegramMessageCooldownsUntilMs,
+    isProcessing
+  } = storeToRefs(useAuthStore())
 
-  const step = ref<PasswordRecoveryStep>(1)
-  const blurredEmail = ref<string>()
-  const blurredPhone = ref<string>()
+  const {
+    createNewTimer: createNewEmailTimer, formattedTime: formattedEmailTime
+  } = useTimer(passwordRecoverySendEmailCooldownsUntilMs)
+
+  const {
+    createNewTimer: createNewTelegramMessageTimer, formattedTime: formattedTelegramMessageTime
+  } = useTimer(passwordRecoverySendTelegramMessageCooldownsUntilMs)
+
+  const sendEmailCooldown = computed(() => formattedEmailTime(identifier.value.value?.toLowerCase()))
+  const sendTelegramMessageCooldown = computed(() => formattedTelegramMessageTime(identifier.value.value))
 
   const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(passwordRecoveryContactsSchema)
   })
 
-  const identifier = useIdentifierField()
+  const identifier = useIdentifierField(passwordRecoveryIdentifier)
   const identifierServerError = ref<string>()
   watch(identifier.value, () => identifierServerError.value = undefined)
-
-  const { startTimer, formattedTime, clearAllTimers } = usePasswordRecoveryTimer()
-  const sendEmailCooldown = computed(() => formattedTime("EMAIL", identifier.value.value?.toLowerCase()))
-  const sendTelegramMessageCooldown = computed(() => formattedTime("PHONE", identifier.value.value?.toLowerCase()))
 
   const getContactsMutation = useMutation({
     mutationFn: authApi.getPasswordRecoveryContacts,
     onSuccess: (data) => {
-      blurredEmail.value = data.email
-      blurredPhone.value = data.phone
+      passwordRecoveryBlurredEmail.value = data.email
+      passwordRecoveryBlurredPhone.value = data.phone
     },
     onError: (error) => {
       if (error instanceof ApiError) identifierServerError.value = "Аккаунт не найден"
@@ -45,7 +55,7 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
       isProcessing.value = true
       identifierServerError.value = undefined
       await getContactsMutation.mutateAsync(values)
-      step.value = 2
+      passwordRecoveryStep.value = 2
     } catch { } finally {
       isProcessing.value = false
     }
@@ -54,48 +64,49 @@ export const usePasswordRecoveryForm = (isProcessing: Ref<boolean>) => {
   const sendMutation = useMutation({
     mutationFn: authApi.sendPasswordRecovery,
     onSuccess: (data) => {
-      toast.success(data.to === "EMAIL"
-        ? "Письмо для восстановления отправлено"
-        : "Сообщение для восстановления отправлено в Telegram"
-      )
-      startTimer(data.to, identifier.value.value.toLowerCase(), data.timeLeftMs)
+      if (data.to === "EMAIL") {
+        toast.success("Письмо для восстановления отправлено")
+        createNewEmailTimer(identifier.value.value.toLowerCase(), data.timeLeftMs)
+      } else {
+        toast.success("Сообщение для восстановления отправлено в Telegram")
+        createNewTelegramMessageTimer(identifier.value.value, data.timeLeftMs)
+      }
     },
     onError: (error) => {
       if (error instanceof ApiError) {
         switch (error.code) {
           case ErrorCode.SEND_EMAIL_COOLDOWN:
             toast.info("Письмо для восстановления недавно уже было отправлено")
-            startTimer("EMAIL", identifier.value.value.toLowerCase(), error.timeLeftMs)
+            createNewEmailTimer(identifier.value.value.toLowerCase(), error.timeLeftMs)
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Сообщение для восстановления недавно уже было отправлено")
-            startTimer("PHONE", identifier.value.value, error.timeLeftMs)
+            createNewTelegramMessageTimer(identifier.value.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")
+            break
+          default:
+            toast.error("Произошла ошибка, попробуйте еще раз")
+            passwordRecoveryStep.value = 1
             break
         }
       } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 
-  const send = async (to: "EMAIL" | "PHONE"): Promise<SendPasswordRecoveryStatus> => {
+  const send = async (to: "EMAIL" | "PHONE") => {
     try {
       isProcessing.value = true
       await sendMutation.mutateAsync({ identifier: identifier.value.value, to })
-      return "SUCCESS"
-    } catch {
-      return "ERROR"
-    } finally {
+    } catch { } finally {
       isProcessing.value = false
     }
   }
 
-  onUnmounted(clearAllTimers)
-
   return {
     identifier, identifierServerError,
-    step, blurredEmail, blurredPhone, sendEmailCooldown, sendTelegramMessageCooldown,
+    sendEmailCooldown, sendTelegramMessageCooldown,
     getContacts, send
   }
 }

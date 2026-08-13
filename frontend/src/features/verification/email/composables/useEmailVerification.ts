@@ -1,19 +1,31 @@
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 import { useEmailField } from "@/shared/composables/fields"
-import { ref, watch, computed, onUnmounted, type Ref, toValue } from "vue"
+import { ref, watch, computed } from "vue"
 import { useMutation } from "@tanstack/vue-query"
 import { emailVerificationApi } from "../api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
-import { useEmailVerificationTimer } from "./useTimer"
+import { useTimer } from "@/shared/composables"
 import { toast } from "vue-sonner"
+import { sendSchema } from "../schema"
 import type { CheckRegistrationStatus, SendStatus } from "../types"
 
-export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: Ref<string> | string, accountId?: string) => {
-  const email = useEmailField()
+export const useEmailVerification = (accountId?: string) => {
+  const {
+    registrationName, registrationEmail, registrationSendEmailCooldownsUntilMs, isProcessing
+  } = storeToRefs(useAuthStore())
+
+  const currentName = registrationName
+  const currentEmail = registrationEmail
+  const currentCooldowns = registrationSendEmailCooldownsUntilMs
+  const currentIsProcessing = isProcessing
+
+  const email = useEmailField(currentEmail)
   const emailServerError = ref<string>()
   watch(email.value, () => emailServerError.value = undefined)
 
-  const { startTimer, formattedTime, clearAllTimers } = useEmailVerificationTimer()
-  const sendCooldown = computed(() => formattedTime(email.value.value?.toLowerCase()))
+  const { createNewTimer, formattedTime } = useTimer(currentCooldowns)
+  const sendCooldown = computed(() => formattedTime(email.value.value.toLowerCase()))
 
   const checkRegistrationMutation = useMutation({
     mutationFn: emailVerificationApi.checkRegistration,
@@ -28,7 +40,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
   const checkRegistration = async (): Promise<CheckRegistrationStatus> => {
     try {
       if (!email.value.value) return "VALIDATION_ERROR"
-      isProcessing.value = true
+      currentIsProcessing.value = true
       const emailResult = await email.validate()
       if (!emailResult.valid) return "VALIDATION_ERROR"
       await checkRegistrationMutation.mutateAsync({ email: email.value.value })
@@ -36,7 +48,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
     } catch {
       return "NOT_VERIFIED"
     } finally {
-      isProcessing.value = false
+      currentIsProcessing.value = false
     }
   }
 
@@ -44,7 +56,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
     mutationFn: emailVerificationApi.send,
     onSuccess: (data) => {
       toast.success("Письмо для подтверждения отправлено")
-      startTimer(email.value.value.toLowerCase(), data.timeLeftMs)
+      createNewTimer(email.value.value.toLowerCase(), data.timeLeftMs)
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -54,7 +66,7 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
             break
           case ErrorCode.SEND_EMAIL_COOLDOWN:
             toast.info("Письмо для подтверждения недавно уже было отправлено")
-            startTimer(email.value.value.toLowerCase(), error.timeLeftMs)
+            createNewTimer(email.value.value.toLowerCase(), error.timeLeftMs)
             break
         }
       } else toast.error("Что-то пошло не так, попробуйте позже")
@@ -63,25 +75,23 @@ export const useEmailVerification = (isProcessing: Ref<boolean>, externalName: R
 
   const send = async (): Promise<SendStatus> => {
     try {
-      isProcessing.value = true
+      currentIsProcessing.value = true
       emailServerError.value = undefined
-      const emailResult = await email.validate()
-      if (!emailResult.valid) return "VALIDATION_ERROR"
-      await sendMutation.mutateAsync({
-        name: toValue(externalName),
+      const parseResult = sendSchema.safeParse({
+        name: currentName.value,
         email: email.value.value,
         accountId
       })
+      if (!parseResult.success) return "VALIDATION_ERROR"
+      await sendMutation.mutateAsync(parseResult.data)
       return "SUCCESS"
     } catch (error) {
       if (error instanceof ApiError && error.code === ErrorCode.EMAIL_ALREADY_VERIFIED) return "ALREADY_VERIFIED"
       return "ERROR"
     } finally {
-      isProcessing.value = false
+      currentIsProcessing.value = false
     }
   }
-
-  onUnmounted(clearAllTimers)
 
   return {
     email, emailServerError, sendCooldown,

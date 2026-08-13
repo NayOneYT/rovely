@@ -1,24 +1,37 @@
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 import { usePhoneField, useCodeField } from "@/shared/composables/fields"
-import { watch, ref, computed, onUnmounted, type Ref, toValue } from "vue"
+import { watch, ref, computed } from "vue"
 import { useField } from "vee-validate"
 import { useMutation } from "@tanstack/vue-query"
 import { phoneVerificationApi } from "./api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
-import { useMessageTimer } from "@/shared/composables/useMessageTimer"
+import { useTimer } from "@/shared/composables"
 import { toast } from "vue-sonner"
+import { sendSchema } from "./schema"
 import type { CheckRegistrationStatus, SendStatus, VerifyStatus } from "./types"
 
-export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: Ref<string> | string, accountId?: string) => {
-  const phone = usePhoneField()
+export const usePhoneVerification = (accountId?: string) => {
+  const {
+    registrationName, registrationPhone, registrationCode, registrationSendTelegramMessageCooldownsUntilMs, isProcessing
+  } = storeToRefs(useAuthStore())
+
+  const currentName = registrationName
+  const currentPhone = registrationPhone
+  const currentCode = registrationCode
+  const currentCooldowns = registrationSendTelegramMessageCooldownsUntilMs
+  const currentIsProcessing = isProcessing
+
+  const phone = usePhoneField(currentPhone)
   const phoneServerError = ref<string>()
   watch(phone.value, () => phoneServerError.value = undefined)
 
-  const { startTimer, formattedTime, clearAllTimers } = useMessageTimer()
-  const sendCooldown = computed(() => formattedTime(phone.value.value))
-
-  const code = useCodeField(false)
+  const code = useCodeField(currentCode, false)
   const codeServerError = ref<string>()
   watch(code.value, () => codeServerError.value = undefined)
+
+  const { createNewTimer, formattedTime } = useTimer(currentCooldowns)
+  const sendCooldown = computed(() => formattedTime(phone.value.value))
 
   useField("accountId", undefined, {
     initialValue: accountId,
@@ -45,7 +58,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
 
   const verify = async (): Promise<VerifyStatus> => {
     try {
-      isProcessing.value = true
+      currentIsProcessing.value = true
       const [phoneResult, codeResult] = await Promise.all([
         phone.validate(),
         code.validate()
@@ -63,7 +76,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
       if (error instanceof ApiError && error.code === ErrorCode.PHONE_ALREADY_VERIFIED) return "SUCCESS"
       return "ERROR"
     } finally {
-      isProcessing.value = false
+      currentIsProcessing.value = false
     }
   }
 
@@ -78,7 +91,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
 
   const checkRegistration = async (): Promise<CheckRegistrationStatus> => {
     try {
-      isProcessing.value = true
+      currentIsProcessing.value = true
       const phoneResult = await phone.validate()
       if (!phoneResult.valid) return "VALIDATION_ERROR"
       await checkRegistrationMutation.mutateAsync({ phone: phone.value.value })
@@ -86,7 +99,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
     } catch {
       return "NOT_VERIFIED"
     } finally {
-      isProcessing.value = false
+      currentIsProcessing.value = false
     }
   }
 
@@ -94,7 +107,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
     mutationFn: phoneVerificationApi.send,
     onSuccess: (data) => {
       toast.success("Код для подтверждения отправлен в Telegram")
-      startTimer(phone.value.value, data.timeLeftMs)
+      createNewTimer(phone.value.value, data.timeLeftMs)
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -107,7 +120,7 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Код для подтверждения недавно уже был отправлен")
-            startTimer(phone.value.value, error.timeLeftMs)
+            createNewTimer(phone.value.value, error.timeLeftMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")
@@ -119,25 +132,22 @@ export const usePhoneVerification = (isProcessing: Ref<boolean>, externalName: R
 
   const send = async (): Promise<SendStatus> => {
     try {
-      isProcessing.value = true
-      const phoneResult = await phone.validate()
-      if (!phoneResult.valid) return "VALIDATION_ERROR"
-      phoneServerError.value = undefined
-      await sendMutation.mutateAsync({
+      currentIsProcessing.value = true
+      const parseResult = sendSchema.safeParse({
         phone: phone.value.value,
-        name: toValue(externalName),
+        name: currentName.value,
         accountId
       })
+      if (!parseResult.success) return "VALIDATION_ERROR"
+      await sendMutation.mutateAsync(parseResult.data)
       return "SUCCESS"
     } catch (error) {
       if (error instanceof ApiError && error.code === ErrorCode.PHONE_ALREADY_VERIFIED) return "ALREADY_VERIFIED"
       return "ERROR"
     } finally {
-      isProcessing.value = false
+      currentIsProcessing.value = false
     }
   }
-
-  onUnmounted(clearAllTimers)
 
   return {
     phone, phoneServerError,

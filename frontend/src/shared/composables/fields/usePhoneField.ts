@@ -1,9 +1,15 @@
 import { useAppField } from "./useAppField"
 import { phoneSchema } from "@/shared/schemas"
 import { AsYouType } from "libphonenumber-js"
+import type { Ref } from "vue"
 
-export const usePhoneField = (controlled: boolean = true) => {
-  const field = useAppField("phone", phoneSchema, controlled)
+export const usePhoneField = (externalValue?: Ref<string>, controlled: boolean = true) => {
+  const field = useAppField({
+    name: "phone",
+    externalValue,
+    schema: phoneSchema,
+    controlled
+  })
 
   const onInput = (event: Event) => {
     const input = event.target as HTMLInputElement

@@ -1,14 +1,14 @@
-import { config } from "@/shared/config"
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
+import { useRouter } from "vue-router"
 import { authApi } from "../api"
 import { ApiError } from "@/shared/api/types"
 import { toast } from "vue-sonner"
-import { useRouter } from "vue-router"
-import { useLocalStorage } from "@vueuse/core"
-import type { Ref } from "vue"
+import { config } from "@/shared/config"
 
-export const useGoogleAuth = (isProcessing: Ref<boolean>) => {
+export const useGoogleAuth = () => {
+  const { theUserLoggedInOnce, isProcessing } = storeToRefs(useAuthStore())
   const router = useRouter()
-  const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
 
   const authenticate = async (response: google.accounts.oauth2.CodeResponse) => {
     try {

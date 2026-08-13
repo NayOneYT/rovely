@@ -1,15 +1,26 @@
 <script setup lang="ts">
-import { useAuthWidget } from "../composables/useAuthWidget"
-import { computed } from "vue"
-import PasswordRecoveryForm from "./PasswordRecoveryForm.vue"
-import RegistrationForm from "./RegistrationForm.vue"
 import LoginForm from "./LoginForm.vue"
 import LoginWithPhoneForm from "./LoginWithPhoneForm.vue"
+import RegistrationForm from "./RegistrationForm.vue"
+import PasswordRecoveryForm from "./PasswordRecoveryForm.vue"
+import { useRoute } from "vue-router"
+import { computed } from "vue"
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 
-const { isProcessing, currentForm } = useAuthWidget()
+const formsMap = {
+  Login: LoginForm,
+  LoginWithPhone: LoginWithPhoneForm,
+  Registration: RegistrationForm,
+  PasswordRecovery: PasswordRecoveryForm
+}
+type FormMapKey = keyof typeof formsMap
+const route = useRoute()
 
-const isLogin = computed<boolean>(() => currentForm.value === LoginForm || currentForm.value === LoginWithPhoneForm)
-const isRegistration = computed<boolean>(() => currentForm.value === RegistrationForm)
+const currentForm = computed(() => formsMap[route.name as FormMapKey])
+const isLogin = computed(() => currentForm.value === LoginForm || currentForm.value === LoginWithPhoneForm)
+const isRegistration = computed(() => currentForm.value === RegistrationForm)
+const { isProcessing } = storeToRefs(useAuthStore())
 </script>
 
 <template>
@@ -49,9 +60,6 @@ const isRegistration = computed<boolean>(() => currentForm.value === Registratio
         Регистрация
       </RouterLink>
     </nav>
-    <component 
-      :is="currentForm"
-      v-model="isProcessing"
-    />
+    <component :is="currentForm" />
   </div>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useLocalStorage } from "@vueuse/core"
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 import { useRegistrationForm } from "../composables/useRegistrationForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { AuthFormHeader, AppButton, AppTextLink, AuthDivider } from "@/shared/components/ui"
@@ -8,8 +9,7 @@ import {
 } from "@/shared/components/ui/fields"
 import { GoogleIcon } from "@/shared/components/icons"
 
-const isProcessing = defineModel<boolean>({ default: false })
-const theUserLoggedInOnce = useLocalStorage("theUserLoggedInOnce", false)
+const { theUserLoggedInOnce, registrationStep, isProcessing } = storeToRefs(useAuthStore())
 
 const {
   name,
@@ -19,12 +19,12 @@ const {
   code, codeServerError, sendTelegramMessageCooldown,
   login, loginServerError,
   password,
-  step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
-} = useRegistrationForm(isProcessing)
+  handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
+} = useRegistrationForm()
 
 const { 
   googleClient
-} = useGoogleAuth(isProcessing)
+} = useGoogleAuth()
 
 const handleGoogleRegistration = () => {
   isProcessing.value = true
@@ -37,7 +37,7 @@ const handleGoogleRegistration = () => {
     :title="theUserLoggedInOnce ? 'Снова знакомимся?' : 'Давайте знакомиться'"
     subtitle="Расскажите о себе"
   />
-  <form v-if="step === 1" @submit.prevent="goToNextStep">
+  <form v-if="registrationStep === 1" @submit.prevent="goToNextStep">
     <NameFiend
       :field="name"
       :disabled="isProcessing"
@@ -58,7 +58,7 @@ const handleGoogleRegistration = () => {
       Далее
     </AppButton>
   </form>
-  <form v-if="step === 2" @submit.prevent="goToNextStep" novalidate>
+  <form v-if="registrationStep === 2" @submit.prevent="goToNextStep" novalidate>
     <EmailField
       :field="email"
       @click="handleSendEmailVerification"
@@ -77,7 +77,7 @@ const handleGoogleRegistration = () => {
     <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
-        @click="step = 1"
+        @click="registrationStep = 1"
         :disabled="isProcessing"
         class="flex-1"
       >
@@ -93,7 +93,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <form v-if="step === 2.5" @submit.prevent="goToNextStep">
+  <form v-if="registrationStep === 2.5" @submit.prevent="goToNextStep">
     <CodeField
       :field="code"
       @click="handleSendPhoneVerification"
@@ -120,7 +120,7 @@ const handleGoogleRegistration = () => {
     <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
-        @click="step = 2"
+        @click="registrationStep = 2"
         :disabled="isProcessing"
         class="flex-1"
       >
@@ -136,7 +136,7 @@ const handleGoogleRegistration = () => {
       </AppButton>
     </div>
   </form>
-  <form v-if="step === 3" @submit="register">
+  <form v-if="registrationStep === 3" @submit="register">
     <LoginField
       :field="login"
       :disabled="isProcessing"
@@ -169,7 +169,7 @@ const handleGoogleRegistration = () => {
     <div class="flex gap-6 mt-6">
       <AppButton
         variant="secondary"
-        @click="step = 2"
+        @click="registrationStep = 2"
         :disabled="isProcessing"
         class="flex-1"
       >

@@ -1,8 +1,10 @@
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "@/stores"
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
 import { registerSchema, type CheckAvailabilityDto } from "../schema"
 import { useNameField, useUsernameField, useLoginField, usePasswordField } from "@/shared/composables/fields"
-import { ref, computed, watch, type Ref } from "vue"
+import { ref, computed, watch } from "vue"
 import { authApi } from "../api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
 import { useMutation } from "@tanstack/vue-query"
@@ -10,10 +12,15 @@ import { useRouter } from "vue-router"
 import { useEmailVerification } from "@/features/verification/email/composables/useEmailVerification"
 import { usePhoneVerification } from "@/features/verification/phone/usePhoneVerification"
 import { toast } from "vue-sonner"
-import type { RegistrationStep, CheckAvailabilityResult } from "../types"
+import type { CheckAvailabilityResult } from "../types"
+import type { RegistrationStep } from "@/shared/types"
 
-export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
-  const step = ref<RegistrationStep>(1)
+export const useRegistrationForm = () => {
+  const {
+    registrationStep, registrationName, registrationUsername, registrationLogin,
+    isProcessing
+  } = storeToRefs(useAuthStore())
+
   const verifiedEmails = ref<Set<string>>(new Set())
   const isEmailVerified = computed(() => emailVerification.email.value.value && verifiedEmails.value.has(emailVerification.email.value.value.toLowerCase()))
 
@@ -23,16 +30,16 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     validationSchema: toTypedSchema(registerSchema)
   })
 
-  const name = useNameField()
+  const name = useNameField(registrationName)
 
-  const username = useUsernameField()
+  const username = useUsernameField(registrationUsername)
   const usernameServerError = ref<string>()
   watch(username.value, () => usernameServerError.value = undefined)
 
-  const emailVerification = useEmailVerification(isProcessing, name.value)
-  const phoneVerification = usePhoneVerification(isProcessing, name.value)
+  const emailVerification = useEmailVerification()
+  const phoneVerification = usePhoneVerification()
 
-  const login = useLoginField()
+  const login = useLoginField(registrationLogin)
   const loginServerError = ref<string>()
   watch(login.value, () => loginServerError.value = undefined)
 
@@ -71,7 +78,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
 
   const goToNextStep = async () => {
     isProcessing.value = true
-    switch (step.value) {
+    switch (registrationStep.value) {
       case 1:
         const [nameResult, usernameResult] = await Promise.all([
           name.validate(),
@@ -89,7 +96,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
             break
           }
         }
-        step.value = 2
+        registrationStep.value = 2
         break
       case 2:
         if (!emailVerification.email.value.value && !phoneVerification.phone.value.value) {
@@ -131,15 +138,15 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
           const status = await phoneVerification.checkRegistration()
           if (status === "NOT_VERIFIED") {
             phoneVerification.codeServerError.value = undefined
-            step.value = 2.5
+            registrationStep.value = 2.5
             break
           }
         }
-        step.value = 3
+        registrationStep.value = 3
         break
       case 2.5:
         const result = await phoneVerification.verify()
-        if (result === "SUCCESS") step.value = 3
+        if (result === "SUCCESS") registrationStep.value = 3
         break
     }
     isProcessing.value = false
@@ -179,7 +186,7 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
             targetStep = 2.5
             break
         }
-        step.value = targetStep
+        registrationStep.value = targetStep
       } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
@@ -202,6 +209,6 @@ export const useRegistrationForm = (isProcessing: Ref<boolean>) => {
     code: phoneVerification.code, codeServerError: phoneVerification.codeServerError, sendTelegramMessageCooldown: phoneVerification.sendCooldown,
     login, loginServerError,
     password,
-    step, handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
+    handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
   }
 }

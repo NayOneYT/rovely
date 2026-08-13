@@ -12,7 +12,7 @@ const checkRegistrationSchema = z.object({
   email: emailSchema
 })
 
-const sendSchema = z.object({
+export const sendSchema = z.object({
   name: makeOptional(nameSchema),
   email: emailSchema,
   accountId: makeOptional(accountIdSchema)
