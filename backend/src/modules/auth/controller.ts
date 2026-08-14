@@ -13,6 +13,7 @@ export const authController = {
       setCookie(res, accessToken, newRefreshToken, rememberMe)
       res.sendStatus(200)
     } catch (error) {
+      if (error instanceof AppError) removeCookie(res)
       next(error)
     }
   },
@@ -66,7 +67,7 @@ export const authController = {
 
   google: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { isNewAccount, accessToken, refreshToken } = await authService.google(req.body)
+      const { accessToken, refreshToken, isNewAccount } = await authService.google(req.body)
       setCookie(res, accessToken, refreshToken, true)
       res.sendStatus(isNewAccount ? 201 : 200)
     } catch (error) {
@@ -112,8 +113,8 @@ export const authController = {
 
   me: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const account = await authService.me(req.accountId!)
-      res.status(200).json(account)
+      const result = await authService.me(req.accountId!)
+      res.status(200).json(result)
     } catch (error) {
       next(error)
     }

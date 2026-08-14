@@ -16,15 +16,7 @@ const {
   login, send
 } = useLoginWithPhoneForm()
 
-const { 
-  googleClient
-} = useGoogleAuth()
-
-const handleGoogleLogin = () => {
-  isProcessing.value = true
-  googleClient.requestCode()
-}
-
+const { googleAuth } = useGoogleAuth()
 </script>
 
 <template>
@@ -74,7 +66,7 @@ const handleGoogleLogin = () => {
   </AppButton>
   <AppButton
     variant="social"
-    @click="handleGoogleLogin"
+    @click="googleAuth"
     :disabled="isProcessing"
     class="w-full mt-4"
   >

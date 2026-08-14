@@ -1,6 +1,6 @@
 import type { ErrorCode } from "./error-codes"
 
-export type ErrorResponseData = {
+export type ErrorResponse = {
   code: ErrorCode
   fieldErrors?: Record<string, string>
   [key: string]: any

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router"
 import WelcomePage from "../pages/welcome/WelcomePage.vue"
-import { authApi } from "../features/auth/api"
+import { currentAccountQueryOptions } from "../entities/account/useCurrentAccount"
+import { queryClient } from "../shared/api"
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,19 +14,19 @@ export const router = createRouter({
       path: "/login",
       name: "Login",
       component: WelcomePage,
-      meta: { title: "Вход | ROVELY" }
+      meta: { title: "Вход | ROVELY", guestOnly: true }
     },
     {
       path: "/login-with-phone",
       name: "LoginWithPhone",
       component: WelcomePage,
-      meta: { title: "Вход по номеру телефона | ROVELY" }
+      meta: { title: "Вход по номеру телефона | ROVELY", guestOnly: true }
     },
     {
       path: "/password-recovery",
       name: "PasswordRecovery",
       component: WelcomePage,
-      meta: { title: "Восстановление пароля | ROVELY" }
+      meta: { title: "Восстановление пароля | ROVELY", guestOnly: true }
     },
     {
       path: "/reset-password/:token",
@@ -37,7 +38,7 @@ export const router = createRouter({
       path: "/registration",
       name: "Registration",
       component: WelcomePage,
-      meta: { title: "Регистрация | ROVELY" }
+      meta: { title: "Регистрация | ROVELY", guestOnly: true }
     },
     {
       path: "/verify-email/:token",
@@ -73,15 +74,14 @@ export const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  const isAuthRoute = to.name === "Login" || to.name === "LoginWithPhone" || to.name === "PasswordRecovery" || to.name === "Registration"
-  if (isAuthRoute) {
-    try {
-      const account = await authApi.me()
-      return { path: `/profiles/${account.profile.username}` }
-    } catch {
-      return true
-    }
-  }
+  const isGuestOnly = to.meta.guestOnly
+  const isRequiresAuth = to.meta.requiresAuth
+  if (!isGuestOnly && !isRequiresAuth) return true
+
+  const currentAccount = await queryClient.ensureQueryData(currentAccountQueryOptions)
+  if (isGuestOnly && currentAccount) return { path: `/profiles/${currentAccount.profile.username}` }
+  if (isRequiresAuth && !currentAccount) return { name: "Login" }
+  return true
 })
 
 router.afterEach((to) => {

@@ -22,4 +22,4 @@ authRouter.post("/password-recovery/send", validate(sendPasswordRecoverySchema, 
 authRouter.get("/password-recovery/check-token/:token", validate(checkPasswordRecoveryToken, "params"), authController.checkPasswordRecoveryToken)
 authRouter.post("/password-recovery/reset", validate(resetPasswordSchema, "body"), authController.resetPassword)
 authRouter.get("/me", authMiddleware, authController.me)
-authRouter.post("/logout", authController.logout)
+authRouter.post("/logout", authMiddleware, authController.logout)

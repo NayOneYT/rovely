@@ -28,8 +28,7 @@ export const authService = {
       const actualPasswordChangedAt = account.passwordChangedAt?.getTime() ?? 0
       if (payload.passwordChangedAt !== actualPasswordChangedAt) throw new AppError(ErrorCode.REFRESH_TOKEN_INVALID)
       const accessToken = generateAccessToken({
-        id: account.id,
-        role: account.role
+        id: account.id
       })
       const newRefreshToken = generateRefreshToken({
         id: account.id,
@@ -44,35 +43,34 @@ export const authService = {
     }
   },
 
-  login: async (data: LoginDto) => {
+  login: async (dto: LoginDto) => {
     const account = await prisma.account.findFirst({
       where: {
         OR: [
-          { login: data.identifier },
-          { lowercaseEmail: data.identifier },
-          { phone: data.identifier }
+          { login: dto.identifier },
+          { lowercaseEmail: dto.identifier },
+          { phone: dto.identifier }
         ]
       }
     })
     if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
     if (!account.password) throw new AppError(ErrorCode.PASSWORD_NOT_SET)
-    const isPasswordValid = await bcrypt.compare(data.password, account.password)
+    const isPasswordValid = await bcrypt.compare(dto.password, account.password)
     if (!isPasswordValid) throw new AppError(ErrorCode.PASSWORD_INVALID)
     const accessToken = generateAccessToken({
-      id: account.id,
-      role: account.role
+      id: account.id
     })
     const refreshToken = generateRefreshToken({
       id: account.id,
-      rememberMe: data.rememberMe,
+      rememberMe: dto.rememberMe,
       passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
     })
-    return { accessToken, refreshToken, rememberMe: data.rememberMe }
+    return { accessToken, refreshToken, rememberMe: dto.rememberMe }
   },
 
-  sendLoginWithPhone: async (data: SendLoginWithPhoneDto) => {
+  sendLoginWithPhone: async (dto: SendLoginWithPhoneDto) => {
     try {
-      const phone = data.phone
+      const phone = dto.phone
       const [account, request, link] = await Promise.all([
         prisma.account.findUnique({
           where: {
@@ -122,16 +120,23 @@ export const authService = {
     }
   },
 
-  loginWithPhone: async (data: LoginWithPhoneDto) => {
+  loginWithPhone: async (dto: LoginWithPhoneDto) => {
     const [account, request] = await Promise.all([
       prisma.account.findUnique({
         where: {
-          phone: data.phone
+          phone: dto.phone
+        },
+        include: {
+          profile: {
+            select: {
+              username: true
+            }
+          }
         }
       }),
       prisma.loginWithPhoneRequest.findUnique({
         where: {
-          phone: data.phone
+          phone: dto.phone
         }
       })
     ])
@@ -139,29 +144,28 @@ export const authService = {
     if (!request) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
     const now = Date.now()
     if (request.updatedAt.getTime() < now - config.auth.loginWithPhoneCodeTtlMs) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_EXPIRED)
-    if (data.code !== request.code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_INVALID)
+    if (dto.code !== request.code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_INVALID)
     await prisma.loginWithPhoneRequest.delete({
       where: {
-        phone: data.phone
+        phone: dto.phone
       }
     })
     const accessToken = generateAccessToken({
-      id: account.id,
-      role: account.role
+      id: account.id
     })
     const refreshToken = generateRefreshToken({
       id: account.id,
-      rememberMe: data.rememberMe,
+      rememberMe: dto.rememberMe,
       passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
     })
-    return { accessToken, refreshToken, rememberMe: data.rememberMe }
+    return { accessToken, refreshToken, rememberMe: dto.rememberMe }
   },
 
-  checkAvailability: async (data: CheckAvailabilityDto) => {
-    const value = data.value
+  checkAvailability: async (dto: CheckAvailabilityDto) => {
+    const value = dto.value
     let exists
     let errorCode
-    switch (data.field) {
+    switch (dto.field) {
       case "username":
         exists = await prisma.profile.findUnique({
           where: {
@@ -198,13 +202,13 @@ export const authService = {
     if (exists) throw new AppError(errorCode!)
   },
 
-  register: async (data: RegisterDto) => {
-    const lowercaseEmail = data.email ? data.email.toLowerCase() : null
+  register: async (dto: RegisterDto) => {
+    const lowercaseEmail = dto.email ? dto.email.toLowerCase() : null
     const orConditions: Array<Record<string, string | Record<string, string>>> = []
-    if (data.username) orConditions.push({ profile: { lowercaseUsername: data.username.toLowerCase() } })
-    if (data.phone) orConditions.push({ phone: data.phone })
+    if (dto.username) orConditions.push({ profile: { lowercaseUsername: dto.username.toLowerCase() } })
+    if (dto.phone) orConditions.push({ phone: dto.phone })
     if (lowercaseEmail) orConditions.push({ lowercaseEmail })
-    if (data.login) orConditions.push({ login: data.login })
+    if (dto.login) orConditions.push({ login: dto.login })
     const candidate = await prisma.account.findFirst({
       where: {
         OR: orConditions
@@ -214,27 +218,27 @@ export const authService = {
       }
     })
     if (candidate) {
-      if (data.username && candidate.profile!.lowercaseUsername === data.username.toLowerCase()) throw new AppError(ErrorCode.USERNAME_TAKEN)
-      if (data.email && candidate.lowercaseEmail === lowercaseEmail) throw new AppError(ErrorCode.EMAIL_TAKEN)
-      if (data.phone && candidate.phone === data.phone) throw new AppError(ErrorCode.PHONE_TAKEN)
-      if (data.login && candidate.login === data.login) throw new AppError(ErrorCode.LOGIN_TAKEN)
+      if (dto.username && candidate.profile!.lowercaseUsername === dto.username.toLowerCase()) throw new AppError(ErrorCode.USERNAME_TAKEN)
+      if (dto.email && candidate.lowercaseEmail === lowercaseEmail) throw new AppError(ErrorCode.EMAIL_TAKEN)
+      if (dto.phone && candidate.phone === dto.phone) throw new AppError(ErrorCode.PHONE_TAKEN)
+      if (dto.login && candidate.login === dto.login) throw new AppError(ErrorCode.LOGIN_TAKEN)
     }
     if (lowercaseEmail) await emailVerificationService.checkRegistration({ email: lowercaseEmail })
-    if (data.phone) await phoneVerificationService.checkRegistration({ phone: data.phone })
-    const username = data.username ?? await generateUniqueUsername(data.email)
-    const hashedPassword = await hashPassword(data.password)
+    if (dto.phone) await phoneVerificationService.checkRegistration({ phone: dto.phone })
+    const username = dto.username ?? await generateUniqueUsername(dto.email)
+    const hashedPassword = await hashPassword(dto.password)
     await prisma.account.create({
       data: {
-        phone: data.phone,
-        email: data.email,
+        phone: dto.phone,
+        email: dto.email,
         lowercaseEmail,
-        login: data.login,
+        login: dto.login,
         password: hashedPassword,
         profile: {
           create: {
             username,
             lowercaseUsername: username.toLowerCase(),
-            name: data.name
+            name: dto.name
           }
         }
       }
@@ -244,15 +248,15 @@ export const authService = {
         lowercaseEmail
       }
     })
-    if (data.phone) await prisma.phoneVerificationRequest.deleteMany({
+    if (dto.phone) await prisma.phoneVerificationRequest.deleteMany({
       where: {
-        phone: data.phone
+        phone: dto.phone
       }
     })
   },
 
-  google: async (data: GoogleAuthDto) => {
-    const googleResponse = await googleClient.getToken(data.code)
+  google: async (dto: GoogleAuthDto) => {
+    const googleResponse = await googleClient.getToken(dto.code)
     const idToken = googleResponse.tokens.id_token
     if (!idToken) throw new AppError(ErrorCode.GOOGLE_AUTH_FAILED)
     const ticket = await googleClient.verifyIdToken({
@@ -313,24 +317,23 @@ export const authService = {
       })
     }
     const accessToken = generateAccessToken({
-      id: account.id,
-      role: account.role
+      id: account.id
     })
     const refreshToken = generateRefreshToken({
       id: account.id,
       rememberMe: true,
       passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
     })
-    return { isNewAccount, accessToken, refreshToken }
+    return { accessToken, refreshToken, isNewAccount }
   },
 
-  getPasswordRecoveryContacts: async (data: PasswordRecoveryContactsDto) => {
+  getPasswordRecoveryContacts: async (dto: PasswordRecoveryContactsDto) => {
     const account = await prisma.account.findFirst({
       where: {
         OR: [
-          { login: data.identifier },
-          { lowercaseEmail: data.identifier },
-          { phone: data.identifier }
+          { login: dto.identifier },
+          { lowercaseEmail: dto.identifier },
+          { phone: dto.identifier }
         ]
       }
     })
@@ -355,15 +358,15 @@ export const authService = {
     return contacts
   },
 
-  sendPasswordRecovery: async (data: SendPasswordRecoveryDto) => {
+  sendPasswordRecovery: async (dto: SendPasswordRecoveryDto) => {
     try {
-      const to = data.to
+      const to = dto.to
       const account = await prisma.account.findFirst({
         where: {
           OR: [
-            { login: data.identifier },
-            { lowercaseEmail: data.identifier },
-            { phone: data.identifier }
+            { login: dto.identifier },
+            { lowercaseEmail: dto.identifier },
+            { phone: dto.identifier }
           ]
         },
         include: {
@@ -434,10 +437,10 @@ export const authService = {
     }
   },
 
-  checkPasswordRecoveryToken: async (data: CheckPasswordRecoveryTokenDto) => {
+  checkPasswordRecoveryToken: async (dto: CheckPasswordRecoveryTokenDto) => {
     const request = await prisma.passwordRecoveryRequest.findUnique({
       where: {
-        token: data.token
+        token: dto.token
       }
     })
     if (!request) throw new AppError(ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
@@ -446,9 +449,9 @@ export const authService = {
     return request
   },
 
-  resetPassword: async (data: ResetPasswordDto) => {
-    const request = await authService.checkPasswordRecoveryToken({ token: data.token })
-    const hashedPassword = await hashPassword(data.password)
+  resetPassword: async (dto: ResetPasswordDto) => {
+    const request = await authService.checkPasswordRecoveryToken({ token: dto.token })
+    const hashedPassword = await hashPassword(dto.password)
     await prisma.$transaction([
       prisma.account.update({
         where: {
@@ -471,9 +474,10 @@ export const authService = {
     const account = await prisma.account.findUnique({
       where: { id: accountId },
       select: {
+        id: true,
         profile: {
           select: {
-            username: true,
+            username: true
           }
         }
       }
@@ -485,7 +489,7 @@ export const authService = {
 
 const hashPassword = async (password: string) => await bcrypt.hash(password, 10)
 
-const generateAccessToken = (payload: AccessTokenPayload) => jwt.sign({ id: payload.id, role: payload.role }, config.jwtAccessSecret, { expiresIn: "5m" })
+const generateAccessToken = (payload: AccessTokenPayload) => jwt.sign({ id: payload.id }, config.jwtAccessSecret, { expiresIn: "5m" })
 const generateRefreshToken = (payload: RefreshTokenPayload) => jwt.sign({ id: payload.id, rememberMe: payload.rememberMe, passwordChangedAt: payload.passwordChangedAt }, config.jwtRefreshSecret, { expiresIn: "1y" })
 
 const sendLoginWithPhoneCode = async (telegramUserId: number, name: string, code: string) => {

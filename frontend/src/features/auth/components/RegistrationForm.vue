@@ -22,14 +22,7 @@ const {
   handleSendEmailVerification, handleSendPhoneVerification, goToNextStep, register
 } = useRegistrationForm()
 
-const { 
-  googleClient
-} = useGoogleAuth()
-
-const handleGoogleRegistration = () => {
-  isProcessing.value = true
-  googleClient.requestCode()
-}
+const { googleAuth } = useGoogleAuth()
 </script>
 
 <template>
@@ -188,7 +181,7 @@ const handleGoogleRegistration = () => {
   <AuthDivider />
   <AppButton
     variant="social"
-    @click="handleGoogleRegistration"
+    @click="googleAuth"
     :disabled="isProcessing"
     class="w-full mt-6"
   >

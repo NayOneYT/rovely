@@ -4,21 +4,22 @@ import { config } from "@/shared/config.js"
 import { GrammyError } from "grammy"
 import { sendMessage } from "@/shared/bot/index.js"
 import { generateSecureCode } from "@/shared/utils/index.js"
-import type { SendDto, CheckRegistrationDto, VerifyDto } from "./schema.js"
+import type { VerifyParams, SendParams } from "./types.js"
+import type { CheckRegistrationDto } from "./schema.js"
 
 export const phoneVerificationService = {
-  verify: async (data: VerifyDto) => {
+  verify: async (params: VerifyParams) => {
     const request = await prisma.phoneVerificationRequest.findFirst({
       where: {
-        phone: data.phone,
-        accountId: data.accountId
+        phone: params.phone,
+        accountId: params.accountId
       }
     })
     if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
     const now = Date.now()
     if (request.updatedAt.getTime() < now - config.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED)
     if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
-    if (request.code !== data.code) throw new AppError(ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
+    if (request.code !== params.code) throw new AppError(ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
     if (!request.accountId) {
       await prisma.phoneVerificationRequest.update({
         where: {
@@ -36,7 +37,7 @@ export const phoneVerificationService = {
           id: request.accountId
         },
         data: {
-          phone: data.phone
+          phone: params.phone
         }
       }),
       prisma.phoneVerificationRequest.deleteMany({
@@ -50,10 +51,10 @@ export const phoneVerificationService = {
     ])
   },
 
-  checkRegistration: async (data: CheckRegistrationDto) => {
+  checkRegistration: async (dto: CheckRegistrationDto) => {
     const request = await prisma.phoneVerificationRequest.findFirst({
       where: {
-        phone: data.phone,
+        phone: dto.phone,
         accountId: null
       }
     })
@@ -67,23 +68,23 @@ export const phoneVerificationService = {
     if (!request.isConfirmed) throw new AppError(ErrorCode.PHONE_NOT_VERIFIED)
   },
 
-  send: async (data: SendDto) => {
+  send: async (params: SendParams) => {
     try {
       const [account, request, link] = await Promise.all([
         prisma.account.findUnique({
           where: {
-            phone: data.phone
+            phone: params.phone
           }
         }),
         prisma.phoneVerificationRequest.findFirst({
           where: {
-            phone: data.phone,
-            accountId: data.accountId
+            phone: params.phone,
+            accountId: params.accountId
           }
         }),
         prisma.telegramLink.findUnique({
           where: {
-            phone: data.phone
+            phone: params.phone
           }
         })
       ])
@@ -97,7 +98,7 @@ export const phoneVerificationService = {
       }
       if (request?.isConfirmed && request.updatedAt.getTime() > now - config.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateSecureCode()
-      await sendCode(link.telegramUserId, data.name, code, !data.accountId)
+      await sendCode(link.telegramUserId, params.name, code, !params.accountId)
       const updateData = request?.isConfirmed
         ? { code, isConfirmed: false }
         : { code }
@@ -111,8 +112,8 @@ export const phoneVerificationService = {
         : await prisma.phoneVerificationRequest.create({
           data: {
             code,
-            phone: data.phone,
-            accountId: data.accountId
+            phone: params.phone,
+            accountId: params.accountId
           }
         })
       return { timeLeftMs: config.verification.phone.cooldownMs }

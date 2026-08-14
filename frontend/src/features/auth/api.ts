@@ -1,9 +1,11 @@
-import { api } from "@/shared/api/client"
+import { api } from "@/shared/api"
 import type {
   LoginDto, LoginWithPhoneDto, SendLoginWithPhoneDto, CheckAvailabilityDto, RegisterDto,
   PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto, ResetPasswordDto
 } from "./schema"
-import type { SendLoginWithPhoneResult, GetPasswordRecoveryContactsResult, SendPasswordRecoveryResult, MeDto } from "./types"
+import type {
+  SendLoginWithPhoneResponse, GetPasswordRecoveryContactsResponse, SendPasswordRecoveryResponse
+} from "./types"
 
 export const authApi = {
   login: async (data: LoginDto) => {
@@ -15,8 +17,8 @@ export const authApi = {
   },
 
   sendLoginWithPhone: async (data: SendLoginWithPhoneDto) => {
-    const response = await api.post("/auth/login-with-phone/send", data)
-    return response.data as SendLoginWithPhoneResult
+    const response = await api.post<SendLoginWithPhoneResponse>("/auth/login-with-phone/send", data)
+    return response.data
   },
 
   checkAvailability: async (data: CheckAvailabilityDto) => {
@@ -32,13 +34,13 @@ export const authApi = {
   },
 
   getPasswordRecoveryContacts: async (data: PasswordRecoveryContactsDto) => {
-    const response = await api.post("/auth/password-recovery/contacts", data)
-    return response.data as GetPasswordRecoveryContactsResult
+    const response = await api.post<GetPasswordRecoveryContactsResponse>("/auth/password-recovery/contacts", data)
+    return response.data
   },
 
   sendPasswordRecovery: async (data: SendPasswordRecoveryDto) => {
-    const response = await api.post("/auth/password-recovery/send", data)
-    return response.data as SendPasswordRecoveryResult
+    const response = await api.post<SendPasswordRecoveryResponse>("/auth/password-recovery/send", data)
+    return response.data
   },
 
   checkPasswordRecoveryToken: async (data: CheckPasswordRecoveryTokenDto) => {
@@ -47,11 +49,6 @@ export const authApi = {
 
   resetPassword: async (data: ResetPasswordDto) => {
     await api.post("/auth/password-recovery/reset", data)
-  },
-
-  me: async () => {
-    const response = await api.get("/auth/me")
-    return response.data as MeDto
   },
 
   logout: async () => {

@@ -17,7 +17,9 @@ import type { RegistrationStep } from "@/shared/types"
 
 export const useRegistrationForm = () => {
   const {
-    registrationStep, registrationName, registrationUsername, registrationLogin,
+    registrationStep, registrationName, registrationUsername, registrationEmail, registrationSendEmailCooldownsUntilMs,
+    registrationPhone, registrationCode, registrationSendTelegramMessageCooldownsUntilMs,
+    registrationLogin, registrationPassword,
     isProcessing
   } = storeToRefs(useAuthStore())
 
@@ -36,14 +38,25 @@ export const useRegistrationForm = () => {
   const usernameServerError = ref<string>()
   watch(username.value, () => usernameServerError.value = undefined)
 
-  const emailVerification = useEmailVerification()
-  const phoneVerification = usePhoneVerification()
+  const emailVerification = useEmailVerification({
+    nameValue: registrationName,
+    emailValue: registrationEmail,
+    cooldowns: registrationSendEmailCooldownsUntilMs,
+    isProcessing
+  })
+  const phoneVerification = usePhoneVerification({
+    nameValue: registrationName,
+    phoneValue: registrationPhone,
+    codeValue: registrationCode,
+    cooldowns: registrationSendTelegramMessageCooldownsUntilMs,
+    isProcessing
+  })
 
   const login = useLoginField(registrationLogin)
   const loginServerError = ref<string>()
   watch(login.value, () => loginServerError.value = undefined)
 
-  const password = usePasswordField()
+  const password = usePasswordField(registrationPassword)
 
   const checkAvailabilityMutation = useMutation({
     mutationFn: authApi.checkAvailability,

@@ -1,10 +1,6 @@
 import { z } from "zod"
 import { parsePhoneNumberFromString } from "libphonenumber-js"
 
-export const accountIdSchema = z
-  .string()
-  .cuid()
-
 export const passwordSchema = z
   .string({ required_error: "Обязательное поле" })
   .min(1, "Обязательное поле")

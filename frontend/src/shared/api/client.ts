@@ -1,5 +1,7 @@
 import axios from "axios"
 import { ApiError, ErrorCode } from "./types"
+import { queryClient } from "./queryClient"
+import { router } from "@/router"
 
 export const api = axios.create({
   baseURL: "/api",
@@ -17,8 +19,9 @@ api.interceptors.response.use(
           await api.post("/auth/refresh")
           return api(originalRequest)
         } catch {
-          window.location.href = "/"
-          return
+          queryClient.clear()
+          router.replace("/")
+          return Promise.reject(error)
         }
       }
       throw new ApiError(data)

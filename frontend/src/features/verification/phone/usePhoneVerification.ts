@@ -1,42 +1,30 @@
-import { storeToRefs } from "pinia"
-import { useAuthStore } from "@/stores"
 import { usePhoneField, useCodeField } from "@/shared/composables/fields"
 import { watch, ref, computed } from "vue"
-import { useField } from "vee-validate"
 import { useMutation } from "@tanstack/vue-query"
 import { phoneVerificationApi } from "./api"
 import { ApiError, ErrorCode } from "@/shared/api/types"
 import { useTimer } from "@/shared/composables"
 import { toast } from "vue-sonner"
 import { sendSchema } from "./schema"
-import type { CheckRegistrationStatus, SendStatus, VerifyStatus } from "./types"
+import type { usePhoneVerificationOptions, CheckRegistrationStatus, SendStatus, VerifyStatus } from "./types"
 
-export const usePhoneVerification = (accountId?: string) => {
-  const {
-    registrationName, registrationPhone, registrationCode, registrationSendTelegramMessageCooldownsUntilMs, isProcessing
-  } = storeToRefs(useAuthStore())
-
-  const currentName = registrationName
-  const currentPhone = registrationPhone
-  const currentCode = registrationCode
-  const currentCooldowns = registrationSendTelegramMessageCooldownsUntilMs
-  const currentIsProcessing = isProcessing
-
-  const phone = usePhoneField(currentPhone)
+export const usePhoneVerification = ({
+  nameValue,
+  phoneValue,
+  codeValue,
+  cooldowns,
+  isProcessing
+}: usePhoneVerificationOptions) => {
+  const phone = usePhoneField(phoneValue)
   const phoneServerError = ref<string>()
   watch(phone.value, () => phoneServerError.value = undefined)
 
-  const code = useCodeField(currentCode, false)
+  const code = useCodeField(phoneValue, false)
   const codeServerError = ref<string>()
   watch(code.value, () => codeServerError.value = undefined)
 
-  const { createNewTimer, formattedTime } = useTimer(currentCooldowns)
+  const { createNewTimer, formattedTime } = useTimer(cooldowns)
   const sendCooldown = computed(() => formattedTime(phone.value.value))
-
-  useField("accountId", undefined, {
-    initialValue: accountId,
-    controlled: false
-  })
 
   const verifyMutation = useMutation({
     mutationFn: phoneVerificationApi.verify,
@@ -58,7 +46,7 @@ export const usePhoneVerification = (accountId?: string) => {
 
   const verify = async (): Promise<VerifyStatus> => {
     try {
-      currentIsProcessing.value = true
+      isProcessing.value = true
       const [phoneResult, codeResult] = await Promise.all([
         phone.validate(),
         code.validate()
@@ -68,15 +56,14 @@ export const usePhoneVerification = (accountId?: string) => {
       codeServerError.value = undefined
       await verifyMutation.mutateAsync({
         phone: phone.value.value,
-        code: code.value.value,
-        accountId
+        code: code.value.value
       })
       return "SUCCESS"
     } catch (error) {
       if (error instanceof ApiError && error.code === ErrorCode.PHONE_ALREADY_VERIFIED) return "SUCCESS"
       return "ERROR"
     } finally {
-      currentIsProcessing.value = false
+      isProcessing.value = false
     }
   }
 
@@ -91,7 +78,7 @@ export const usePhoneVerification = (accountId?: string) => {
 
   const checkRegistration = async (): Promise<CheckRegistrationStatus> => {
     try {
-      currentIsProcessing.value = true
+      isProcessing.value = true
       const phoneResult = await phone.validate()
       if (!phoneResult.valid) return "VALIDATION_ERROR"
       await checkRegistrationMutation.mutateAsync({ phone: phone.value.value })
@@ -99,7 +86,7 @@ export const usePhoneVerification = (accountId?: string) => {
     } catch {
       return "NOT_VERIFIED"
     } finally {
-      currentIsProcessing.value = false
+      isProcessing.value = false
     }
   }
 
@@ -132,11 +119,10 @@ export const usePhoneVerification = (accountId?: string) => {
 
   const send = async (): Promise<SendStatus> => {
     try {
-      currentIsProcessing.value = true
+      isProcessing.value = true
       const parseResult = sendSchema.safeParse({
         phone: phone.value.value,
-        name: currentName.value,
-        accountId
+        name: nameValue.value
       })
       if (!parseResult.success) return "VALIDATION_ERROR"
       await sendMutation.mutateAsync(parseResult.data)
@@ -145,7 +131,7 @@ export const usePhoneVerification = (accountId?: string) => {
       if (error instanceof ApiError && error.code === ErrorCode.PHONE_ALREADY_VERIFIED) return "ALREADY_VERIFIED"
       return "ERROR"
     } finally {
-      currentIsProcessing.value = false
+      isProcessing.value = false
     }
   }
 

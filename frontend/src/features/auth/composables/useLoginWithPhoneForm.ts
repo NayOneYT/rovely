@@ -11,6 +11,8 @@ import { authApi } from "../api"
 import { useRouter } from "vue-router"
 import { ApiError, ErrorCode } from "@/shared/api/types"
 import { toast } from "vue-sonner"
+import { queryClient } from "@/shared/api"
+import { currentAccountQueryOptions } from "@/entities/account/useCurrentAccount"
 
 export const useLoginWithPhoneForm = () => {
   const {
@@ -58,11 +60,6 @@ export const useLoginWithPhoneForm = () => {
 
   const loginMutation = useMutation({
     mutationFn: authApi.loginWithPhone,
-    onSuccess: async () => {
-      const account = await authApi.me()
-      theUserLoggedInOnce.value = true
-      router.replace(`/profiles/${account.profile.username}`)
-    },
     onError: (error) => {
       if (error instanceof ApiError) {
         switch (error.code) {
@@ -87,6 +84,10 @@ export const useLoginWithPhoneForm = () => {
       phoneServerError.value = undefined
       codeServerError.value = undefined
       await loginMutation.mutateAsync(values)
+      await queryClient.resetQueries({ queryKey: ["account", "me"] })
+      const currentAccount = await queryClient.fetchQuery(currentAccountQueryOptions)
+      router.replace(`/profiles/${currentAccount!.profile.username}`)
+      theUserLoggedInOnce.value = true
     } catch { } finally {
       isProcessing.value = false
     }

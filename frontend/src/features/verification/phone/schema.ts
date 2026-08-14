@@ -1,13 +1,12 @@
 import { z } from "zod"
 import {
   makeOptional,
-  phoneSchema, codeSchema, accountIdSchema, nameSchema
+  phoneSchema, codeSchema, nameSchema
 } from "@/shared/schemas"
 
 const verifySchema = z.object({
   phone: phoneSchema,
-  code: codeSchema,
-  accountId: makeOptional(accountIdSchema)
+  code: codeSchema
 })
 
 const checkRegistrationSchema = z.object({
@@ -16,8 +15,7 @@ const checkRegistrationSchema = z.object({
 
 export const sendSchema = z.object({
   phone: phoneSchema,
-  name: makeOptional(nameSchema),
-  accountId: makeOptional(accountIdSchema)
+  name: makeOptional(nameSchema)
 })
 
 export type SendDto = z.infer<typeof sendSchema>

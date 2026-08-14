@@ -4,7 +4,8 @@ import { phoneVerificationService } from "./service.js"
 export const phoneVerificationController = {
   verify: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await phoneVerificationService.verify(req.body)
+      const accountId = req.accountId ? req.accountId : null
+      await phoneVerificationService.verify({ ...req.body, accountId })
       res.sendStatus(204)
     } catch (error) {
       next(error)
@@ -22,7 +23,8 @@ export const phoneVerificationController = {
 
   send: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await phoneVerificationService.send(req.body)
+      const accountId = req.accountId ? req.accountId : null
+      const result = await phoneVerificationService.send({ ...req.body, accountId })
       res.status(200).json(result)
     } catch (error) {
       next(error)

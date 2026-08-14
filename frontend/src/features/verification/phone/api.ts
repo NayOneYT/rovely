@@ -1,6 +1,6 @@
-import { api } from "@/shared/api/client"
+import { api } from "@/shared/api"
 import type { VerifyDto, CheckRegistrationDto, SendDto } from "./schema"
-import type { SendResult } from "./types"
+import type { SendResponse } from "./types"
 
 export const phoneVerificationApi = {
   verify: async (data: VerifyDto) => {
@@ -12,7 +12,7 @@ export const phoneVerificationApi = {
   },
 
   send: async (data: SendDto) => {
-    const response = await api.post("/verification/phone/send", data)
-    return response.data as SendResult
+    const response = await api.post<SendResponse>("/verification/phone/send", data)
+    return response.data
   }
 }
