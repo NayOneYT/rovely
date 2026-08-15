@@ -6,7 +6,8 @@ import { LoaderCircle } from "@lucide/vue"
 
 const { 
   password,
-  status, reset 
+  status, remainingTime,
+  reset
 } = useResetPasswordForm()
 </script>
 
@@ -27,7 +28,7 @@ const {
     <form v-else-if="status === 'READY' || status === 'RESETTING'" @submit.prevent="reset">
       <AuthFormHeader
         title="Сброс пароля"
-        subtitle="Измените пароль"
+        :subtitle="`Измените пароль в течение ${remainingTime}`"
       />
       <PasswordField
         :field="password"

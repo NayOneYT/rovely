@@ -445,17 +445,18 @@ export const authService = {
     })
     if (!request) throw new AppError(ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
     const now = Date.now()
-    if (request.updatedAt.getTime() < now - config.auth.passwordRecoveryTokenTtlMs) throw new AppError(ErrorCode.PASSWORD_RECOVERY_TOKEN_EXPIRED)
-    return request
+    const timeLeftMs = request.updatedAt.getTime() + config.auth.passwordRecoveryTokenTtlMs - now
+    if (timeLeftMs <= 0) throw new AppError(ErrorCode.PASSWORD_RECOVERY_TOKEN_EXPIRED)
+    return { accountId: request.accountId, timeLeftMs }
   },
 
   resetPassword: async (dto: ResetPasswordDto) => {
-    const request = await authService.checkPasswordRecoveryToken({ token: dto.token })
+    const { accountId } = await authService.checkPasswordRecoveryToken({ token: dto.token })
     const hashedPassword = await hashPassword(dto.password)
     await prisma.$transaction([
       prisma.account.update({
         where: {
-          id: request.accountId
+          id: accountId
         },
         data: {
           password: hashedPassword,
@@ -464,7 +465,7 @@ export const authService = {
       }),
       prisma.passwordRecoveryRequest.deleteMany({
         where: {
-          accountId: request.accountId
+          accountId: accountId
         }
       })
     ])

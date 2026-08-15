@@ -1,60 +1,58 @@
+import { useTimer } from "@/shared/composables"
 import { useForm, useField } from "vee-validate"
 import { useRoute } from "vue-router"
 import { toTypedSchema } from "@vee-validate/zod"
 import { resetPasswordSchema } from "../schema"
 import { usePasswordField } from "@/shared/composables/fields"
-import { ref } from "vue"
-import { useMutation } from "@tanstack/vue-query"
+import { useMutation, useQuery } from "@tanstack/vue-query"
 import { authApi } from "../api"
 import { ApiError } from "@/shared/api/types"
 import { toast } from "vue-sonner"
+import { computed, ref, watch } from "vue"
 import type { ResetPasswordStatus } from "../types"
+import { checkPasswordRecoveryTokenSchema } from "../schema"
 
 export const useResetPasswordForm = () => {
   const route = useRoute()
   const externalToken = route.params.token as string
-  const status = ref<ResetPasswordStatus>("CHECKING")
 
   if (externalToken) {
     const urlWithoutToken = window.location.pathname.replace(`/${externalToken}`, '')
     window.history.replaceState(null, "", urlWithoutToken)
   }
 
+  const cooldowns = ref<Record<string, number>>({})
+  const { createNewTimer, formattedTime } = useTimer(cooldowns)
+
   const { handleSubmit } = useForm({
     validationSchema: toTypedSchema(resetPasswordSchema)
   })
 
   const {
-    value: token,
-    validate: tokenValidate
+    value: token
   } = useField<string>("token", undefined, {
     initialValue: externalToken
   })
 
   const password = usePasswordField()
 
-  const checkMutation = useMutation({
-    mutationFn: authApi.checkPasswordRecoveryToken,
-    onError: (error) => {
-      if (!(error instanceof ApiError)) toast.error("Что-то пошло не так, попробуйте позже")
-    }
+  const isTokenFormatValid = computed(() => {
+    if (!externalToken) return false
+    return checkPasswordRecoveryTokenSchema.safeParse({ token: externalToken }).success
   })
 
-  const check = async () => {
-    try {
-      const tokenResult = await tokenValidate()
-      if (!tokenResult.valid) {
-        status.value = "TOKEN_INVALID"
-        return
-      }
-      await checkMutation.mutateAsync({ token: token.value })
-      status.value = "READY"
-    } catch {
-      status.value = "TOKEN_INVALID"
-    }
-  }
+  const checkQuery = useQuery({
+    queryKey: ["password-recovery-token", externalToken],
+    queryFn: () => authApi.checkPasswordRecoveryToken({ token: externalToken }),
+    enabled: isTokenFormatValid.value,
+    gcTime: 0
+  })
 
-  check()
+  watch(() => checkQuery.data.value?.timeLeftMs, (timeLeftMs) => {
+    if (timeLeftMs) createNewTimer(externalToken, timeLeftMs)
+  })
+
+  const remainingTime = computed(() => formattedTime(externalToken))
 
   const resetMutation = useMutation({
     mutationFn: authApi.resetPassword,
@@ -65,16 +63,22 @@ export const useResetPasswordForm = () => {
 
   const reset = handleSubmit(async (values) => {
     try {
-      status.value = "RESETTING"
       await resetMutation.mutateAsync(values)
-      status.value = "SUCCESS"
-    } catch {
-      status.value = "TOKEN_INVALID"
-    }
+    } catch { }
+  })
+
+  const status = computed<ResetPasswordStatus>(() => {
+    if (!isTokenFormatValid.value || resetMutation.isError.value) return "TOKEN_INVALID"
+    if (checkQuery.isPending.value) return "CHECKING"
+    if (checkQuery.isError.value || !formattedTime(externalToken)) return "TOKEN_INVALID"
+    if (resetMutation.isPending.value) return "RESETTING"
+    if (resetMutation.isSuccess.value) return "SUCCESS"
+    return "READY"
   })
 
   return {
     password,
-    status, reset
+    status, remainingTime,
+    reset
   }
 }

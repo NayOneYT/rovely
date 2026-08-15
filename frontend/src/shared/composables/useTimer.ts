@@ -1,21 +1,23 @@
 import { type Ref, ref, onUnmounted } from "vue"
+import { formatMsToMMSS } from "../utils"
 
 export const useTimer = (cooldowns: Ref<Record<string, number>>) => {
-  const timersSec = ref<Record<string, number>>({})
+  const timersMs = ref<Record<string, number>>({})
   const intervals: Record<string, number> = {}
 
   const startTimer = (key: string, timeLeftMs: number) => {
     if (intervals[key]) clearInterval(intervals[key])
 
-    timersSec.value[key] = Math.floor(timeLeftMs / 1000)
+    timersMs.value[key] = timeLeftMs
 
     intervals[key] = setInterval(() => {
-      if (timersSec.value[key]! > 0) timersSec.value[key]!--
+      const remainingMs = cooldowns.value[key]! - Date.now()
+      if (remainingMs > 0) timersMs.value[key] = remainingMs
       else {
         clearInterval(intervals[key])
         delete cooldowns.value[key]
         delete intervals[key]
-        delete timersSec.value[key]
+        delete timersMs.value[key]
       }
     }, 1000)
   }
@@ -27,11 +29,9 @@ export const useTimer = (cooldowns: Ref<Record<string, number>>) => {
 
   const formattedTime = (key: string | undefined) => {
     if (!key) return
-    const totalSeconds = timersSec.value[key]
-    if (totalSeconds === undefined) return
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = totalSeconds % 60
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+    const totalMs = timersMs.value[key]
+    if (totalMs === undefined) return
+    return formatMsToMMSS(totalMs)
   }
 
   let now

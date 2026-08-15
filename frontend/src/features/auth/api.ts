@@ -4,7 +4,8 @@ import type {
   PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto, ResetPasswordDto
 } from "./schema"
 import type {
-  SendLoginWithPhoneResponse, GetPasswordRecoveryContactsResponse, SendPasswordRecoveryResponse
+  SendLoginWithPhoneResponse, GetPasswordRecoveryContactsResponse, SendPasswordRecoveryResponse,
+  CheckPasswordRecoveryTokenResponse
 } from "./types"
 
 export const authApi = {
@@ -44,7 +45,8 @@ export const authApi = {
   },
 
   checkPasswordRecoveryToken: async (data: CheckPasswordRecoveryTokenDto) => {
-    await api.get(`/auth/password-recovery/check-token/${data.token}`)
+    const response = await api.get<CheckPasswordRecoveryTokenResponse>(`/auth/password-recovery/check-token/${data.token}`)
+    return response.data
   },
 
   resetPassword: async (data: ResetPasswordDto) => {

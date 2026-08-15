@@ -52,7 +52,7 @@ const sendPasswordRecoverySchema = z.object({
     .enum(["EMAIL", "PHONE"])
 })
 
-const checkPasswordRecoveryToken = z.object({
+export const checkPasswordRecoveryTokenSchema = z.object({
   token: tokenSchema
 })
 
@@ -68,5 +68,5 @@ export type CheckAvailabilityDto = z.infer<typeof checkAvailabilitySchema>
 export type RegisterDto = z.infer<typeof registerSchema>
 export type PasswordRecoveryContactsDto = z.infer<typeof passwordRecoveryContactsSchema>
 export type SendPasswordRecoveryDto = z.infer<typeof sendPasswordRecoverySchema>
-export type CheckPasswordRecoveryTokenDto = z.infer<typeof checkPasswordRecoveryToken>
+export type CheckPasswordRecoveryTokenDto = z.infer<typeof checkPasswordRecoveryTokenSchema>
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>
