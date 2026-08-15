@@ -8,7 +8,7 @@ import { emailVerificationService } from "@/modules/verification/email/service.j
 import { phoneVerificationService } from "@/modules/verification/phone/service.js"
 import { GrammyError } from "grammy"
 import { sendEmail } from "@/shared/mailer/index.js"
-import { sendMessage } from "@/shared/bot/index.js"
+import { sendTelegramMessage } from "@/shared/bot/index.js"
 import { generateSecureCode, generateSecureToken } from "@/shared/utils/index.js"
 import { googleClient } from "./google.client.js"
 import type { LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneDto, CheckAvailabilityDto, ResetPasswordDto, GoogleAuthDto, PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto } from "./schema.js"
@@ -397,7 +397,7 @@ export const authService = {
       const now = Date.now()
       const cooldownMs = to === "EMAIL"
         ? config.auth.passwordRecoveryEmailCooldownMs
-        : config.auth.passwordRecoveryMessageCooldownMs
+        : config.auth.passwordRecoveryTelegramMessageCooldownMs
       if (request && request.updatedAt.getTime() > now - cooldownMs) {
         const errorCode = to === "EMAIL"
           ? ErrorCode.SEND_EMAIL_COOLDOWN
@@ -499,7 +499,7 @@ const sendLoginWithPhoneCode = async (telegramUserId: number, name: string, code
     `Ваш код для входа: ${code}\n`,
     "<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)</i>"
   ]
-  await sendMessage(telegramUserId, messageRows.join("\n"))
+  await sendTelegramMessage(telegramUserId, messageRows.join("\n"))
 }
 
 const generatePasswordRecoveryUrl = (token: string) => `${config.clientUrl}/reset-password/${token}`
@@ -516,7 +516,7 @@ const sendPasswordRecoveryUrl = async (target: PasswordRecoveryTarget, name: str
       "<i>Ссылка будет считаться актуальной <b>1 час</b> (если не запрашивать новую)\n",
       "Если вы не запрашивали сброс пароля — просто проигнорируйте это сообщение</i>"
     ]
-    await sendMessage(target.telegramUserId, messageRows.join("\n"))
+    await sendTelegramMessage(target.telegramUserId, messageRows.join("\n"))
   }
 }
 

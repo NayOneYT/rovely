@@ -2,7 +2,7 @@ import { prisma } from "@/shared/prisma.js"
 import { AppError, ErrorCode } from "@/shared/types/index.js"
 import { config } from "@/shared/config.js"
 import { GrammyError } from "grammy"
-import { sendMessage } from "@/shared/bot/index.js"
+import { sendTelegramMessage } from "@/shared/bot/index.js"
 import { generateSecureCode } from "@/shared/utils/index.js"
 import type { VerifyParams, SendParams } from "./types.js"
 import type { CheckRegistrationDto } from "./schema.js"
@@ -133,5 +133,5 @@ const sendCode = async (telegramUserId: number, name: string, code: string, isNe
       : ""
     }</i>`
   ]
-  await sendMessage(telegramUserId, messageRows.join("\n"))
+  await sendTelegramMessage(telegramUserId, messageRows.join("\n"))
 }

@@ -19,7 +19,7 @@ export const config = {
     loginWithPhoneCodeTtlMs: 60 * 60 * 1000, // 1 hour
     loginWithPhoneCooldownMs: 60 * 1000, // 1 minute
     passwordRecoveryEmailCooldownMs: 5 * 60 * 1000, // 5 minutes
-    passwordRecoveryMessageCooldownMs: 60 * 1000, // 1 minute
+    passwordRecoveryTelegramMessageCooldownMs: 60 * 1000, // 1 minute
     passwordRecoveryTokenTtlMs: 60 * 60 * 1000 // 1 hour
   },
   verification: {
