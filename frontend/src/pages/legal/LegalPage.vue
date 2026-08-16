@@ -87,7 +87,7 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>
         <p class="mt-2">{{ currentFooterNote }}</p>
       </div>
-      <div class="flex flex-col items-end font-medium text-brand">
+      <div class="flex flex-col items-end">
         <AppTextLink :to="currentLink.to">
           {{ currentLink.label }}
         </AppTextLink>
