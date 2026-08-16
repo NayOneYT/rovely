@@ -57,6 +57,12 @@ export const router = createRouter({
       name: "Privacy",
       component: () => import("@/pages/legal/LegalPage.vue"),
       meta: { title: "Политика конфиденциальности | ROVELY" }
+    },
+    {
+      path: "/:notFound(.*)*",
+      name: "NotFound",
+      component: () => import("@/pages/NotFoundPage.vue"),
+      meta: { title: "Страница не найдера | ROVELY" }
     }
   ],
   scrollBehavior(to) {
