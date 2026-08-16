@@ -15,7 +15,7 @@ const letters = [
       v-for="(letter, index) in letters" 
       :key="index" 
       class="
-        cursor-default select-none px-1 first:pl-0 last:pr-0 animate-shimmer transition-all duration-200
+        cursor-default select-none px-1 first:pl-0 last:pr-0 last:-ml-1 animate-shimmer transition-all duration-200
         text-shadow-[0_0_6px_currentColor] hover:text-shadow-[0_0_50px_currentColor]
       "
       :style="{
