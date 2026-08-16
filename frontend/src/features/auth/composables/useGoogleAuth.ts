@@ -42,7 +42,7 @@ export const useGoogleAuth = () => {
     error_callback: () => isProcessing.value = false
   })
 
-  const googleAuth = () => googleClient.requestCode
+  const googleAuth = () => googleClient.requestCode()
 
   return { googleAuth }
 }
