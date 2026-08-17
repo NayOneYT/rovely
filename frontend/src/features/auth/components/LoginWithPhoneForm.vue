@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
-import { useAuthStore } from "@/stores"
+import { useAuthStore } from "../auth.store.ts"
 import { useLoginWithPhoneForm } from "../composables/useLoginWithPhoneForm"
 import { useGoogleAuth } from "../composables/useGoogleAuth"
 import { AuthFormHeader, AppCheckbox, AppButton, AuthDivider } from "@/shared/components/ui"

@@ -6,7 +6,7 @@ import PasswordRecoveryForm from "./PasswordRecoveryForm.vue"
 import { useRoute } from "vue-router"
 import { computed } from "vue"
 import { storeToRefs } from "pinia"
-import { useAuthStore } from "@/stores"
+import { useAuthStore } from "../auth.store.ts"
 
 const formsMap = {
   Login: LoginForm,

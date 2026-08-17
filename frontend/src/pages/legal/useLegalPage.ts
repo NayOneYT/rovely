@@ -1,5 +1,5 @@
 import { useRoute, type RouteLocationRaw } from 'vue-router'
-import { PRIVACY_SECTIONS, TERM_SECTIONS } from './constants'
+import { PRIVACY_SECTIONS, TERM_SECTIONS } from './legal.constants'
 import { computed, ref, onMounted, onUnmounted, nextTick, watch } from "vue"
 
 type LegalLink = {

@@ -2,7 +2,7 @@
 import { ref } from "vue"
 import { useParticlesCanvas } from './useParticlesCanvas';
 import { AppLogo } from '@/shared/components/ui'
-import { WELCOME_FEATURES } from './constants'
+import { WELCOME_FEATURES } from './welcome.constants'
 import AuthWidget from '@/features/auth/components/AuthWidget.vue'
 import MinimalLayout from "@/shared/layouts/MinimalLayout.vue";
 

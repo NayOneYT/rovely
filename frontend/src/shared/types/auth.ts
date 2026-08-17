@@ -1,2 +1,0 @@
-export type RegistrationStep = 1 | 2 | 2.5 | 3
-export type PasswordRecoveryStep = 1 | 2

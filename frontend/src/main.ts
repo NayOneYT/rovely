@@ -3,10 +3,9 @@ import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate"
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import { queryClient } from './shared/api'
-import './style.css'
-
 import App from './App.vue'
-import { router } from './router'
+import { router } from './router.ts'
+import './style.css'
 
 const app = createApp(App)
 const pinia = createPinia()

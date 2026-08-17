@@ -2,12 +2,12 @@ import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { useForm, useField } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { verifySchema } from "../schema"
+import { verifySchema } from "../email-verification.schemas"
 import { useMutation } from "@tanstack/vue-query"
-import { emailVerificationApi } from "../api"
-import { ApiError, ErrorCode } from "@/shared/api/types"
+import { emailVerificationApi } from "../email-verification.api"
+import { ApiError, ErrorCode } from "@/shared/api/errors"
 import { toast } from "vue-sonner"
-import type { VerifyStatus } from "../types"
+import type { VerifyStatus } from "../email-verification.types"
 
 export const useVerifyEmail = () => {
   const route = useRoute()

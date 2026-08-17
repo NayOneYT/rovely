@@ -1,6 +1,6 @@
 import { app } from "./app.js"
-import { config } from "./shared/config.js"
-import { bot } from "./shared/bot/client.js"
+import { appConfig } from "./shared/app.config.js"
+import { bot } from "./shared/bot/bot.client.js"
 import { registerBotHandlers } from "./modules/bot/index.js"
 
 try {
@@ -11,8 +11,8 @@ try {
   })
   console.log("The Telegram bot has been launched.")
 
-  const server = app.listen(config.port, () => {
-    console.log(`The server is running on http://localhost:${config.port}`)
+  const server = app.listen(appConfig.port, () => {
+    console.log(`The server is running on http://localhost:${appConfig.port}`)
   })
 
   const gracefulShutdown = () => {

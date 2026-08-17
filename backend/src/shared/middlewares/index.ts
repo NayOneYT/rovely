@@ -1,3 +1,3 @@
-export * from "./auth.js"
-export * from "./validate.js"
-export * from "./error.js"
+export * from "./auth.middleware.js"
+export * from "./validation.middleware.js"
+export * from "./error.middleware.js"

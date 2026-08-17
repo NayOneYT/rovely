@@ -1,12 +1,12 @@
 import { storeToRefs } from "pinia"
-import { useAuthStore } from "@/stores"
+import { useAuthStore } from "../auth.store.ts"
 import { useRouter } from "vue-router"
-import { authApi } from "../api"
+import { authApi } from "../auth.api"
 import { queryClient } from "@/shared/api"
 import { currentAccountQueryOptions } from "@/entities/account/useCurrentAccount"
-import { ApiError } from "@/shared/api/types"
+import { ApiError } from "@/shared/api/errors"
 import { toast } from "vue-sonner"
-import { config } from "@/shared/config"
+import { config } from "@/shared/app.config"
 import { useMutation } from "@tanstack/vue-query"
 
 export const useGoogleAuth = () => {

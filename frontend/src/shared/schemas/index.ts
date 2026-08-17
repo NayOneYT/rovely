@@ -1,3 +1,3 @@
-export * from "./common"
-export * from "./account"
-export * from "./secure"
+export * from "./common.schemas"
+export * from "./account.schemas"
+export * from "./secure.schemas"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
-import { useAuthStore } from "@/stores"
+import { useAuthStore } from "../auth.store.ts"
 import { usePasswordRecoveryForm } from "../composables/usePasswordRecoveryForm"
 import { AuthFormHeader, AppButton } from "@/shared/components/ui"
 import { IdentifierField } from "@/shared/components/ui/fields"

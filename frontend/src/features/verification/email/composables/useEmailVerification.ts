@@ -1,12 +1,12 @@
 import { useEmailField } from "@/shared/composables/fields"
 import { ref, watch, computed } from "vue"
 import { useMutation } from "@tanstack/vue-query"
-import { emailVerificationApi } from "../api"
-import { ApiError, ErrorCode } from "@/shared/api/types"
+import { emailVerificationApi } from "../email-verification.api"
+import { ApiError, ErrorCode } from "@/shared/api/errors"
 import { useTimer } from "@/shared/composables"
 import { toast } from "vue-sonner"
-import { sendSchema } from "../schema"
-import type { useEmailVerificationOptions, CheckRegistrationStatus, SendStatus } from "../types"
+import { sendSchema } from "../email-verification.schemas"
+import type { useEmailVerificationOptions, CheckRegistrationStatus, SendStatus } from "../email-verification.types"
 
 export const useEmailVerification = ({
   nameValue,

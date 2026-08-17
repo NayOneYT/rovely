@@ -1,14 +1,14 @@
 import { storeToRefs } from "pinia"
-import { useAuthStore } from "@/stores"
+import { useAuthStore } from "../auth.store.ts"
 import { useTimer } from "@/shared/composables"
 import { useForm } from "vee-validate"
 import { toTypedSchema } from "@vee-validate/zod"
-import { passwordRecoveryContactsSchema } from "../schema"
+import { passwordRecoveryContactsSchema } from "../auth.schemas.ts"
 import { ref, watch, computed } from "vue"
 import { useIdentifierField } from "@/shared/composables/fields"
 import { useMutation } from "@tanstack/vue-query"
-import { authApi } from "../api"
-import { ApiError, ErrorCode } from "@/shared/api/types"
+import { authApi } from "../auth.api"
+import { ApiError, ErrorCode } from "@/shared/api/errors"
 import { toast } from "vue-sonner"
 
 export const usePasswordRecoveryForm = () => {

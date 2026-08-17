@@ -1,12 +1,12 @@
 import { usePhoneField, useCodeField } from "@/shared/composables/fields"
 import { watch, ref, computed } from "vue"
 import { useMutation } from "@tanstack/vue-query"
-import { phoneVerificationApi } from "./api"
-import { ApiError, ErrorCode } from "@/shared/api/types"
+import { phoneVerificationApi } from "./phone-verification.api"
+import { ApiError, ErrorCode } from "@/shared/api/errors"
 import { useTimer } from "@/shared/composables"
 import { toast } from "vue-sonner"
-import { sendSchema } from "./schema"
-import type { usePhoneVerificationOptions, CheckRegistrationStatus, SendStatus, VerifyStatus } from "./types"
+import { sendSchema } from "./phone-verification.schemas"
+import type { usePhoneVerificationOptions, CheckRegistrationStatus, SendStatus, VerifyStatus } from "./phone-verification.types"
 
 export const usePhoneVerification = ({
   nameValue,

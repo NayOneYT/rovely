@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/vue-query"
 import { useQuery } from "@tanstack/vue-query"
-import { accountApi } from "./api"
-import { config } from "@/shared/config"
+import { accountApi } from "./account.api"
+import { config } from "@/shared/app.config"
 
 export const currentAccountQueryOptions = queryOptions({
   queryKey: ["account", "me"],
