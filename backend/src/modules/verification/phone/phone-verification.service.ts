@@ -98,7 +98,12 @@ export const phoneVerificationService = {
       }
       if (request?.isConfirmed && request.updatedAt.getTime() > now - appConfig.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateSecureCode()
-      await sendCode(link.telegramUserId, params.name, code, !params.accountId)
+      await sendCode({
+        telegramUserId: link.telegramUserId,
+        name: params.name,
+        code,
+        isNewAccount: !params.accountId
+      })
       const updateData = request?.isConfirmed
         ? { code, isConfirmed: false }
         : { code }
@@ -124,14 +129,19 @@ export const phoneVerificationService = {
   }
 }
 
-const sendCode = async (telegramUserId: number, name: string, code: string, isNewAccount: boolean) => {
+const sendCode = async (params: {
+  telegramUserId: number,
+  name: string,
+  code: string,
+  isNewAccount: boolean
+}) => {
   const messageRows = [
-    `Здравствуйте, ${name}\n`,
-    `Ваш код подтверждения: ${code}\n`,
-    `<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)${isNewAccount
+    `Здравствуйте, ${params.name}\n`,
+    `Ваш код подтверждения: ${params.code}\n`,
+    `<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)${params.isNewAccount
       ? ", после подтверждения номер телефона будет считаться подтвержденным также <b>1 час</b>"
       : ""
     }</i>`
   ]
-  await sendTelegramMessage(telegramUserId, messageRows.join("\n"))
+  await sendTelegramMessage(params.telegramUserId, messageRows.join("\n"))
 }

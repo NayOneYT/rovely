@@ -97,7 +97,14 @@ export const emailVerificationService = {
       ? { token, isConfirmed: false }
       : { token }
     await Promise.all([
-      sendEmail(params.email, templateId, { name: params.name, confirm_url: generateUrl(token) }),
+      sendEmail({
+        email: params.email,
+        templateId,
+        variables: {
+          name: params.name,
+          confirm_url: generateUrl(token)
+        }
+      }),
       request
         ? prisma.emailVerificationRequest.update({
           where: {

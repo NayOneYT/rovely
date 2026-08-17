@@ -103,7 +103,11 @@ export const authService = {
         throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
       }
       const code = generateSecureCode()
-      await sendLoginWithPhoneCode(link.telegramUserId, account.profile!.name, code)
+      await sendLoginWithPhoneCode({
+        telegramUserId: link.telegramUserId,
+        name: account.profile!.name,
+        code
+      })
       await prisma.loginWithPhoneRequest.upsert({
         where: {
           phone
@@ -413,7 +417,11 @@ export const authService = {
       const target: PasswordRecoveryTarget = to === "EMAIL"
         ? { to, email: account.email! }
         : { to, telegramUserId }
-      await sendPasswordRecoveryUrl(target, account.profile!.name, token)
+      await sendPasswordRecoveryUrl({
+        target,
+        name: account.profile!.name,
+        token
+      })
       request
         ? await prisma.passwordRecoveryRequest.update({
           where: {
@@ -493,33 +501,58 @@ export const authService = {
 
 const hashPassword = async (password: string) => await bcrypt.hash(password, 10)
 
-const generateAccessToken = (payload: AccessTokenPayload) => jwt.sign({ id: payload.id }, appConfig.jwtAccessSecret, { expiresIn: "5m" })
-const generateRefreshToken = (payload: RefreshTokenPayload) => jwt.sign({ id: payload.id, rememberMe: payload.rememberMe, passwordChangedAt: payload.passwordChangedAt }, appConfig.jwtRefreshSecret, { expiresIn: "1y" })
+const generateAccessToken = (payload: AccessTokenPayload) => {
+  return jwt.sign({ id: payload.id }, appConfig.jwtAccessSecret, { expiresIn: "5m" })
+}
 
-const sendLoginWithPhoneCode = async (telegramUserId: number, name: string, code: string) => {
+const generateRefreshToken = (payload: RefreshTokenPayload) => {
+  return jwt.sign(
+    { id: payload.id, rememberMe: payload.rememberMe, passwordChangedAt: payload.passwordChangedAt },
+    appConfig.jwtRefreshSecret,
+    { expiresIn: "1y" }
+  )
+}
+
+const sendLoginWithPhoneCode = async (params: {
+  telegramUserId: number,
+  name: string,
+  code: string
+}) => {
   const messageRows = [
-    `Здравствуйте, ${name}\n`,
-    `Ваш код для входа: ${code}\n`,
+    `Здравствуйте, ${params.name}\n`,
+    `Ваш код для входа: ${params.code}\n`,
     "<i>Этот код будет считаться актуальным <b>1 час</b> (если не запрашивать новый)</i>"
   ]
-  await sendTelegramMessage(telegramUserId, messageRows.join("\n"))
+  await sendTelegramMessage(params.telegramUserId, messageRows.join("\n"))
 }
 
 const generatePasswordRecoveryUrl = (token: string) => `${appConfig.clientUrl}/reset-password/${token}`
 
-const sendPasswordRecoveryUrl = async (target: PasswordRecoveryTarget, name: string, token: string) => {
-  const url = generatePasswordRecoveryUrl(token)
-  if (target.to === "EMAIL") await sendEmail(target.email, "reset-password", { name, url })
-  else {
+const sendPasswordRecoveryUrl = async (params: {
+  target: PasswordRecoveryTarget,
+  name: string,
+  token: string
+}) => {
+  const url = generatePasswordRecoveryUrl(params.token)
+  if (params.target.to === "EMAIL") {
+    await sendEmail({
+      email: params.target.email,
+      templateId: "reset-password",
+      variables: {
+        name: params.name,
+        url
+      }
+    })
+  } else {
     const messageRows = [
-      `Здравствуйте, ${name}\n`,
+      `Здравствуйте, ${params.name}\n`,
       "Был запрошен сброс пароля для привязанного к этому номеру телефона аккаунта в ROVELY",
       "Для завершения перейдите по ссылке ниже и укажите новый пароль:\n",
       `${url}\n`,
       "<i>Ссылка будет считаться актуальной <b>1 час</b> (если не запрашивать новую)\n",
       "Если вы не запрашивали сброс пароля — просто проигнорируйте это сообщение</i>"
     ]
-    await sendTelegramMessage(target.telegramUserId, messageRows.join("\n"))
+    await sendTelegramMessage(params.target.telegramUserId, messageRows.join("\n"))
   }
 }
 
