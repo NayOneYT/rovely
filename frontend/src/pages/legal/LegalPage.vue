@@ -1,14 +1,24 @@
 <script setup lang="ts">
-import { useLegalPage } from './useLegalPage'
+import MinimalLayout from "@/shared/layouts/MinimalLayout.vue"
+import { useLegalPage } from "./useLegalPage"
 import { AppTextLink } from "@/shared/components/ui"
+import { ref } from "vue"
+import { X, List } from "@lucide/vue"
+import { onClickOutside } from "@vueuse/core"
 
 const { currentTitle, currentSections, activeSections, currentFooterNote, currentLink } = useLegalPage()
+
+const sheetRef = ref<HTMLElement>()
+const isSheetOpen = ref(false)
+onClickOutside(sheetRef, () => {
+  if (isSheetOpen.value) isSheetOpen.value = false
+})
 </script>
 
 <template>
-  <div class="grid grid-cols-4">
-    <main lang="ru" class="col-start-2 col-span-2 p-10 m-2">
-      <h1 class="text-3xl text-center">{{ currentTitle }}</h1>
+  <MinimalLayout class="grid grid-cols-4">
+    <main lang="ru" class="col-start-1 col-span-4 lg:col-start-2 lg:col-span-2">
+      <h1 class="text-2xl sm:text-3xl text-center">{{ currentTitle }}</h1>
       <section
         v-for="(section, sectionIndex) in currentSections"
         :key="`section-${sectionIndex}`"
@@ -17,14 +27,15 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
       >
         <RouterLink
           :to="{ hash: `#${section.id}` }"
-          class="relative block group text-xl"
+          class="relative inline group text-lg sm:text-xl"
         >
           <span class="
-            absolute -left-5 pr-2 text-brand opacity-0 group-hover:opacity-100 transition-all duration-200">#</span>
+            hidden lg:inline absolute -left-5 pr-2 text-brand opacity-0 group-hover:opacity-100 transition-all duration-200
+          ">#</span>
           {{ section.title }}
         </RouterLink>
-        <p class="text-lg mt-4">{{ section.intro }}</p>
-        <div class="mt-4 ml-10">
+        <p class="sm:text-lg mt-4">{{ section.intro }}</p>
+        <div class="mt-4 ml-4 sm:ml-10 text-sm sm:text-base">
           <p 
             v-for="(subsection, index) in section.subsections" 
             :key="`subsection-${sectionIndex}-${index}`"
@@ -63,32 +74,75 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         </div>
       </section>
     </main>
-    <aside class="col-span-1 flex justify-center">
-      <section class="fixed mt-2 mr-2 px-5 py-3 rounded-2xl bg-card border border-border">
-        <h2 class="text-xl text-center">Навигация</h2>
+    <nav
+      ref="sheetRef"
+      class="fixed flex lg:hidden flex-col top-1/2 right-2 -translate-y-1/2 overflow-hidden will-change-transform bg-card border border-border transition-all duration-200"
+      :class="isSheetOpen ? 'w-60 sm:w-70 rounded-xl border-brand shadow-glow' : 'w-12 rounded-3xl'"
+    >
+      <div class="flex justify-between items-center">
+        <span
+          v-if="isSheetOpen"
+          class="p-3 text-sm sm:text-base"
+        >
+          Содержание
+        </span>
+        <button
+          @click="isSheetOpen = !isSheetOpen"
+          class="flex justify-center items-center ml-auto p-2.75 text-brand"
+          :class=" isSheetOpen ? 'rounded-xl' : 'rounded-3xl'"
+        >
+          <X v-if="isSheetOpen" />
+          <List v-else />
+      </button>
+      </div>
+      <div
+        class="grid transition-all duration-200"
+        :class="isSheetOpen ? 'p-3 pt-0 grid-rows-[1fr] grid-cols-[1fr]' : 'grid-rows-[0fr] grid-cols-[0fr]'"
+      >
+        <div class="max-h-60 overflow-y-auto overflow-x-hidden text-xs sm:text-sm">
+          <AppTextLink
+            v-for="(section, index) in currentSections" 
+            :key="`content-${index}`"
+            :to="{ hash: `#${section.id}` }"
+            class="inline-block py-1 sm:py-0.5"
+          >
+            {{ section.title }}
+          </AppTextLink>
+        </div>
+      </div>
+    </nav>
+    <aside class="hidden lg:flex col-span-1 justify-center">
+      <section class="fixed mt-2 mr-2 px-5 py-3 bg-card rounded-2xl border border-border">
+        <h2 class="text-xl text-center">Содержание</h2>
         <nav class="flex flex-col mt-1">
           <RouterLink
             v-for="(section, index) in currentSections" 
             :key="`nav-${index}`"
             :to="{ hash: `#${section.id}` }"
             :tabindex="activeSections.has(section.id) ? -1 : 0"
+            class="py-0.5 transition-all duration-200"
             :class="activeSections.has(section.id) 
               ? 'text-text-main pointer-events-none' 
               : 'text-text-muted hover:text-text-main focus-visible:text-text-main'"
-            class="py-0.5 transition-all duration-200"
           >
             {{ section.title }}
           </RouterLink>
         </nav>
       </section>
     </aside>
-    <footer class="col-start-2 col-span-2 flex justify-between text-sm p-10 rounded-[40px] mb-2 border border-border bg-card">
+    <footer 
+      class="
+        col-start-1 col-span-4 lg:col-start-2 lg:col-span-2 flex flex-col gap-2 sm:flex-row justify-between text-xs sm:text-sm mt-6 p-4 rounded-2xl border border-border bg-card
+      "
+    >
       <div class="text-text-muted">
         <p>© ROVELY. Кузнечик Е.А. Все права защищены.</p>
         <p class="mt-2">{{ currentFooterNote }}</p>
       </div>
-      <div class="flex flex-col items-end">
-        <AppTextLink :to="currentLink.to">
+      <div class="shrink-0 flex flex-col sm:items-end">
+        <AppTextLink
+          :to="currentLink.to"
+        >
           {{ currentLink.label }}
         </AppTextLink>
         <div class="flex gap-5 mt-2">
@@ -101,5 +155,5 @@ const { currentTitle, currentSections, activeSections, currentFooterNote, curren
         </div>
       </div>
     </footer>
-  </div>
+  </MinimalLayout>
 </template>

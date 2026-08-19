@@ -16,6 +16,7 @@
     "@lucide/vue": "^1.28.0",
     "@tanstack/vue-query": "^5.100.5",
     "@vee-validate/zod": "^4.15.1",
+    "@vueuse/core": "^14.4.0",
     "axios": "^1.15.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

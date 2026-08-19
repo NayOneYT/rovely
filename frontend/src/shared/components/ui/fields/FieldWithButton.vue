@@ -37,7 +37,7 @@ const emit = defineEmits<{
   />
   <div 
     class="
-      group flex items-center w-full bg-bg rounded-[13.5px] border border-border 
+      group flex items-center bg-bg rounded-[13.5px] border border-border 
       focus-within:border-brand focus-within:shadow-glow transition-all duration-200
     "
     :class="disabled ? 'opacity-50' : ''"
@@ -53,7 +53,7 @@ const emit = defineEmits<{
       @input="(event) => emit('input', event)"
       @blur="emit('blur')"
       :disabled="disabled"
-      class="flex-1 bg-transparent px-4 py-2.75"
+      class="flex-1 bg-transparent px-4 py-2.75 min-w-0"
     >
     <div class="w-px h-6 transition-all bg-border group-focus-within:bg-brand group-focus-within:shadow-glow" />
     <AppButton

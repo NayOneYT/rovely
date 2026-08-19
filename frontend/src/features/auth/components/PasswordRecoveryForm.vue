@@ -55,7 +55,7 @@ const {
       @click="send('EMAIL')"
       :disabled="isProcessing || !!sendEmailCooldown"
     >
-      Письмо на {{ passwordRecoveryBlurredEmail }}
+      {{ passwordRecoveryBlurredEmail }}
       <Mail class="ml-2 mr-1 size-6" />
       <span
         v-if="!!sendEmailCooldown" 
@@ -71,7 +71,7 @@ const {
       :disabled="isProcessing || !!sendTelegramMessageCooldown"
       class="mt-4"
     >
-      Сообщение на {{ passwordRecoveryBlurredPhone }}
+      {{ passwordRecoveryBlurredPhone }}
       <TelegramIcon class="ml-2.5 mr-0.5 size-6 scale-125" />
       <span 
         v-if="!!sendTelegramMessageCooldown" 

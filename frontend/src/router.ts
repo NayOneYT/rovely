@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router"
-import WelcomePage from "./pages/welcome/WelcomePage.vue"
 import { currentAccountQueryOptions } from "./entities/account/useCurrentAccount.ts"
 import { queryClient } from "./shared/api/index.ts"
 
@@ -13,19 +12,19 @@ export const router = createRouter({
     {
       path: "/login",
       name: "Login",
-      component: WelcomePage,
+      component: () => import("@/pages/welcome/WelcomePage.vue"),
       meta: { title: "Вход | ROVELY", guestOnly: true }
     },
     {
       path: "/login-with-phone",
       name: "LoginWithPhone",
-      component: WelcomePage,
+      component: () => import("@/pages/welcome/WelcomePage.vue"),
       meta: { title: "Вход по номеру телефона | ROVELY", guestOnly: true }
     },
     {
       path: "/password-recovery",
       name: "PasswordRecovery",
-      component: WelcomePage,
+      component: () => import("@/pages/welcome/WelcomePage.vue"),
       meta: { title: "Восстановление пароля | ROVELY", guestOnly: true }
     },
     {
@@ -37,7 +36,7 @@ export const router = createRouter({
     {
       path: "/registration",
       name: "Registration",
-      component: WelcomePage,
+      component: () => import("@/pages/welcome/WelcomePage.vue"),
       meta: { title: "Регистрация | ROVELY", guestOnly: true }
     },
     {
@@ -62,7 +61,7 @@ export const router = createRouter({
       path: "/:notFound(.*)*",
       name: "NotFound",
       component: () => import("@/pages/NotFoundPage.vue"),
-      meta: { title: "Страница не найдера | ROVELY" }
+      meta: { title: "Страница не найдена | ROVELY" }
     }
   ],
   scrollBehavior(to) {

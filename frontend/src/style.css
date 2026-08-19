@@ -63,6 +63,10 @@ form {
   user-select: none;
 }
 
+* {
+  scrollbar-color: var(--color-brand) transparent
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,

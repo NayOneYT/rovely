@@ -5,8 +5,8 @@ import ResetPasswordForm from "../features/auth/components/ResetPasswordForm.vue
 </script>
 
 <template>
-  <MinimalLayout>
-    <AppLogo class="text-5xl relative w-full flex justify-center -mt-4" />
-    <ResetPasswordForm class="mt-6" />
+  <MinimalLayout class="h-screen">
+    <AppLogo class="text-5xl relative w-full flex justify-center -mt-2" />
+    <ResetPasswordForm class="mt-4" />
   </MinimalLayout>
 </template>

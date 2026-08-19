@@ -13,8 +13,8 @@ const {
 
 <template>
   <div
-    :class="status === 'READY' || status === 'RESETTING' ? 'w-130 rounded-[64px]' : 'rounded-[40px]'"
-    class="bg-card p-10 border border-border"
+    :class="status === 'READY' || status === 'RESETTING' ? 'w-full max-w-130 rounded-[40px]' : 'rounded-2xl'"
+    class="bg-card p-4 border border-border"
   >
     <p v-if="status === 'CHECKING'">
       <LoaderCircle class="size-10 animate-spin" />
@@ -25,7 +25,10 @@ const {
     >
       Запросите новую ссылку
     </p>
-    <form v-else-if="status === 'READY' || status === 'RESETTING'" @submit.prevent="reset">
+    <form 
+      v-else-if="status === 'READY' || status === 'RESETTING'"
+      @submit.prevent="reset"
+    >
       <AuthFormHeader
         title="Сброс пароля"
         :subtitle="`Измените пароль в течение ${remainingTime}`"

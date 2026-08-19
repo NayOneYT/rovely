@@ -24,7 +24,7 @@ const { isProcessing } = storeToRefs(useAuthStore())
 </script>
 
 <template>
-  <div class="w-full bg-card border border-border rounded-[64px] p-10">
+  <div class="w-full bg-card border border-border rounded-[40px] p-4">
     <nav 
       v-if="currentForm !== PasswordRecoveryForm"
       class="relative flex mb-6 bg-bg rounded-full select-none"
