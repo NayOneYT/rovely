@@ -17,7 +17,7 @@ onClickOutside(sheetRef, () => {
 
 <template>
   <MinimalLayout class="grid grid-cols-12 items-stretch">
-    <main lang="ru" class="col-span-12 lg:col-span-8">
+    <main lang="ru" class="col-span-12 lg:col-span-8 2xl:col-start-4 2xl:col-span-6">
       <h1 class="text-2xl sm:text-3xl text-center">{{ currentTitle }}</h1>
       <section
         v-for="(section, sectionIndex) in currentSections"
@@ -111,7 +111,7 @@ onClickOutside(sheetRef, () => {
         </div>
       </div>
     </nav>
-    <aside class="hidden lg:flex col-start-9 col-span-4 justify-center ml-2">
+    <aside class="hidden lg:flex col-start-9 col-span-4 2xl:col-start-10 2xl:col-span-3 justify-center ml-2">
       <section class="sticky top-2 self-start px-4 xl:px-10 py-2.75 xl:py-7.5 max-w-120 bg-card rounded-[13.5px] xl:rounded-[35px] border border-border">
         <h2 class="text-xl text-center">Содержание</h2>
         <nav class="flex flex-col overflow-y-auto max-h-[calc(100vh-74px)] xl:max-h-[calc(100vh-112px)] mt-1">
@@ -132,7 +132,7 @@ onClickOutside(sheetRef, () => {
     </aside>
     <footer 
       class="
-        col-span-12 lg:col-start-2 lg:col-span-10 flex xl:col-start-3 xl:col-span-8 flex-col gap-2 sm:flex-row justify-between text-xs sm:text-sm mt-6 px-4 lg:px-10 py-2.75 lg:py-7.5 rounded-[13.5px] lg:rounded-[35px] border border-border bg-card
+        col-span-12 lg:col-start-2 lg:col-span-10 flex xl:col-start-3 xl:col-span-8 2xl:col-start-4 2xl:col-span-6 flex-col gap-2 sm:flex-row justify-between text-xs sm:text-sm mt-6 px-4 lg:px-10 py-2.75 lg:py-7.5 rounded-[13.5px] lg:rounded-[35px] border border-border bg-card
       "
     >
       <div class="text-text-muted">
