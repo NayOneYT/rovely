@@ -10,7 +10,7 @@ const { status } = useVerifyEmail()
 <template>
   <MinimalLayout class="h-screen">
     <AppLogo class="text-5xl w-full flex justify-center -mt-2" />
-    <div class="rounded-[40px] border border-border bg-card p-10 mt-4 text-xl">
+    <div class="bg-card px-4 sm:px-10 py-2.75 sm:py-7.5 mt-4 text-xl border border-border rounded-[13.5px] sm:rounded-[35px]">
       <p v-if="status === 'IDLE'">
         <LoaderCircle class="size-10 animate-spin" />
       </p>
