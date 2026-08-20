@@ -11,7 +11,7 @@ useParticlesCanvas(canvasRef)
 </script>
 
 <template>
-  <MinimalLayout>
+  <MinimalLayout class="flex-col">
     <canvas ref="canvasRef" class="absolute size-full -z-1 opacity-50" />
     <AuthWidget class="max-w-118 sm:max-w-130" />
     <div class="flex flex-col items-center max-w-170">

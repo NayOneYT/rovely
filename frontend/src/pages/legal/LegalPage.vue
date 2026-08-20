@@ -16,8 +16,8 @@ onClickOutside(sheetRef, () => {
 </script>
 
 <template>
-  <MinimalLayout class="grid grid-cols-4">
-    <main lang="ru" class="col-start-1 col-span-4 lg:col-start-2 lg:col-span-2">
+  <MinimalLayout class="grid grid-cols-12 items-stretch">
+    <main lang="ru" class="col-span-12 lg:col-span-8">
       <h1 class="text-2xl sm:text-3xl text-center">{{ currentTitle }}</h1>
       <section
         v-for="(section, sectionIndex) in currentSections"
@@ -111,10 +111,10 @@ onClickOutside(sheetRef, () => {
         </div>
       </div>
     </nav>
-    <aside class="hidden lg:flex col-span-1 justify-center">
-      <section class="fixed mt-2 mr-2 px-5 py-3 bg-card rounded-2xl border border-border">
+    <aside class="hidden lg:flex col-start-9 col-span-4 justify-center ml-2">
+      <section class="sticky top-2 self-start px-5 py-3 max-w-120 bg-card rounded-2xl border border-border">
         <h2 class="text-xl text-center">Содержание</h2>
-        <nav class="flex flex-col mt-1">
+        <nav class="flex flex-col overflow-scroll max-h-[calc(100vh-74px)] mt-1">
           <RouterLink
             v-for="(section, index) in currentSections" 
             :key="`nav-${index}`"
@@ -132,7 +132,7 @@ onClickOutside(sheetRef, () => {
     </aside>
     <footer 
       class="
-        col-start-1 col-span-4 lg:col-start-2 lg:col-span-2 flex flex-col gap-2 sm:flex-row justify-between text-xs sm:text-sm mt-6 p-4 rounded-2xl border border-border bg-card
+        col-span-12 lg:col-start-2 lg:col-span-10 flex flex-col gap-2 sm:flex-row justify-between text-xs sm:text-sm mt-6 p-4 rounded-2xl border border-border bg-card
       "
     >
       <div class="text-text-muted">
