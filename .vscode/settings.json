@@ -1,0 +1,32 @@
+{
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "Dark Modern",
+  "editor.formatOnSave": true,
+  "editor.rulers": [
+    120
+  ],
+  "css.lint.unknownAtRules": "ignore",
+  "workbench.experimental.modernUI": false,
+  "material-icon-theme.activeIconPack": "vue",
+  "material-icon-theme.files.associations": {
+    "*.types.ts": "document",
+    "*.interfaces.ts": "document",
+    "*.enums.ts": "document",
+    "*.schemas.ts": "lock",
+    "*.router.ts": "routing",
+    "*.controller.ts": "controller",
+    "*.service.ts": "brainfuck",
+    "*.client.ts": "http",
+    "*.composer.ts": "robots",
+    "*.middleware.ts": "command",
+    "*.config.ts": "settings",
+    "*.api.ts": "routing",
+    "*.store.ts": "database",
+    "*.instance.ts": "http"
+  },
+  "material-icon-theme.folders.associations": {
+    "composers": "robot",
+    "verification": "secure",
+    "fields": "input"
+  }
+}
