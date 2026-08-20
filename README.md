@@ -88,16 +88,16 @@ Access communities through a unique tilde-based URL system (e.g., `~flowname`). 
 - **Real-time**: Socket.IO
 - **Authentication**: JWT, Google Auth Library
 - **File Storage**: AWS S3
+- **State Management**: Redis
 - **Email**: Resend
 - **Bot Framework**: Grammy (Telegram)
 - **Validation**: Zod
 
 ### Frontend
-- **Framework**: Vue 3.5 with Composition API
+- **Framework**: Vue 3.5 Composition API
 - **Build Tool**: Vite 8
 - **Language**: TypeScript 6
 - **State Management**: Pinia
-- **UI Components**: Reka UI (Radix Vue)
 - **Styling**: TailwindCSS 4
 - **Icons**: Lucide Vue
 - **HTTP Client**: Axios
@@ -178,23 +178,30 @@ npm run dev
 ```
 The frontend will start on `http://localhost:5173`
 
+### 💻 Recommended IDE Setup
+
+For the best development experience, we recommend using **[VS Code](https://code.visualstudio.com/)**.
+
+The repository includes pre-configured `.vscode/settings.json` (custom icon mappings, format-on-save, type checking) and `.vscode/extensions.json`. When you open the project in VS Code, install the recommended workspace extensions:
+
+- **[Vue (Official / Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.volar)** — Language support for Vue 3
+- **[Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)** — Autocomplete & linting for Tailwind CSS 4
+- **[Material Icon Theme](https://marketplace.visualstudio.com/items?itemName=pkief.material-icon-theme)** — Custom icons for services, controllers, stores, and composers
+
 ---
 
 ## 🔧 Environment Variables
 
 ### Backend (.env)
-Create a `.env` file in the `backend` directory based on `.env.example`:
-
 ```env
 # Node Environment
 NODE_ENV=development
 
-# Server Configuration
-PORT=3000
-CLIENT_URL=http://localhost:5173
-
 # Database
 DATABASE_URL=postgresql://rovely_user:password@localhost:5432/rovely?schema=public
+
+# Server Configuration
+PORT=3000
 
 # JWT Secrets (generate strong random strings)
 JWT_ACCESS_SECRET=your_jwt_access_secret_here
@@ -204,7 +211,7 @@ JWT_REFRESH_SECRET=your_jwt_refresh_secret_here
 RESEND_API_KEY=your_resend_api_key_here
 
 # Telegram Bot
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+BOT_TOKEN=your_telegram_bot_token_here
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your_google_client_id_here
@@ -212,8 +219,6 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 ```
 
 ### Frontend (.env)
-Create a `.env` file in the `frontend` directory based on `.env.example`:
-
 ```env
 # Google OAuth (Vite requires VITE_ prefix for client-side variables)
 VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
@@ -229,20 +234,25 @@ VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 ## 🗺 Roadmap
 
 ### ✅ Completed
-- [x] User registration
 - [x] User login
+- [x] User registration
 - [x] Email verification system
 - [x] Phone verification via Telegram
+- [x] Terms of Use & Privacy Policy
 - [x] Google OAuth integration
-- [x] Password recovery (email & phone)
-- [x] Database schema design
+- [x] Password recovery
 
 ### 🚧 In Progress
-- [ ] Profile management
-- [ ] Profile photos gallery
-- [ ] Profile music integration
+- [ ] Implement Redis
+- [ ] Implement Docker
+- [ ] Implement Socket.IO
 
 ### 📋 Planned
+- [ ] Profile management
+- [ ] File upload via AWS S3
+- [ ] Profile photos gallery
+- [ ] Profile music integration
+- [ ] Real-time features via Socket.IO
 - [ ] Block-based content system implementation
 - [ ] Messaging system (private & group chats)
 - [ ] Multi-reply system
@@ -254,9 +264,6 @@ VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 - [ ] Comments and reactions
 - [ ] Notifications system
 - [ ] Content reporting & moderation
-- [ ] Real-time features via Socket.IO
-- [ ] File upload via AWS S3
-- [ ] Mobile-responsive design
 - [ ] Performance optimization
 - [ ] Comprehensive testing
 
