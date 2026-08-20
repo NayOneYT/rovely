@@ -13,8 +13,8 @@ const {
 
 <template>
   <div
-    :class="status === 'READY' || status === 'RESETTING' ? 'w-full max-w-130 rounded-[40px]' : 'rounded-2xl'"
-    class="bg-card p-4 border border-border"
+    :class="status === 'READY' || status === 'RESETTING' ? 'w-full max-w-118 sm:max-w-130 rounded-[40px] sm:rounded-[64px]' : 'rounded-2xl'"
+    class="bg-card p-4 sm:p-10 border border-border"
   >
     <p v-if="status === 'CHECKING'">
       <LoaderCircle class="size-10 animate-spin" />

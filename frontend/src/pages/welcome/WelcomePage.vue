@@ -13,7 +13,7 @@ useParticlesCanvas(canvasRef)
 <template>
   <MinimalLayout>
     <canvas ref="canvasRef" class="absolute size-full -z-1 opacity-50" />
-    <AuthWidget class="max-w-130" />
+    <AuthWidget class="max-w-118 sm:max-w-130" />
     <div class="flex flex-col items-center max-w-170">
       <AppLogo class="mt-6 text-7xl" />
       <h1 class="mt-4 text-center text-lg">
