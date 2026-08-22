@@ -20,7 +20,7 @@ export const usePhoneVerification = ({
   const phoneServerError = ref<string>()
   watch(phone.value, () => phoneServerError.value = undefined)
 
-  const code = useCodeField(phoneValue, false)
+  const code = useCodeField(codeValue, false)
   const codeServerError = ref<string>()
   watch(code.value, () => codeServerError.value = undefined)
 
