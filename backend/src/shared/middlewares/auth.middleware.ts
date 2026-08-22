@@ -1,4 +1,5 @@
-import { AppError, ErrorCode } from "@/shared/errors/index.js"
+import { AppError } from "@/shared/errors/index.js"
+import { ErrorCode } from "@shared/error-code.enums.js"
 import jwt from "jsonwebtoken"
 import { appConfig } from "@/shared/app.config.js"
 import type { Request, Response, NextFunction } from "express"

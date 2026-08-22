@@ -1,5 +1,6 @@
 import axios from "axios"
-import { ApiError, ErrorCode } from "./errors"
+import { ApiError } from "./errors"
+import { ErrorCode } from "@shared/error-code.enums"
 import { queryClient } from "./query.client"
 import { router } from "@/router"
 

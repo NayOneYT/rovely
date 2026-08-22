@@ -1,4 +1,5 @@
-import { AppError, ErrorCode } from "@/shared/errors/index.js"
+import { AppError } from "@/shared/errors/index.js"
+import { ErrorCode } from "@shared/error-code.enums.js"
 import { prisma } from "@/shared/prisma.client.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"

@@ -1,6 +1,7 @@
 import { appConfig } from "@/shared/app.config.js"
 import { authService } from "./auth.service.js"
-import { AppError, ErrorCode } from "@/shared/errors/index.js"
+import { AppError } from "@/shared/errors/index.js"
+import { ErrorCode } from "@shared/error-code.enums.js"
 import type { Request, Response, NextFunction } from "express"
 import type { CheckPasswordRecoveryTokenDto } from "./auth.schemas.js"
 

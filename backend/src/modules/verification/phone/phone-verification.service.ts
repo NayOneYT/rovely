@@ -1,5 +1,6 @@
 import { prisma } from "@/shared/prisma.client.js"
-import { AppError, ErrorCode } from "@/shared/errors/index.js"
+import { AppError } from "@/shared/errors/index.js"
+import { ErrorCode } from "@shared/error-code.enums.js"
 import { appConfig } from "@/shared/app.config.js"
 import { GrammyError } from "grammy"
 import { sendTelegramMessage } from "@/shared/bot/bot.service.js"

@@ -1,4 +1,4 @@
-import { ErrorCode } from "./error-code.enums.js"
+import { ErrorCode } from "@shared/error-code.enums.js"
 
 export class AppError extends Error {
   constructor(public errorCode: ErrorCode, public data?: AppErrorData) {

@@ -1,4 +1,4 @@
-import type { ErrorCode } from "./error-code.enums"
+import { ErrorCode } from "@shared/error-code.enums"
 import type { ErrorResponse } from "./error-response.types"
 
 export class ApiError extends Error {

@@ -8,7 +8,8 @@ import { ref, watch, computed } from "vue"
 import { useIdentifierField } from "@/shared/composables/fields"
 import { useMutation } from "@tanstack/vue-query"
 import { authApi } from "../auth.api"
-import { ApiError, ErrorCode } from "@/shared/api/errors"
+import { ApiError } from "@/shared/api/errors"
+import { ErrorCode } from "@shared/error-code.enums"
 import { toast } from "vue-sonner"
 
 export const usePasswordRecoveryForm = () => {

@@ -1,4 +1,5 @@
-import { AppError, ErrorCode } from "@/shared/errors/index.js"
+import { AppError } from "@/shared/errors/index.js"
+import { ErrorCode } from "@shared/error-code.enums.js"
 import type { Request, Response, NextFunction } from "express"
 
 export const errorMiddleware = (error: Error, req: Request, res: Response, next: NextFunction) => {
