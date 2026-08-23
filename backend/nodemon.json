@@ -3,5 +3,5 @@
     "src"
   ],
   "ext": "ts",
-  "exec": "cp src/shared/errors/error-code.enums.ts ../frontend/src/shared/api/errors && tsx src/server.ts"
+  "exec": "tsx src/server.ts"
 }
