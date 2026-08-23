@@ -5,6 +5,7 @@
 **A modern social network for sharing moments and staying connected**
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D20.19.0-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)](https://www.typescriptlang.org)
 [![Vue 3](https://img.shields.io/badge/Vue-3.5-42b883)](https://vuejs.org)
@@ -110,73 +111,67 @@ Access communities through a unique tilde-based URL system (e.g., `~flowname`). 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 20.19.0 or 22.12.0+
-- PostgreSQL 15+
-- npm or yarn
+- Git
+- Docker
 
-### Database Setup
+### Ports
+- Backend: 3000
+- Frontend: 5173
+- Postgres: 5432
 
-1. **Create database and user**:
-```sql
-CREATE DATABASE rovely;
-CREATE USER rovely_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE rovely TO rovely_user;
-ALTER DATABASE rovely SET timezone TO 'UTC';
+### Process
+#### Basic
+1. **Navigate to the directory where the project folder should be located**: 
+```
+cd *some path*
 ```
 
-2. **Run migrations**:
-```bash
+2. **Clone repository**:
+```
+git clone https://github.com/NayOneYT/rovely
+```
+
+3. **Navigate to the project directory**:
+```
+cd rovely
+```
+
+4. **Configure .env**:
+```
 cd backend
-npx prisma migrate dev
-```
-
-### Backend Setup
-
-1. **Navigate to backend directory**:
-```bash
-cd backend
-```
-
-2. **Install dependencies**:
-```bash
-npm install
-```
-
-3. **Configure environment variables**:
-```bash
 cp .env.example .env
 ```
-Edit `.env` with your configuration (see [Environment Variables](#-environment-variables) section).
+*configure with [Backend .env](#backend-env) section*
 
-4. **Run development server**:
-```bash
-npm run dev
+after configured:
 ```
-The backend will start on `http://localhost:3000`
-
-### Frontend Setup
-
-1. **Navigate to frontend directory**:
-```bash
-cd frontend
-```
-
-2. **Install dependencies**:
-```bash
-npm install
-```
-
-3. **Configure environment variables**:
-```bash
+cd ../frontend
 cp .env.example .env
 ```
-Edit `.env` with your configuration (see [Environment Variables](#-environment-variables) section).
+*configure with [Frontend .env](#frontend-env) section*
 
-4. **Run development server**:
-```bash
-npm run dev
+5. **Return to the project directory**:
 ```
-The frontend will start on `http://localhost:5173`
+cd ..
+```
+
+#### For further development
+
+1. **Install dependencies**:
+```
+cd backend
+npm i
+cd ../frontend
+npm i
+cd ..
+```
+
+#### Launch
+
+1. **Build and run docker compose**:
+```
+docker compose -f compose.dev.yaml up --build
+```
 
 ### 💻 Recommended IDE Setup
 
@@ -192,13 +187,13 @@ The repository includes pre-configured `.vscode/settings.json` (custom icon mapp
 
 ## 🔧 Environment Variables
 
-### Backend (.env)
-```env
+### Backend .env
+```
 # Node Environment
 NODE_ENV=development
 
 # Database
-DATABASE_URL=postgresql://rovely_user:password@localhost:5432/rovely?schema=public
+DATABASE_URL=postgresql://rovely_user:password@db:5432/rovely?schema=public (default in dev)
 
 # Server Configuration
 PORT=3000
@@ -218,8 +213,8 @@ GOOGLE_CLIENT_ID=your_google_client_id_here
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 ```
 
-### Frontend (.env)
-```env
+### Frontend .env
+```
 # Google OAuth (Vite requires VITE_ prefix for client-side variables)
 VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 ```
@@ -243,8 +238,7 @@ VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 - [x] Password recovery
 
 ### 🚧 In Progress
-- [ ] Implement Redis
-- [ ] Implement Docker
+- [ ] Implement Redis cache
 - [ ] Implement Socket.IO
 
 ### 📋 Planned
