@@ -1,8 +1,8 @@
 <div align="center">
 
-# ROVELY
+<img src="./.github/assets//animated-logo.webp" alt="ROVELY" width="320" /><br />
 
-**A modern social network for sharing moments and staying connected**
+A space for communication, content, and interaction, designed to make familiar formats work more **simply**, **quickly**, and **naturally**
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D20.19.0-brightgreen)](https://nodejs.org)
