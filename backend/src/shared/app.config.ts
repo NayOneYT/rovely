@@ -31,5 +31,6 @@ export const appConfig = {
       cooldownMs: 60 * 1000, // 1 minute
       codeTtlMs: 60 * 60 * 1000 // 1 hour
     }
-  }
+  },
+  redisUrl: process.env.REDIS_URL as string
 } 

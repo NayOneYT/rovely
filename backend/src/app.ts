@@ -6,6 +6,8 @@ import { errorMiddleware } from "./shared/middlewares/index.js"
 
 export const app = express()
 
+app.set("trust proxy", true)
+
 app.use(express.json())
 app.use(cookieParser())
 
