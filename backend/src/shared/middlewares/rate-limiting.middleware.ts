@@ -4,15 +4,15 @@ import { AppError } from "../app.error.js"
 import { ErrorCode } from "@shared/error-code.enums.js"
 import type { Request, Response, NextFunction } from "express"
 
-export const rateLimitMiddleware = (params: {
+export const rateLimitingMiddleware = (params: {
   key: string
-  windowSec: number
+  windowSec?: number
   limit: number
 }) => {
   const limiter = new RateLimiterRedis({
     storeClient: redis,
     points: params.limit,
-    duration: params.windowSec,
+    duration: params.windowSec ?? 60, // default 60 sec
     keyPrefix: "rl"
   })
 
