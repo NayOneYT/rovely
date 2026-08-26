@@ -1,4 +1,4 @@
-import { AppError } from "@/shared/errors/index.js"
+import { AppError } from "@/shared/app.error.js"
 import { ErrorCode } from "@shared/error-code.enums.js"
 import type { Request, Response, NextFunction } from "express"
 
