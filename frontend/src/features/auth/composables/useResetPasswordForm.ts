@@ -28,9 +28,7 @@ export const useResetPasswordForm = () => {
     validationSchema: toTypedSchema(resetPasswordSchema)
   })
 
-  const {
-    value: token
-  } = useField<string>("token", undefined, {
+  useField<string>("token", undefined, {
     initialValue: externalToken
   })
 
