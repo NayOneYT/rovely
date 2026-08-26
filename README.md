@@ -119,6 +119,7 @@ Access communities through a unique tilde-based URL system (e.g., `~flowname`). 
 - Backend: 3000
 - Frontend: 5173
 - Postgres: 5432
+- Redis: 6379
 
 ### Process
 #### Basic
