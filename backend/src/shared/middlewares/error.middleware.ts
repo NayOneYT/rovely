@@ -50,5 +50,6 @@ const errorStatusMap: Record<ErrorCode, number> = {
   [ErrorCode.PHONE_ALREADY_VERIFIED]: 409,
   [ErrorCode.PHONE_NOT_VERIFIED]: 403,
   [ErrorCode.PHONE_VERIFICATION_CODE_INVALID]: 422,
-  [ErrorCode.PHONE_VERIFICATION_EXPIRED]: 410
+  [ErrorCode.PHONE_VERIFICATION_EXPIRED]: 410,
+  [ErrorCode.RATE_LIMIT_EXCEEDED]: 429
 }
