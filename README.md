@@ -4,11 +4,13 @@
 
 A space for communication, content, and interaction, designed to make familiar formats work more **simply**, **quickly**, and **naturally**
 
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![Node Version](https://img.shields.io/badge/node-%3E%3D20.19.0-brightgreen)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)](https://www.typescriptlang.org)
-[![Vue 3](https://img.shields.io/badge/Vue-3.5-42b883)](https://vuejs.org)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791)](https://www.postgresql.org)
+[![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm%20Noncommercial-blue.svg?style=for-the-badge)](https://polyformproject.org/licenses/noncommercial/1.0.0)
+![Vue.js](https://img.shields.io/badge/vue.js-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
+![NodeJS](https://img.shields.io/badge/node.js-%236DA55F.svg?style=for-the-badge&logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
 </div>
 
@@ -210,6 +212,9 @@ BOT_TOKEN=your_telegram_bot_token_here
 # Google OAuth
 GOOGLE_CLIENT_ID=your_google_client_id_here
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+
+# Redis
+REDIS_URL=redis://redis:6379 (default in dev)
 ```
 
 ### Frontend .env
@@ -237,11 +242,9 @@ VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 - [x] Password recovery
 
 ### 🚧 In Progress
-- [ ] Implement Redis cache
-- [ ] Implement Socket.IO
+- [ ] Profile management
 
 ### 📋 Planned
-- [ ] Profile management
 - [ ] File upload via AWS S3
 - [ ] Profile photos gallery
 - [ ] Profile music integration
