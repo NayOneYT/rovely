@@ -16,20 +16,22 @@ export const appConfig = {
   googleClientId: process.env.GOOGLE_CLIENT_ID as string,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
   auth: {
-    loginWithPhoneCodeTtlMs: 60 * 60 * 1000, // 1 hour
-    loginWithPhoneCooldownMs: 60 * 1000, // 1 minute
-    passwordRecoveryEmailCooldownMs: 5 * 60 * 1000, // 5 minutes
-    passwordRecoveryTelegramMessageCooldownMs: 60 * 1000, // 1 minute
-    passwordRecoveryTokenTtlMs: 60 * 60 * 1000 // 1 hour
+    loginWithPhoneCodeTtlMs: 1000 * 60 * 60, // 1 hour
+    loginWithPhoneCooldownMs: 1000 * 60, // 1 minute
+    passwordRecoveryEmailCooldownMs: 1000 * 60 * 5, // 5 minutes
+    passwordRecoveryTelegramMessageCooldownMs: 1000 * 60, // 1 minute
+    passwordRecoveryTokenTtlMs: 1000 * 60 * 60, // 1 hour
+    accessTokenTtl: 1000 * 60 * 5, // 5 minutes
+    refreshTokenTtl: 1000 * 60 * 60 * 24 * 365 // 1 year 
   },
   verification: {
     email: {
-      cooldownMs: 5 * 60 * 1000, // 5 minutes
-      tokenTtlMs: 60 * 60 * 1000, // 1 hour
+      cooldownMs: 1000 * 60 * 5, // 5 minutes
+      tokenTtlMs: 1000 * 60 * 60, // 1 hour
     },
     phone: {
-      cooldownMs: 60 * 1000, // 1 minute
-      codeTtlMs: 60 * 60 * 1000 // 1 hour
+      cooldownMs: 1000 * 60, // 1 minute
+      codeTtlMs: 1000 * 60 * 60 // 1 hour
     }
   },
   redisUrl: process.env.REDIS_URL as string

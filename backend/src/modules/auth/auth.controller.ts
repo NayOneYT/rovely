@@ -140,11 +140,11 @@ const cookieOptions = {
 const setCookie = (res: Response, accessToken: string, refreshToken: string, rememberMe: boolean) => {
   res.cookie("accessToken", accessToken, {
     ...cookieOptions,
-    ...(rememberMe ? { maxAge: 5 * 60 * 1000 } : {})
+    ...(rememberMe ? { maxAge: appConfig.auth.accessTokenTtl } : {})
   })
   res.cookie("refreshToken", refreshToken, {
     ...cookieOptions,
-    ...(rememberMe ? { maxAge: 365 * 24 * 60 * 60 * 1000 } : {})
+    ...(rememberMe ? { maxAge: appConfig.auth.refreshTokenTtl } : {})
   })
 }
 
