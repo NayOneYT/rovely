@@ -17,62 +17,61 @@ authRouter.post(
 
 authRouter.post(
   "/login",
-  validationMiddleware(loginSchema, "body"),
   rateLimitingMiddleware({ key: "login", windowMs: 1000 * 60 * 2, limit: 8 }),
+  validationMiddleware(loginSchema, "body"),
   authController.login
 )
 
 authRouter.post(
   "/login-with-phone",
-  validationMiddleware(loginWithPhoneSchema, "body"),
   rateLimitingMiddleware({ key: "login-with-phone", windowMs: 1000 * 60 * 2, limit: 8 }),
+  validationMiddleware(loginWithPhoneSchema, "body"),
   authController.loginWithPhone
 )
 
 authRouter.post(
   "/login-with-phone/send",
-  validationMiddleware(sendLoginWithPhoneSchema, "body"),
   rateLimitingMiddleware({
     key: "login-with-phone:send",
     windowMs: appConfig.auth.loginWithPhoneCooldownMs * 2,
     limit: 2
   }),
+  validationMiddleware(sendLoginWithPhoneSchema, "body"),
   authController.sendLoginWithPhone
 )
 
 // the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
 authRouter.post(
   "/check-availability",
-  validationMiddleware(checkAvailabilitySchema, "body"),
   rateLimitingMiddleware({ key: "checkAvailability", limit: 50 }),
+  validationMiddleware(checkAvailabilitySchema, "body"),
   authController.checkAvailability
 )
 
 authRouter.post(
   "/register",
-  validationMiddleware(registerSchema, "body"),
   rateLimitingMiddleware({ key: "register", windowMs: 1000 * 60 * 5, limit: 2 }),
+  validationMiddleware(registerSchema, "body"),
   authController.register
 )
 
 authRouter.post(
   "/google",
-  validationMiddleware(googleAuthSchema, "body"),
   rateLimitingMiddleware({ key: "google", limit: 3 }),
+  validationMiddleware(googleAuthSchema, "body"),
   authController.google
 )
 
 // the route accepts data in the request body rather than the query string to ensure the security of users' sensitive data
 authRouter.post(
   "/password-recovery/contacts",
-  validationMiddleware(passwordRecoveryContactsSchema, "body"),
   rateLimitingMiddleware({ key: "password-recovery:contacts", limit: 2 }),
+  validationMiddleware(passwordRecoveryContactsSchema, "body"),
   authController.getPasswordRecoveryContacts
 )
 
 authRouter.post(
   "/password-recovery/send",
-  validationMiddleware(sendPasswordRecoverySchema, "body"),
   rateLimitingMiddleware({
     key: "password-recovery:send",
     windowMs: Math.min(
@@ -81,20 +80,21 @@ authRouter.post(
     ) * 2,
     limit: 2
   }),
+  validationMiddleware(sendPasswordRecoverySchema, "body"),
   authController.sendPasswordRecovery
 )
 
 authRouter.get(
   "/password-recovery/check-token/:token",
-  validationMiddleware(checkPasswordRecoveryToken, "params"),
   rateLimitingMiddleware({ key: "password-recovery:check-token", limit: 10 }),
+  validationMiddleware(checkPasswordRecoveryToken, "params"),
   authController.checkPasswordRecoveryToken
 )
 
 authRouter.post(
   "/password-recovery/reset",
-  validationMiddleware(resetPasswordSchema, "body"),
   rateLimitingMiddleware({ key: "reset-password", windowMs: 1000 * 60 * 2, limit: 2 }),
+  validationMiddleware(resetPasswordSchema, "body"),
   authController.resetPassword
 )
 
