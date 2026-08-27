@@ -16,7 +16,10 @@ try {
     console.log(`The server is running on http://localhost:${appConfig.port}`)
   })
 
+  let isShuttingDown = false
   const gracefulShutdown = async () => {
+    if (isShuttingDown) return
+    isShuttingDown = true
     try {
       await new Promise((resolve, reject) => {
         server.close((error) => error ? reject(error) : resolve(undefined))
@@ -30,8 +33,9 @@ try {
     }
   }
 
-  process.once("SIGINT", gracefulShutdown);
-  process.once("SIGTERM", gracefulShutdown);
+  process.once("SIGINT", gracefulShutdown)
+  process.once("SIGTERM", gracefulShutdown)
+  process.once("SIGUSR2", gracefulShutdown)
 } catch (error) {
   console.error(`Critical error during server startup: ${error}`)
   process.exit(1)
