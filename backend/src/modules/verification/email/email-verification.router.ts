@@ -26,7 +26,7 @@ emailVerificationRouter.post(
   optionalAuthMiddleware,
   rateLimitingMiddleware({
     key: "email-verification:send",
-    windowSec: Math.ceil(appConfig.verification.email.cooldownMs / 1000) * 2,
+    windowMs: appConfig.verification.email.cooldownMs * 2,
     limit: 2
   }),
   validationMiddleware(sendSchema, "body"),

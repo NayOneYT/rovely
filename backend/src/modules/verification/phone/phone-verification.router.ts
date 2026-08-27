@@ -9,7 +9,7 @@ export const phoneVerificationRouter = Router()
 phoneVerificationRouter.post(
   "/verify",
   optionalAuthMiddleware,
-  rateLimitingMiddleware({ key: "phone-verification:verify", windowSec: 60 * 2, limit: 6 }),
+  rateLimitingMiddleware({ key: "phone-verification:verify", windowMs: 1000 * 60 * 2, limit: 6 }),
   validationMiddleware(verifySchema, "body"),
   phoneVerificationController.verify
 )
@@ -27,7 +27,7 @@ phoneVerificationRouter.post(
   optionalAuthMiddleware,
   rateLimitingMiddleware({
     key: "phone-verification:send",
-    windowSec: Math.ceil(appConfig.verification.phone.cooldownMs / 1000) * 2,
+    windowMs: appConfig.verification.phone.cooldownMs * 2,
     limit: 2
   }),
   validationMiddleware(sendSchema, "body"),

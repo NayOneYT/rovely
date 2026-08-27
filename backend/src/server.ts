@@ -6,14 +6,11 @@ import { redis } from "./shared/redis.client.js"
 
 try {
   registerBotHandlers()
-  bot.start()
-    .then(() => {
-      console.log("The Telegram bot has been launched.")
-    })
-    .catch((error) => {
-      console.error(`Critical error when launching the Telegram bot: ${error}`)
-      process.exit(1)
-    })
+  bot.start().catch((error) => {
+    console.error(`Critical error when launching the Telegram bot: ${error}`)
+    process.exit(1)
+  })
+  console.log("The Telegram bot has been launched.")
 
   const server = app.listen(appConfig.port, () => {
     console.log(`The server is running on http://localhost:${appConfig.port}`)

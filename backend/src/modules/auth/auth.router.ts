@@ -18,14 +18,14 @@ authRouter.post(
 authRouter.post(
   "/login",
   validationMiddleware(loginSchema, "body"),
-  rateLimitingMiddleware({ key: "login", windowSec: 60 * 2, limit: 8 }),
+  rateLimitingMiddleware({ key: "login", windowMs: 1000 * 60 * 2, limit: 8 }),
   authController.login
 )
 
 authRouter.post(
   "/login-with-phone",
   validationMiddleware(loginWithPhoneSchema, "body"),
-  rateLimitingMiddleware({ key: "login-with-phone", windowSec: 60 * 2, limit: 8 }),
+  rateLimitingMiddleware({ key: "login-with-phone", windowMs: 1000 * 60 * 2, limit: 8 }),
   authController.loginWithPhone
 )
 
@@ -34,7 +34,7 @@ authRouter.post(
   validationMiddleware(sendLoginWithPhoneSchema, "body"),
   rateLimitingMiddleware({
     key: "login-with-phone:send",
-    windowSec: Math.ceil(appConfig.auth.loginWithPhoneCooldownMs / 1000) * 2,
+    windowMs: appConfig.auth.loginWithPhoneCooldownMs * 2,
     limit: 2
   }),
   authController.sendLoginWithPhone
@@ -51,7 +51,7 @@ authRouter.post(
 authRouter.post(
   "/register",
   validationMiddleware(registerSchema, "body"),
-  rateLimitingMiddleware({ key: "register", windowSec: 60 * 5, limit: 2 }),
+  rateLimitingMiddleware({ key: "register", windowMs: 1000 * 60 * 5, limit: 2 }),
   authController.register
 )
 
@@ -75,9 +75,9 @@ authRouter.post(
   validationMiddleware(sendPasswordRecoverySchema, "body"),
   rateLimitingMiddleware({
     key: "password-recovery:send",
-    windowSec: Math.min(
-      Math.ceil(appConfig.auth.passwordRecoveryEmailCooldownMs / 1000),
-      Math.ceil(appConfig.auth.passwordRecoveryTelegramMessageCooldownMs / 1000)
+    windowMs: Math.min(
+      appConfig.auth.passwordRecoveryEmailCooldownMs,
+      appConfig.auth.passwordRecoveryTelegramMessageCooldownMs
     ) * 2,
     limit: 2
   }),
@@ -94,7 +94,7 @@ authRouter.get(
 authRouter.post(
   "/password-recovery/reset",
   validationMiddleware(resetPasswordSchema, "body"),
-  rateLimitingMiddleware({ key: "reset-password", windowSec: 60 * 2, limit: 2 }),
+  rateLimitingMiddleware({ key: "reset-password", windowMs: 1000 * 60 * 2, limit: 2 }),
   authController.resetPassword
 )
 
