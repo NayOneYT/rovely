@@ -3,6 +3,8 @@ import { ApiError } from "./errors"
 import { ErrorCode } from "@shared/error-code.enums"
 import { queryClient } from "./query.client"
 import { router } from "@/router"
+import { toast } from "vue-sonner"
+import { formatMsToMMSS } from "../utils"
 
 export const api = axios.create({
   baseURL: "/api",
@@ -24,6 +26,9 @@ api.interceptors.response.use(
           router.replace("/")
           return Promise.reject(error)
         }
+      }
+      if (data.code === ErrorCode.RATE_LIMIT_EXCEEDED) {
+        toast.error(`Слишком много запросов, повторите через ${formatMsToMMSS(data.timeBeforeMs)}`)
       }
       throw new ApiError(data)
     }
