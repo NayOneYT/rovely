@@ -71,7 +71,7 @@ export const phoneVerificationService = {
 
   send: async (params: SendParams) => {
     try {
-      const [account, request, link] = await Promise.all([
+      const [account, request, telegramLink] = await Promise.all([
         prisma.account.findUnique({
           where: {
             phone: params.phone
@@ -90,7 +90,7 @@ export const phoneVerificationService = {
         })
       ])
       if (account) throw new AppError(ErrorCode.PHONE_TAKEN)
-      if (!link) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
+      if (!telegramLink) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
       const now = Date.now()
       if (request && !request.isConfirmed && request.updatedAt.getTime() > now - appConfig.verification.phone.cooldownMs) {
         const timePassedMs = now - request.updatedAt.getTime()
@@ -100,7 +100,7 @@ export const phoneVerificationService = {
       if (request?.isConfirmed && request.updatedAt.getTime() > now - appConfig.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateSecureCode()
       await sendCode({
-        telegramUserId: link.telegramUserId,
+        telegramUserId: telegramLink.telegramUserId,
         name: params.name,
         code,
         isNewAccount: !params.accountId

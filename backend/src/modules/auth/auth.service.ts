@@ -1,6 +1,7 @@
 import { AppError } from "@/shared/app.error.js"
 import { ErrorCode } from "@shared/error-code.enums.js"
 import { prisma } from "@/shared/prisma.client.js"
+import { redis } from "@/shared/redis.client.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { appConfig } from "@/shared/app.config.js"
@@ -74,53 +75,39 @@ export const authService = {
 
   sendLoginWithPhone: async (dto: SendLoginWithPhoneDto) => {
     try {
-      const phone = dto.phone
-      const [account, request, link] = await Promise.all([
+      const key = getLoginWithPhoneKey(dto.phone)
+      const [account, telegramLink, code] = await Promise.all([
         prisma.account.findUnique({
           where: {
-            phone
+            phone: dto.phone
           },
           include: {
             profile: true
           }
         }),
-        prisma.loginWithPhoneRequest.findUnique({
-          where: {
-            phone
-          }
-        }),
         prisma.telegramLink.findUnique({
           where: {
-            phone
+            phone: dto.phone
           }
-        })
+        }),
+        redis.get(key)
       ])
       if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
-      if (!link) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
-      const now = Date.now()
-      if (request && request.updatedAt.getTime() > now - appConfig.auth.loginWithPhoneCooldownMs) {
-        const timePassedMs = now - request.updatedAt.getTime()
-        const timeLeftMs = appConfig.auth.loginWithPhoneCooldownMs - timePassedMs
-        throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
+      if (!telegramLink) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
+      if (code) {
+        const codeTtlMs = await redis.pttl(key)
+        const maxTtlForResendMs = appConfig.auth.loginWithPhoneCodeTtlMs - appConfig.auth.loginWithPhoneCooldownMs
+        if (codeTtlMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, {
+          timeLeftMs: codeTtlMs - maxTtlForResendMs
+        })
       }
-      const code = generateSecureCode()
+      const newCode = generateSecureCode()
       await sendLoginWithPhoneCode({
-        telegramUserId: link.telegramUserId,
+        telegramUserId: telegramLink.telegramUserId,
         name: account.profile!.name,
-        code
+        code: newCode
       })
-      await prisma.loginWithPhoneRequest.upsert({
-        where: {
-          phone
-        },
-        update: {
-          code
-        },
-        create: {
-          code,
-          phone
-        }
-      })
+      await redis.set(key, newCode, "PX", appConfig.auth.loginWithPhoneCodeTtlMs)
       return { timeLeftMs: appConfig.auth.loginWithPhoneCooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
@@ -129,7 +116,8 @@ export const authService = {
   },
 
   loginWithPhone: async (dto: LoginWithPhoneDto) => {
-    const [account, request] = await Promise.all([
+    const key = getLoginWithPhoneKey(dto.phone)
+    const [account, code] = await Promise.all([
       prisma.account.findUnique({
         where: {
           phone: dto.phone
@@ -142,25 +130,13 @@ export const authService = {
           }
         }
       }),
-      prisma.loginWithPhoneRequest.findUnique({
-        where: {
-          phone: dto.phone
-        }
-      })
+      redis.get(key)
     ])
     if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
-    if (!request) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
-    const now = Date.now()
-    if (request.updatedAt.getTime() < now - appConfig.auth.loginWithPhoneCodeTtlMs) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_EXPIRED)
-    if (dto.code !== request.code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_INVALID)
-    await prisma.loginWithPhoneRequest.delete({
-      where: {
-        phone: dto.phone
-      }
-    })
-    const accessToken = generateAccessToken({
-      id: account.id
-    })
+    if (!code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_NOT_FOUND)
+    if (dto.code !== code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_INVALID)
+    await redis.unlink(key)
+    const accessToken = generateAccessToken({ id: account.id })
     const refreshToken = generateRefreshToken({
       id: account.id,
       rememberMe: dto.rememberMe,
@@ -386,13 +362,13 @@ export const authService = {
       let telegramUserId: number = 0
       if (to === "PHONE") {
         if (!account.phone) throw new AppError(ErrorCode.PHONE_NOT_LINKED)
-        const link = await prisma.telegramLink.findUnique({
+        const telegramLink = await prisma.telegramLink.findUnique({
           where: {
             phone: account.phone
           }
         })
-        if (!link) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
-        telegramUserId = link.telegramUserId
+        if (!telegramLink) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
+        telegramUserId = telegramLink.telegramUserId
       }
       const request = await prisma.passwordRecoveryRequest.findUnique({
         where: {
@@ -576,3 +552,5 @@ const generateUniqueUsername = async (email?: string | null) => {
     if (triedUsernames.size > 20) throw new AppError(ErrorCode.USERNAME_GENERATION_ERROR)
   }
 }
+
+const getLoginWithPhoneKey = (phone: string) => `login-with-phone:${phone}`

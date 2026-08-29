@@ -67,8 +67,7 @@ export const useLoginWithPhoneForm = () => {
           case ErrorCode.ACCOUNT_NOT_FOUND:
             phoneServerError.value = "Аккаунт не найден"
             break
-          case ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND:
-          case ErrorCode.LOGIN_WITH_PHONE_CODE_EXPIRED:
+          case ErrorCode.LOGIN_WITH_PHONE_CODE_NOT_FOUND:
             codeServerError.value = "Запросите новый код"
             break
           case ErrorCode.LOGIN_WITH_PHONE_CODE_INVALID:
