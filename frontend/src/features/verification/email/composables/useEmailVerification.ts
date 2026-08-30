@@ -25,10 +25,8 @@ export const useEmailVerification = ({
   const checkRegistrationMutation = useMutation({
     mutationFn: emailVerificationApi.checkRegistration,
     onError: (error) => {
-      if (error instanceof ApiError) {
-        if (error.code === ErrorCode.EMAIL_VERIFICATION_EXPIRED) toast.warning("Необходимо заново подтвердить email")
-        else toast.warning("Сначала подтвердите email")
-      } else toast.error("Что-то пошло не так, попробуйте позже")
+      if (error instanceof ApiError) toast.warning("Сначала подтвердите email")
+      else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 

@@ -184,7 +184,6 @@ model Account {
   whoBanned                 FlowMember[]               @relation("WhoBanned")
   notifications             Notification[]
   reports                   Report[]
-  emailVerificationRequests EmailVerificationRequest[]
   phoneVerificationRequests PhoneVerificationRequest[]
 
   @@map("accounts")
@@ -544,21 +543,6 @@ model Report {
   @@index([status])
   @@index([entityType, entityId])
   @@map("reports")
-}
-
-model EmailVerificationRequest {
-  id             String   @id @default(cuid())
-  token          String   @unique
-  email          String
-  lowercaseEmail String   @map("lowercase_email")
-  accountId      String?  @map("account_id")
-  isConfirmed    Boolean  @default(false) @map("is_confirmed")
-  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
-  account        Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
-  @@index([accountId])
-  @@index([lowercaseEmail, accountId])
-  @@map("email_verification_requests")
 }
 
 model PhoneVerificationRequest {

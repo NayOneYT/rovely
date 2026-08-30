@@ -6,7 +6,10 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { appConfig } from "@/shared/app.config.js"
 import { generateFromEmail, generateUsername } from "unique-username-generator"
-import { emailVerificationService } from "@/modules/verification/email/email-verification.service.js"
+import {
+  emailVerificationService,
+  buildTokensKey, buildRequestKey,
+} from "@/modules/verification/email/email-verification.service.js"
 import { phoneVerificationService } from "@/modules/verification/phone/phone-verification.service.js"
 import { GrammyError } from "grammy"
 import { sendEmail } from "@/shared/mailer/mailer.service.js"
@@ -19,6 +22,7 @@ import type {
 } from "./auth.schemas.js"
 import type { PasswordRecoveryTarget, ContactsDto, PasswordRecoveryTokenPayload } from "./auth.types.js"
 import type { AccessTokenPayload, RefreshTokenPayload } from "@/shared/types/index.js"
+import type { EmailVerificationTokenPayload } from "@/modules/verification/email/email-verification.types.js"
 
 export const authService = {
   refresh: async (refreshToken: string) => {
@@ -75,7 +79,7 @@ export const authService = {
 
   sendLoginWithPhone: async (dto: SendLoginWithPhoneDto) => {
     try {
-      const key = getLoginWithPhoneKey(dto.phone)
+      const key = buildLoginWithPhoneKey(dto.phone)
       const [account, telegramLink, code, codeTtlLeftMs] = await Promise.all([
         prisma.account.findUnique({
           where: {
@@ -116,7 +120,7 @@ export const authService = {
   },
 
   loginWithPhone: async (dto: LoginWithPhoneDto) => {
-    const key = getLoginWithPhoneKey(dto.phone)
+    const key = buildLoginWithPhoneKey(dto.phone)
     const [account, code] = await Promise.all([
       prisma.account.findUnique({
         where: {
@@ -227,16 +231,18 @@ export const authService = {
         }
       }
     })
-    if (lowercaseEmail) await prisma.emailVerificationRequest.deleteMany({
-      where: {
-        lowercaseEmail
-      }
-    })
+    const multi = redis.multi()
+    if (lowercaseEmail) {
+      const tokensKey = buildTokensKey(lowercaseEmail)
+      const tokens = await redis.smembers(tokensKey)
+      if (tokens.length > 0) multi.unlink(tokensKey, ...tokens.map(token => buildRequestKey(token)))
+    }
     if (dto.phone) await prisma.phoneVerificationRequest.deleteMany({
       where: {
         phone: dto.phone
       }
     })
+    await multi.exec()
   },
 
   google: async (dto: GoogleAuthDto) => {
@@ -267,29 +273,25 @@ export const authService = {
     if (!account) {
       isNewAccount = true
       const username = await generateUniqueUsername(email)
-      const lowercaseUsername = username.toLowerCase(); // The ";" here is mandatory so that the engine doesn't merge this line with the next one
-      [account] = await prisma.$transaction([
-        prisma.account.create({
-          data: {
-            googleId,
-            email,
-            lowercaseEmail,
-            profile: {
-              create: {
-                username,
-                lowercaseUsername,
-                name,
-                avatarUrl
-              }
+      const lowercaseUsername = username.toLowerCase()
+      account = await prisma.account.create({
+        data: {
+          googleId,
+          email,
+          lowercaseEmail,
+          profile: {
+            create: {
+              username,
+              lowercaseUsername,
+              name,
+              avatarUrl
             }
           }
-        }),
-        prisma.emailVerificationRequest.deleteMany({
-          where: {
-            lowercaseEmail
-          }
-        })
-      ])
+        }
+      })
+      const tokensKey = buildTokensKey(lowercaseEmail)
+      const tokens = await redis.smembers(tokensKey)
+      if (tokens.length > 0) await redis.unlink(tokensKey, ...tokens.map(token => buildRequestKey(token)))
     } else if (!account.googleId) {
       await prisma.account.update({
         where: {
@@ -374,7 +376,7 @@ export const authService = {
       const currentCooldownMs = toEmail
         ? appConfig.auth.passwordRecoveryEmailCooldownMs
         : appConfig.auth.passwordRecoveryTelegramMessageCooldownMs
-      const tokenKey = getPasswordRecoveryTokenKey(account.id, to)
+      const tokenKey = buildPasswordRecoveryTokenKey(account.id, to)
       const [token, tokenTtlLeftMs] = await Promise.all([
         redis.get(tokenKey),
         redis.pttl(tokenKey)
@@ -385,7 +387,7 @@ export const authService = {
           toEmail ? ErrorCode.SEND_EMAIL_COOLDOWN : ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN,
           { timeLeftMs: tokenTtlLeftMs - maxTtlForResendMs }
         )
-        await redis.unlink(getPasswordRecoveryRequestKey(token))
+        await redis.unlink(buildPasswordRecoveryRequestKey(token))
       }
       const newToken = generateSecureToken()
       const target: PasswordRecoveryTarget = toEmail
@@ -402,7 +404,7 @@ export const authService = {
       await Promise.all([
         redis.set(tokenKey, newToken, "PX", appConfig.auth.passwordRecoveryTokenTtlMs),
         redis.set(
-          getPasswordRecoveryRequestKey(newToken), JSON.stringify(tokenPayload),
+          buildPasswordRecoveryRequestKey(newToken), JSON.stringify(tokenPayload),
           "PX", appConfig.auth.passwordRecoveryTokenTtlMs
         )
       ])
@@ -414,7 +416,7 @@ export const authService = {
   },
 
   checkPasswordRecoveryToken: async (dto: CheckPasswordRecoveryTokenDto) => {
-    const requestKey = getPasswordRecoveryRequestKey(dto.token)
+    const requestKey = buildPasswordRecoveryRequestKey(dto.token)
     const [request, requestTtlLeftms] = await Promise.all([
       redis.get(requestKey),
       redis.pttl(requestKey)
@@ -429,19 +431,19 @@ export const authService = {
     const hashedPassword = await hashPassword(dto.password)
 
     const keysToUnlink = new Set<string>()
-    const emailTokenKey = getPasswordRecoveryTokenKey(request.accountId, "EMAIL")
-    const phoneTokenKey = getPasswordRecoveryTokenKey(request.accountId, "PHONE")
+    const emailTokenKey = buildPasswordRecoveryTokenKey(request.accountId, "EMAIL")
+    const phoneTokenKey = buildPasswordRecoveryTokenKey(request.accountId, "PHONE")
     const [emailToken, phoneToken] = await Promise.all([
       redis.get(emailTokenKey),
       redis.get(phoneTokenKey)
     ])
     if (emailToken) {
       keysToUnlink.add(emailTokenKey)
-      keysToUnlink.add(getPasswordRecoveryRequestKey(emailToken))
+      keysToUnlink.add(buildPasswordRecoveryRequestKey(emailToken))
     }
     if (phoneToken) {
       keysToUnlink.add(phoneTokenKey)
-      keysToUnlink.add(getPasswordRecoveryRequestKey(phoneToken))
+      keysToUnlink.add(buildPasswordRecoveryRequestKey(phoneToken))
     }
 
     await prisma.account.update({
@@ -550,8 +552,8 @@ const generateUniqueUsername = async (email?: string | null) => {
   }
 }
 
-const getLoginWithPhoneKey = (phone: string) => `login-with-phone:${phone}`
-const getPasswordRecoveryTokenKey = (accountId: string, to: "EMAIL" | "PHONE") => {
+const buildLoginWithPhoneKey = (phone: string) => `login-with-phone:${phone}`
+const buildPasswordRecoveryTokenKey = (accountId: string, to: "EMAIL" | "PHONE") => {
   return `password-recovery-token:account-id:${accountId}:to:${to}`
 }
-const getPasswordRecoveryRequestKey = (token: string) => `password-recovery-request:${token}`
+const buildPasswordRecoveryRequestKey = (token: string) => `password-recovery-request:${token}`

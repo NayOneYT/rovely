@@ -191,7 +191,7 @@ export const useRegistrationForm = () => {
           case ErrorCode.LOGIN_TAKEN:
             loginServerError.value = "Этот логин занят"
             break
-          case ErrorCode.EMAIL_VERIFICATION_EXPIRED:
+          case ErrorCode.EMAIL_NOT_VERIFIED:
             toast.warning("Необходимо заново подтвердить email")
             targetStep = 2
             break

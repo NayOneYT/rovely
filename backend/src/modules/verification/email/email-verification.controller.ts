@@ -23,8 +23,7 @@ export const emailVerificationController = {
 
   send: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const accountId = req.accountId ? req.accountId : null
-      const result = await emailVerificationService.send({ ...req.body, accountId })
+      const result = await emailVerificationService.send({ ...req.body, accountId: req.accountId })
       res.status(200).json(result)
     } catch (error) {
       next(error)
