@@ -11,7 +11,6 @@ export type GetPasswordRecoveryContactsResponse = {
 }
 
 export type SendPasswordRecoveryResponse = {
-  to: "EMAIL" | "PHONE"
   timeLeftMs: number
 }
 

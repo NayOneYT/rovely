@@ -17,7 +17,7 @@ import type {
   LoginDto, RegisterDto, LoginWithPhoneDto, SendLoginWithPhoneDto, CheckAvailabilityDto, ResetPasswordDto,
   GoogleAuthDto, PasswordRecoveryContactsDto, SendPasswordRecoveryDto, CheckPasswordRecoveryTokenDto
 } from "./auth.schemas.js"
-import type { PasswordRecoveryTarget, ContactsDto } from "./auth.types.js"
+import type { PasswordRecoveryTarget, ContactsDto, PasswordRecoveryTokenPayload } from "./auth.types.js"
 import type { AccessTokenPayload, RefreshTokenPayload } from "@/shared/types/index.js"
 
 export const authService = {
@@ -76,7 +76,7 @@ export const authService = {
   sendLoginWithPhone: async (dto: SendLoginWithPhoneDto) => {
     try {
       const key = getLoginWithPhoneKey(dto.phone)
-      const [account, telegramLink, code] = await Promise.all([
+      const [account, telegramLink, code, codeTtlLeftMs] = await Promise.all([
         prisma.account.findUnique({
           where: {
             phone: dto.phone
@@ -90,15 +90,15 @@ export const authService = {
             phone: dto.phone
           }
         }),
-        redis.get(key)
+        redis.get(key),
+        redis.pttl(key)
       ])
       if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
       if (!telegramLink) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
       if (code) {
-        const codeTtlMs = await redis.pttl(key)
         const maxTtlForResendMs = appConfig.auth.loginWithPhoneCodeTtlMs - appConfig.auth.loginWithPhoneCooldownMs
-        if (codeTtlMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, {
-          timeLeftMs: codeTtlMs - maxTtlForResendMs
+        if (codeTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, {
+          timeLeftMs: codeTtlLeftMs - maxTtlForResendMs
         })
       }
       const newCode = generateSecureCode()
@@ -133,7 +133,7 @@ export const authService = {
       redis.get(key)
     ])
     if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
-    if (!code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_NOT_FOUND)
+    if (!code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_REQUEST_NOT_FOUND)
     if (dto.code !== code) throw new AppError(ErrorCode.LOGIN_WITH_PHONE_CODE_INVALID)
     await redis.unlink(key)
     const accessToken = generateAccessToken({ id: account.id })
@@ -358,9 +358,10 @@ export const authService = {
         }
       })
       if (!account) throw new AppError(ErrorCode.ACCOUNT_NOT_FOUND)
-      if (to === "EMAIL" && !account.email) throw new AppError(ErrorCode.EMAIL_NOT_LINKED)
-      let telegramUserId: number = 0
-      if (to === "PHONE") {
+      const toEmail = to === "EMAIL"
+      if (toEmail && !account.email) throw new AppError(ErrorCode.EMAIL_NOT_LINKED)
+      let telegramUserId: number | undefined
+      if (!toEmail) {
         if (!account.phone) throw new AppError(ErrorCode.PHONE_NOT_LINKED)
         const telegramLink = await prisma.telegramLink.findUnique({
           where: {
@@ -370,55 +371,42 @@ export const authService = {
         if (!telegramLink) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
         telegramUserId = telegramLink.telegramUserId
       }
-      const request = await prisma.passwordRecoveryRequest.findUnique({
-        where: {
-          accountId_to: {
-            accountId: account.id,
-            to
-          }
-        }
-      })
-      const now = Date.now()
-      const cooldownMs = to === "EMAIL"
+      const currentCooldownMs = toEmail
         ? appConfig.auth.passwordRecoveryEmailCooldownMs
         : appConfig.auth.passwordRecoveryTelegramMessageCooldownMs
-      if (request && request.updatedAt.getTime() > now - cooldownMs) {
-        const errorCode = to === "EMAIL"
-          ? ErrorCode.SEND_EMAIL_COOLDOWN
-          : ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN
-        const timePassedMs = now - request.updatedAt.getTime()
-        const timeLeftMs = cooldownMs - timePassedMs
-        throw new AppError(errorCode, { timeLeftMs })
+      const tokenKey = getPasswordRecoveryTokenKey(account.id, to)
+      const [token, tokenTtlLeftMs] = await Promise.all([
+        redis.get(tokenKey),
+        redis.pttl(tokenKey)
+      ])
+      if (token) {
+        const maxTtlForResendMs = appConfig.auth.passwordRecoveryTokenTtlMs - currentCooldownMs
+        if (tokenTtlLeftMs > maxTtlForResendMs) throw new AppError(
+          toEmail ? ErrorCode.SEND_EMAIL_COOLDOWN : ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN,
+          { timeLeftMs: tokenTtlLeftMs - maxTtlForResendMs }
+        )
+        await redis.unlink(getPasswordRecoveryRequestKey(token))
       }
-      const token = generateSecureToken()
-      const target: PasswordRecoveryTarget = to === "EMAIL"
-        ? { to, email: account.email! }
-        : { to, telegramUserId }
+      const newToken = generateSecureToken()
+      const target: PasswordRecoveryTarget = toEmail
+        ? { to: "EMAIL", email: account.email! }
+        : { to: "PHONE", telegramUserId: telegramUserId! }
       await sendPasswordRecoveryUrl({
         target,
         name: account.profile!.name,
-        token
+        token: newToken
       })
-      request
-        ? await prisma.passwordRecoveryRequest.update({
-          where: {
-            accountId_to: {
-              accountId: account.id,
-              to
-            }
-          },
-          data: {
-            token
-          }
-        })
-        : await prisma.passwordRecoveryRequest.create({
-          data: {
-            token,
-            accountId: account.id,
-            to
-          }
-        })
-      return { to, timeLeftMs: cooldownMs }
+      const tokenPayload: PasswordRecoveryTokenPayload = {
+        accountId: account.id
+      }
+      await Promise.all([
+        redis.set(tokenKey, newToken, "PX", appConfig.auth.passwordRecoveryTokenTtlMs),
+        redis.set(
+          getPasswordRecoveryRequestKey(newToken), JSON.stringify(tokenPayload),
+          "PX", appConfig.auth.passwordRecoveryTokenTtlMs
+        )
+      ])
+      return { timeLeftMs: currentCooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
@@ -426,37 +414,46 @@ export const authService = {
   },
 
   checkPasswordRecoveryToken: async (dto: CheckPasswordRecoveryTokenDto) => {
-    const request = await prisma.passwordRecoveryRequest.findUnique({
-      where: {
-        token: dto.token
-      }
-    })
+    const requestKey = getPasswordRecoveryRequestKey(dto.token)
+    const [request, requestTtlLeftms] = await Promise.all([
+      redis.get(requestKey),
+      redis.pttl(requestKey)
+    ])
     if (!request) throw new AppError(ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
-    const now = Date.now()
-    const timeLeftMs = request.updatedAt.getTime() + appConfig.auth.passwordRecoveryTokenTtlMs - now
-    if (timeLeftMs <= 0) throw new AppError(ErrorCode.PASSWORD_RECOVERY_TOKEN_EXPIRED)
-    return { accountId: request.accountId, timeLeftMs }
+    const parsedRequest: PasswordRecoveryTokenPayload = JSON.parse(request)
+    return { accountId: parsedRequest.accountId, request: parsedRequest, timeLeftMs: requestTtlLeftms }
   },
 
   resetPassword: async (dto: ResetPasswordDto) => {
-    const { accountId } = await authService.checkPasswordRecoveryToken({ token: dto.token })
+    const { request } = await authService.checkPasswordRecoveryToken({ token: dto.token })
     const hashedPassword = await hashPassword(dto.password)
-    await prisma.$transaction([
-      prisma.account.update({
-        where: {
-          id: accountId
-        },
-        data: {
-          password: hashedPassword,
-          passwordChangedAt: new Date()
-        }
-      }),
-      prisma.passwordRecoveryRequest.deleteMany({
-        where: {
-          accountId: accountId
-        }
-      })
+
+    const keysToUnlink = new Set<string>()
+    const emailTokenKey = getPasswordRecoveryTokenKey(request.accountId, "EMAIL")
+    const phoneTokenKey = getPasswordRecoveryTokenKey(request.accountId, "PHONE")
+    const [emailToken, phoneToken] = await Promise.all([
+      redis.get(emailTokenKey),
+      redis.get(phoneTokenKey)
     ])
+    if (emailToken) {
+      keysToUnlink.add(emailTokenKey)
+      keysToUnlink.add(getPasswordRecoveryRequestKey(emailToken))
+    }
+    if (phoneToken) {
+      keysToUnlink.add(phoneTokenKey)
+      keysToUnlink.add(getPasswordRecoveryRequestKey(phoneToken))
+    }
+
+    await prisma.account.update({
+      where: {
+        id: request.accountId
+      },
+      data: {
+        password: hashedPassword,
+        passwordChangedAt: new Date()
+      }
+    })
+    if (keysToUnlink.size > 0) await redis.unlink(...keysToUnlink)
   },
 
   me: async (accountId: string) => {
@@ -554,3 +551,7 @@ const generateUniqueUsername = async (email?: string | null) => {
 }
 
 const getLoginWithPhoneKey = (phone: string) => `login-with-phone:${phone}`
+const getPasswordRecoveryTokenKey = (accountId: string, to: "EMAIL" | "PHONE") => {
+  return `password-recovery-token:account-id:${accountId}:to:${to}`
+}
+const getPasswordRecoveryRequestKey = (token: string) => `password-recovery-request:${token}`

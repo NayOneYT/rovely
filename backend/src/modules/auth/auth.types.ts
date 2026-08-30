@@ -6,3 +6,7 @@ export type ContactsDto = {
   email?: string
   phone?: string
 }
+
+export type PasswordRecoveryTokenPayload = {
+  accountId: string
+}

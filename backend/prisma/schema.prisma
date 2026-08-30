@@ -186,7 +186,6 @@ model Account {
   reports                   Report[]
   emailVerificationRequests EmailVerificationRequest[]
   phoneVerificationRequests PhoneVerificationRequest[]
-  passwordRecoveryRequests  PasswordRecoveryRequest[]
 
   @@map("accounts")
 }
@@ -581,15 +580,4 @@ model TelegramLink {
   telegramUserId Int    @unique @map("telegram_user_id")
 
   @@map("telegram_links")
-}
-
-model PasswordRecoveryRequest {
-  token     String                    @unique
-  accountId String                    @map("account_id")
-  to        PasswordRecoveryRequestTo
-  updatedAt DateTime                  @default(now()) @updatedAt @map("updated_at")
-  account   Account                   @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
-  @@id([accountId, to])
-  @@map("password_recovery_requests")
 }

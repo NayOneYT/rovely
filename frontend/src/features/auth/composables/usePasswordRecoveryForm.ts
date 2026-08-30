@@ -46,7 +46,9 @@ export const usePasswordRecoveryForm = () => {
       passwordRecoveryBlurredPhone.value = data.phone
     },
     onError: (error) => {
-      if (error instanceof ApiError) identifierServerError.value = "Аккаунт не найден"
+      if (error instanceof ApiError) {
+        if (error.code === ErrorCode.ACCOUNT_NOT_FOUND) identifierServerError.value = "Аккаунт не найден"
+      }
       else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
@@ -64,13 +66,13 @@ export const usePasswordRecoveryForm = () => {
 
   const sendMutation = useMutation({
     mutationFn: authApi.sendPasswordRecovery,
-    onSuccess: (data) => {
-      if (data.to === "EMAIL") {
+    onSuccess: (data, variables) => {
+      if (variables.to === "EMAIL") {
         toast.success("Письмо для восстановления отправлено")
-        createNewEmailTimer(identifier.value.value.toLowerCase(), data.timeLeftMs)
+        createNewEmailTimer(variables.identifier.toLowerCase(), data.timeLeftMs)
       } else {
         toast.success("Сообщение для восстановления отправлено в Telegram")
-        createNewTelegramMessageTimer(identifier.value.value, data.timeLeftMs)
+        createNewTelegramMessageTimer(variables.identifier, data.timeLeftMs)
       }
     },
     onError: (error) => {
@@ -86,6 +88,8 @@ export const usePasswordRecoveryForm = () => {
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")
+            break
+          case ErrorCode.RATE_LIMIT_EXCEEDED:
             break
           default:
             toast.error("Произошла ошибка, попробуйте еще раз")
