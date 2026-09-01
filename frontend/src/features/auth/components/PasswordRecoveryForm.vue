@@ -48,12 +48,13 @@ const {
       </AppButton>
     </div>
   </form>
-  <div v-else class="flex flex-col mt-6">
+  <div v-else class="flex flex-col">
     <AppButton
       v-if="passwordRecoveryBlurredEmail"
       variant="primary"
       @click="send('EMAIL')"
       :disabled="isProcessing || !!sendEmailCooldown"
+      class="mb-4"
     >
       {{ passwordRecoveryBlurredEmail }}
       <Mail class="ml-2 mr-1 size-6" />
@@ -69,7 +70,6 @@ const {
       variant="primary"
       @click="send('PHONE')"
       :disabled="isProcessing || !!sendTelegramMessageCooldown"
-      class="mt-4"
     >
       {{ passwordRecoveryBlurredPhone }}
       <TelegramIcon class="ml-2.5 mr-0.5 size-6 scale-125" />
