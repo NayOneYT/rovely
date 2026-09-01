@@ -8,9 +8,12 @@ import { appConfig } from "@/shared/app.config.js"
 import { generateFromEmail, generateUsername } from "unique-username-generator"
 import {
   emailVerificationService,
-  buildTokensKey, buildRequestKey,
+  buildTokensKey as buildEmailVerificationTokensKey, buildRequestKey as buildEmailVerificationRequestKey,
 } from "@/modules/verification/email/email-verification.service.js"
-import { phoneVerificationService } from "@/modules/verification/phone/phone-verification.service.js"
+import {
+  phoneVerificationService,
+  buildAccountIdsKey as buildPhoneVerificationAccountIdsKey, buildRequestKey as buildPhoneVerificationRequestKey
+} from "@/modules/verification/phone/phone-verification.service.js"
 import { GrammyError } from "grammy"
 import { sendEmail } from "@/shared/mailer/mailer.service.js"
 import { sendTelegramMessage } from "@/shared/bot/bot.service.js"
@@ -22,7 +25,6 @@ import type {
 } from "./auth.schemas.js"
 import type { PasswordRecoveryTarget, ContactsDto, PasswordRecoveryTokenPayload } from "./auth.types.js"
 import type { AccessTokenPayload, RefreshTokenPayload } from "@/shared/types/index.js"
-import type { EmailVerificationTokenPayload } from "@/modules/verification/email/email-verification.types.js"
 
 export const authService = {
   refresh: async (refreshToken: string) => {
@@ -233,15 +235,18 @@ export const authService = {
     })
     const multi = redis.multi()
     if (lowercaseEmail) {
-      const tokensKey = buildTokensKey(lowercaseEmail)
+      const tokensKey = buildEmailVerificationTokensKey(lowercaseEmail)
       const tokens = await redis.smembers(tokensKey)
-      if (tokens.length > 0) multi.unlink(tokensKey, ...tokens.map(token => buildRequestKey(token)))
+      if (tokens.length > 0) multi.unlink(tokensKey, ...tokens.map(token => buildEmailVerificationRequestKey(token)))
     }
-    if (dto.phone) await prisma.phoneVerificationRequest.deleteMany({
-      where: {
-        phone: dto.phone
-      }
-    })
+    if (dto.phone) {
+      const accountIdsKey = buildPhoneVerificationAccountIdsKey(dto.phone)
+      const accountIds = await redis.smembers(accountIdsKey)
+      if (accountIds.length > 0) multi.unlink(
+        accountIdsKey,
+        ...accountIds.map(accountId => buildPhoneVerificationRequestKey(dto.phone!, accountId))
+      )
+    }
     await multi.exec()
   },
 
@@ -289,9 +294,11 @@ export const authService = {
           }
         }
       })
-      const tokensKey = buildTokensKey(lowercaseEmail)
+      const tokensKey = buildEmailVerificationTokensKey(lowercaseEmail)
       const tokens = await redis.smembers(tokensKey)
-      if (tokens.length > 0) await redis.unlink(tokensKey, ...tokens.map(token => buildRequestKey(token)))
+      if (tokens.length > 0) {
+        await redis.unlink(tokensKey, ...tokens.map(token => buildEmailVerificationRequestKey(token)))
+      }
     } else if (!account.googleId) {
       await prisma.account.update({
         where: {

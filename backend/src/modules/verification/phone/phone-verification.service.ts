@@ -1,3 +1,4 @@
+import { redis } from "@/shared/redis.client.js"
 import { prisma } from "@/shared/prisma.client.js"
 import { AppError } from "@/shared/app.error.js"
 import { ErrorCode } from "@shared/error-code.enums.js"
@@ -5,99 +6,76 @@ import { appConfig } from "@/shared/app.config.js"
 import { GrammyError } from "grammy"
 import { sendTelegramMessage } from "@/shared/bot/bot.service.js"
 import { generateSecureCode } from "@/shared/utils/index.js"
-import type { VerifyParams, SendParams } from "./phone-verification.types.js"
+import type { PhoneVerificationRequestPayload, VerifyParams, SendParams } from "./phone-verification.types.js"
 import type { CheckRegistrationDto } from "./phone-verification.schemas.js"
 
 export const phoneVerificationService = {
   verify: async (params: VerifyParams) => {
-    const request = await prisma.phoneVerificationRequest.findFirst({
-      where: {
-        phone: params.phone,
-        accountId: params.accountId
-      }
-    })
+    const requestKey = buildRequestKey(params.phone, params.accountId)
+    const request = await redis.get(requestKey)
     if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
-    const now = Date.now()
-    if (request.updatedAt.getTime() < now - appConfig.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED)
-    if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
-    if (request.code !== params.code) throw new AppError(ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
-    if (!request.accountId) {
-      await prisma.phoneVerificationRequest.update({
+    const parsedRequest: PhoneVerificationRequestPayload = JSON.parse(request)
+    if (parsedRequest.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
+    if (params.code !== parsedRequest.code) throw new AppError(ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
+    const accountIdsKey = buildAccountIdsKey(params.phone)
+    if (!params.accountId) {
+      const requestPayload: PhoneVerificationRequestPayload = {
+        ...parsedRequest,
+        isConfirmed: true
+      }
+      await redis.set(
+        requestKey, JSON.stringify(requestPayload),
+        "PX", appConfig.verification.phone.codeTtlMs
+      )
+      await redis.pexpire(accountIdsKey, appConfig.verification.phone.codeTtlMs)
+    } else {
+      await prisma.account.update({
         where: {
-          id: request.id
-        },
-        data: {
-          isConfirmed: true
-        }
-      })
-      return
-    }
-    await prisma.$transaction([
-      prisma.account.update({
-        where: {
-          id: request.accountId
+          id: params.accountId
         },
         data: {
           phone: params.phone
         }
-      }),
-      prisma.phoneVerificationRequest.deleteMany({
-        where: {
-          OR: [
-            { accountId: request.accountId },
-            { phone: request.phone }
-          ]
-        }
       })
-    ])
+      const accountIds = await redis.smembers(accountIdsKey)
+      await redis.unlink(accountIdsKey, ...accountIds.map(accountId => buildRequestKey(params.phone, accountId)))
+    }
   },
 
   checkRegistration: async (dto: CheckRegistrationDto) => {
-    const request = await prisma.phoneVerificationRequest.findFirst({
-      where: {
-        phone: dto.phone,
-        accountId: null
-      }
-    })
+    const request = await redis.get(buildRequestKey(dto.phone, undefined))
     if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
-    if (request.updatedAt.getTime() < Date.now() - appConfig.verification.phone.codeTtlMs) {
-      const errorCode = request.isConfirmed
-        ? ErrorCode.PHONE_VERIFICATION_EXPIRED
-        : ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED
-      throw new AppError(errorCode)
-    }
-    if (!request.isConfirmed) throw new AppError(ErrorCode.PHONE_NOT_VERIFIED)
+    const parsedRequest: PhoneVerificationRequestPayload = JSON.parse(request)
+    if (!parsedRequest.isConfirmed) throw new AppError(ErrorCode.PHONE_NOT_VERIFIED)
   },
 
   send: async (params: SendParams) => {
     try {
-      const [account, request, telegramLink] = await Promise.all([
+      const requestKey = buildRequestKey(params.phone, params.accountId)
+      const [account, telegramLink, request, requestTtlLeftMs] = await Promise.all([
         prisma.account.findUnique({
           where: {
             phone: params.phone
-          }
-        }),
-        prisma.phoneVerificationRequest.findFirst({
-          where: {
-            phone: params.phone,
-            accountId: params.accountId
           }
         }),
         prisma.telegramLink.findUnique({
           where: {
             phone: params.phone
           }
-        })
+        }),
+        redis.get(requestKey),
+        redis.pttl(requestKey)
       ])
       if (account) throw new AppError(ErrorCode.PHONE_TAKEN)
       if (!telegramLink) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
-      const now = Date.now()
-      if (request && !request.isConfirmed && request.updatedAt.getTime() > now - appConfig.verification.phone.cooldownMs) {
-        const timePassedMs = now - request.updatedAt.getTime()
-        const timeLeftMs = appConfig.verification.phone.cooldownMs - timePassedMs
-        throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, { timeLeftMs })
+      if (request) {
+        const maxTtlForResendMs = appConfig.verification.phone.codeTtlMs - appConfig.verification.phone.cooldownMs
+        if (requestTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, {
+          timeLeftMs: requestTtlLeftMs - maxTtlForResendMs
+        })
+        const parsedRequest: PhoneVerificationRequestPayload = JSON.parse(request)
+        if (parsedRequest.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       }
-      if (request?.isConfirmed && request.updatedAt.getTime() > now - appConfig.verification.phone.codeTtlMs) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       const code = generateSecureCode()
       await sendCode({
         telegramUserId: telegramLink.telegramUserId,
@@ -105,23 +83,19 @@ export const phoneVerificationService = {
         code,
         isNewAccount: !params.accountId
       })
-      const updateData = request?.isConfirmed
-        ? { code, isConfirmed: false }
-        : { code }
-      request
-        ? await prisma.phoneVerificationRequest.update({
-          where: {
-            id: request.id
-          },
-          data: updateData
-        })
-        : await prisma.phoneVerificationRequest.create({
-          data: {
-            code,
-            phone: params.phone,
-            accountId: params.accountId
-          }
-        })
+      const requestPayload: PhoneVerificationRequestPayload = {
+        code,
+        isConfirmed: false
+      }
+      const accountIdsKey = buildAccountIdsKey(params.phone)
+      const multi = redis.multi()
+      multi.set(
+        requestKey, JSON.stringify(requestPayload),
+        "PX", appConfig.verification.phone.codeTtlMs
+      )
+      multi.sadd(accountIdsKey, String(params.accountId))
+      multi.pexpire(accountIdsKey, appConfig.verification.phone.codeTtlMs)
+      await multi.exec()
       return { timeLeftMs: appConfig.verification.phone.cooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
@@ -146,3 +120,8 @@ const sendCode = async (params: {
   ]
   await sendTelegramMessage(params.telegramUserId, messageRows.join("\n"))
 }
+
+export const buildRequestKey = (phone: string, accountId: string | undefined) => {
+  return `phone-verification-request:${phone}:${accountId}`
+}
+export const buildAccountIdsKey = (phone: string) => `phone-verification-account-ids:${phone}`

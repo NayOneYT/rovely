@@ -34,7 +34,6 @@ export const usePhoneVerification = ({
       if (error instanceof ApiError) {
         switch (error.code) {
           case ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND:
-          case ErrorCode.PHONE_VERIFICATION_REQUEST_EXPIRED:
             codeServerError.value = "Запросите новый код"
             break
           case ErrorCode.PHONE_VERIFICATION_CODE_INVALID:
@@ -71,9 +70,7 @@ export const usePhoneVerification = ({
   const checkRegistrationMutation = useMutation({
     mutationFn: phoneVerificationApi.checkRegistration,
     onError: (error) => {
-      if (error instanceof ApiError) {
-        if (error.code === ErrorCode.PHONE_VERIFICATION_EXPIRED) toast.warning("Необходимо заново подтвердить номер телефона")
-      } else toast.error("Что-то пошло не так, попробуйте позже")
+      if (!(error instanceof ApiError)) toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
 

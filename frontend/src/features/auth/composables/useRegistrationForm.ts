@@ -195,7 +195,7 @@ export const useRegistrationForm = () => {
             toast.warning("Необходимо заново подтвердить email")
             targetStep = 2
             break
-          case ErrorCode.PHONE_VERIFICATION_EXPIRED:
+          case ErrorCode.PHONE_NOT_VERIFIED:
             toast.warning("Необходимо заново подтвердить номер телефона")
             targetStep = 2.5
             break
