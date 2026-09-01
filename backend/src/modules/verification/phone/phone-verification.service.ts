@@ -12,15 +12,15 @@ import type { CheckRegistrationDto } from "./phone-verification.schemas.js"
 export const phoneVerificationService = {
   verify: async (params: VerifyParams) => {
     const requestKey = buildRequestKey(params.phone, params.accountId)
-    const request = await redis.get(requestKey)
-    if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
-    const parsedRequest: PhoneVerificationRequestPayload = JSON.parse(request)
-    if (parsedRequest.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
-    if (params.code !== parsedRequest.code) throw new AppError(ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
+    const rawRequest = await redis.get(requestKey)
+    if (!rawRequest) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
+    const request: PhoneVerificationRequestPayload = JSON.parse(rawRequest)
+    if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
+    if (params.code !== request.code) throw new AppError(ErrorCode.PHONE_VERIFICATION_CODE_INVALID)
     const accountIdsKey = buildAccountIdsKey(params.phone)
     if (!params.accountId) {
       const requestPayload: PhoneVerificationRequestPayload = {
-        ...parsedRequest,
+        ...request,
         isConfirmed: true
       }
       await redis.set(
@@ -43,16 +43,16 @@ export const phoneVerificationService = {
   },
 
   checkRegistration: async (dto: CheckRegistrationDto) => {
-    const request = await redis.get(buildRequestKey(dto.phone, undefined))
-    if (!request) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
-    const parsedRequest: PhoneVerificationRequestPayload = JSON.parse(request)
-    if (!parsedRequest.isConfirmed) throw new AppError(ErrorCode.PHONE_NOT_VERIFIED)
+    const rawRequest = await redis.get(buildRequestKey(dto.phone, undefined))
+    if (!rawRequest) throw new AppError(ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND)
+    const request: PhoneVerificationRequestPayload = JSON.parse(rawRequest)
+    if (!request.isConfirmed) throw new AppError(ErrorCode.PHONE_NOT_VERIFIED)
   },
 
   send: async (params: SendParams) => {
     try {
       const requestKey = buildRequestKey(params.phone, params.accountId)
-      const [account, telegramLink, request, requestTtlLeftMs] = await Promise.all([
+      const [account, telegramLink, rawRequest, requestTtlLeftMs] = await Promise.all([
         prisma.account.findUnique({
           where: {
             phone: params.phone
@@ -68,13 +68,13 @@ export const phoneVerificationService = {
       ])
       if (account) throw new AppError(ErrorCode.PHONE_TAKEN)
       if (!telegramLink) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
-      if (request) {
+      if (rawRequest) {
         const maxTtlForResendMs = appConfig.verification.phone.codeTtlMs - appConfig.verification.phone.cooldownMs
         if (requestTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, {
           timeLeftMs: requestTtlLeftMs - maxTtlForResendMs
         })
-        const parsedRequest: PhoneVerificationRequestPayload = JSON.parse(request)
-        if (parsedRequest.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
+        const request: PhoneVerificationRequestPayload = JSON.parse(rawRequest)
+        if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       }
       const code = generateSecureCode()
       await sendCode({

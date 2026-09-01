@@ -424,13 +424,13 @@ export const authService = {
 
   checkPasswordRecoveryToken: async (dto: CheckPasswordRecoveryTokenDto) => {
     const requestKey = buildPasswordRecoveryRequestKey(dto.token)
-    const [request, requestTtlLeftms] = await Promise.all([
+    const [rawRequest, requestTtlLeftms] = await Promise.all([
       redis.get(requestKey),
       redis.pttl(requestKey)
     ])
-    if (!request) throw new AppError(ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
-    const parsedRequest: PasswordRecoveryTokenPayload = JSON.parse(request)
-    return { accountId: parsedRequest.accountId, request: parsedRequest, timeLeftMs: requestTtlLeftms }
+    if (!rawRequest) throw new AppError(ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
+    const request: PasswordRecoveryTokenPayload = JSON.parse(rawRequest)
+    return { accountId: request.accountId, request, timeLeftMs: requestTtlLeftms }
   },
 
   resetPassword: async (dto: ResetPasswordDto) => {

@@ -11,18 +11,18 @@ import type { EmailVerificationTokenPayload, SendParams } from "./email-verifica
 export const emailVerificationService = {
   verify: async (dto: VerifyDto) => {
     const requestKey = buildRequestKey(dto.token)
-    const request = await redis.get(requestKey)
-    if (!request) throw new AppError(ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
-    const parsedRequest: EmailVerificationTokenPayload = JSON.parse(request)
-    const lowercaseEmail = parsedRequest.email.toLowerCase()
+    const rawRequest = await redis.get(requestKey)
+    if (!rawRequest) throw new AppError(ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
+    const request: EmailVerificationTokenPayload = JSON.parse(rawRequest)
+    const lowercaseEmail = request.email.toLowerCase()
     const tokensKey = buildTokensKey(lowercaseEmail)
-    if (parsedRequest.accountId) {
+    if (request.accountId) {
       await prisma.account.update({
         where: {
-          id: parsedRequest.accountId
+          id: request.accountId
         },
         data: {
-          email: parsedRequest.email,
+          email: request.email,
           lowercaseEmail
         }
       })
@@ -34,11 +34,11 @@ export const emailVerificationService = {
       })
       await redis.unlink(...keysToUnlink)
     }
-    else if (parsedRequest.isConfirmed) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
+    else if (request.isConfirmed) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
     else {
       const tokenPayload: EmailVerificationTokenPayload = {
-        email: parsedRequest.email,
-        accountId: parsedRequest.accountId,
+        email: request.email,
+        accountId: request.accountId,
         isConfirmed: true
       }
       const multi = redis.multi()
@@ -55,12 +55,12 @@ export const emailVerificationService = {
     const tokens = await redis.smembers(buildTokensKey(dto.email))
     if (!tokens.length) throw new AppError(ErrorCode.EMAIL_NOT_VERIFIED)
     const requestKeys = tokens.map(token => buildRequestKey(token))
-    const requests = await redis.mget(requestKeys)
+    const rawRequests = await redis.mget(requestKeys)
     let isConfirmed: boolean = false
-    for (const request of requests) {
-      if (!request) continue
-      const parsedRequest: EmailVerificationTokenPayload = JSON.parse(request)
-      if (parsedRequest.isConfirmed) {
+    for (const rawRequest of rawRequests) {
+      if (!rawRequest) continue
+      const request: EmailVerificationTokenPayload = JSON.parse(rawRequest)
+      if (request.isConfirmed) {
         isConfirmed = true
         break
       }
@@ -84,14 +84,14 @@ export const emailVerificationService = {
     let savedToken: string | undefined
     if (tokens.length > 0) {
       const requestKeys = tokens.map(token => buildRequestKey(token))
-      const requests = await redis.mget(requestKeys)
-      for (let i = 0; i < requests.length; i++) {
-        if (!requests[i]) continue
-        const parsedRequest: EmailVerificationTokenPayload = JSON.parse(requests[i]!)
-        if (parsedRequest.accountId === params.accountId) {
+      const rawRequests = await redis.mget(requestKeys)
+      for (let i = 0; i < rawRequests.length; i++) {
+        if (!rawRequests[i]) continue
+        const request: EmailVerificationTokenPayload = JSON.parse(rawRequests[i]!)
+        if (request.accountId === params.accountId) {
           savedRequestKey = requestKeys[i]
           savedToken = tokens[i]
-          if (parsedRequest.isConfirmed) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
+          if (request.isConfirmed) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
           const tokenTtlLeftMs = await redis.pttl(savedRequestKey!)
           const maxTtlForResendMs = appConfig.verification.email.tokenTtlMs - appConfig.verification.email.cooldownMs
           if (tokenTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_EMAIL_COOLDOWN, {
