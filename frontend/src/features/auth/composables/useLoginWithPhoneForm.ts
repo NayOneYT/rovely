@@ -26,12 +26,6 @@ export const useLoginWithPhoneForm = () => {
   const { createNewTimer, formattedTime } = useTimer(loginWithPhoneSendCooldownsUntilMs)
   const sendCooldown = computed(() => formattedTime(phone.value.value ?? ""))
 
-  const now = Date.now()
-  Object.entries(loginWithPhoneSendCooldownsUntilMs.value).forEach(([phone, sendCooldownUntilMs]) => {
-    if (sendCooldownUntilMs <= now) delete loginWithPhoneSendCooldownsUntilMs.value[phone]
-    else createNewTimer(phone, sendCooldownUntilMs)
-  })
-
   const router = useRouter()
 
   const { handleSubmit } = useForm({
