@@ -1,0 +1,16 @@
+name: rovely-test
+
+services:
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: rovely_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rovely_test
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6380:6379"

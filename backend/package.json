@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -L",
+    "test": "vitest",
     "build": "tsc"
   },
   "keywords": [],
@@ -42,6 +43,7 @@
     "nodemon": "^3.1.14",
     "prisma": "^7.8.0",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
   }
 }
