@@ -23,7 +23,8 @@
     "*.api.ts": "routing",
     "*.store.ts": "database",
     "*.instance.ts": "http",
-    "vitest.setup.ts": "vitest"
+    "vitest.setup.ts": "vitest",
+    "vitest.global-setup.ts": "vitest"
   },
   "material-icon-theme.folders.associations": {
     "composers": "robot",
