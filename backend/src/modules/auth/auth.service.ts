@@ -76,7 +76,7 @@ export const authService = {
       rememberMe: dto.rememberMe,
       passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
     })
-    return { accessToken, refreshToken, rememberMe: dto.rememberMe }
+    return { accessToken, refreshToken }
   },
 
   sendLoginWithPhone: async (dto: SendLoginWithPhoneDto) => {
@@ -148,7 +148,7 @@ export const authService = {
       rememberMe: dto.rememberMe,
       passwordChangedAt: account.passwordChangedAt?.getTime() ?? 0
     })
-    return { accessToken, refreshToken, rememberMe: dto.rememberMe }
+    return { accessToken, refreshToken }
   },
 
   checkAvailability: async (dto: CheckAvailabilityDto) => {

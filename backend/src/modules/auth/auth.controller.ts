@@ -21,8 +21,8 @@ export const authController = {
 
   login: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { accessToken, refreshToken, rememberMe } = await authService.login(req.body)
-      setCookie(res, accessToken, refreshToken, rememberMe)
+      const { accessToken, refreshToken } = await authService.login(req.body)
+      setCookie(res, accessToken, refreshToken, req.body.rememberMe)
       res.sendStatus(200)
     } catch (error) {
       next(error)
@@ -31,8 +31,8 @@ export const authController = {
 
   loginWithPhone: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { accessToken, refreshToken, rememberMe } = await authService.loginWithPhone(req.body)
-      setCookie(res, accessToken, refreshToken, rememberMe)
+      const { accessToken, refreshToken } = await authService.loginWithPhone(req.body)
+      setCookie(res, accessToken, refreshToken, req.body.rememberMe)
       res.sendStatus(200)
     } catch (error) {
       next(error)
