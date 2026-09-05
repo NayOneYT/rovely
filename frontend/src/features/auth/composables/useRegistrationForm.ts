@@ -174,33 +174,36 @@ export const useRegistrationForm = () => {
     },
     onError: (error) => {
       if (error instanceof ApiError) {
-        let targetStep: RegistrationStep = 3
         switch (error.code) {
           case ErrorCode.USERNAME_TAKEN:
             usernameServerError.value = "Этот username занят"
-            targetStep = 1
+            registrationStep.value = 1
             break
           case ErrorCode.EMAIL_TAKEN:
             emailVerification.emailServerError.value = "Этот email занят"
-            targetStep = 2
+            registrationStep.value = 2
             break
           case ErrorCode.PHONE_TAKEN:
             phoneVerification.phoneServerError.value = "Этот номер телефона занят"
-            targetStep = 2
+            registrationStep.value = 2
             break
           case ErrorCode.LOGIN_TAKEN:
             loginServerError.value = "Этот логин занят"
+            registrationStep.value = 3
             break
           case ErrorCode.EMAIL_NOT_VERIFIED:
             toast.warning("Необходимо заново подтвердить email")
-            targetStep = 2
+            registrationStep.value = 2
             break
           case ErrorCode.PHONE_NOT_VERIFIED:
             toast.warning("Необходимо заново подтвердить номер телефона")
-            targetStep = 2.5
+            registrationStep.value = 2.5
+            break
+          case ErrorCode.USERNAME_GENERATION_ERROR:
+            usernameServerError.value = "Не удалось подобрать username, укажите вручную"
+            registrationStep.value = 1
             break
         }
-        registrationStep.value = targetStep
       } else toast.error("Что-то пошло не так, попробуйте позже")
     }
   })
