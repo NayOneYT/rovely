@@ -436,7 +436,6 @@ export const authService = {
   resetPassword: async (dto: ResetPasswordDto) => {
     const { request } = await authService.checkPasswordRecoveryToken({ token: dto.token })
     const hashedPassword = await hashPassword(dto.password)
-
     const keysToUnlink = new Set<string>()
     const emailTokenKey = buildPasswordRecoveryTokenKey(request.accountId, "EMAIL")
     const phoneTokenKey = buildPasswordRecoveryTokenKey(request.accountId, "PHONE")
@@ -452,7 +451,6 @@ export const authService = {
       keysToUnlink.add(phoneTokenKey)
       keysToUnlink.add(buildPasswordRecoveryRequestKey(phoneToken))
     }
-
     await prisma.account.update({
       where: {
         id: request.accountId
@@ -539,7 +537,7 @@ const sendPasswordRecoveryUrl = async (params: {
   }
 }
 
-const generateUniqueUsername = async (email?: string | null) => {
+export const generateUniqueUsername = async (email?: string | null) => {
   let triedUsernames = new Set<string>()
   while (true) {
     let username = email
@@ -555,7 +553,7 @@ const generateUniqueUsername = async (email?: string | null) => {
     })
     if (!account) return username
     triedUsernames.add(lowercaseUsername)
-    if (triedUsernames.size > 20) throw new AppError(ErrorCode.USERNAME_GENERATION_ERROR)
+    if (triedUsernames.size >= 20) throw new AppError(ErrorCode.USERNAME_GENERATION_ERROR)
   }
 }
 
