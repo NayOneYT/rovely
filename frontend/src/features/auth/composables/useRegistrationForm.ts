@@ -191,10 +191,12 @@ export const useRegistrationForm = () => {
             loginServerError.value = "Этот логин занят"
             registrationStep.value = 3
             break
+          case ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND:
           case ErrorCode.EMAIL_NOT_VERIFIED:
             toast.warning("Необходимо заново подтвердить email")
             registrationStep.value = 2
             break
+          case ErrorCode.PHONE_VERIFICATION_REQUEST_NOT_FOUND:
           case ErrorCode.PHONE_NOT_VERIFIED:
             toast.warning("Необходимо заново подтвердить номер телефона")
             registrationStep.value = 2.5
