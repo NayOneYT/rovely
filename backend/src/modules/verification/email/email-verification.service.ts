@@ -53,7 +53,7 @@ export const emailVerificationService = {
 
   checkRegistration: async (dto: CheckRegistrationDto) => {
     const tokens = await redis.smembers(buildTokensKey(dto.email))
-    if (!tokens.length) throw new AppError(ErrorCode.EMAIL_NOT_VERIFIED)
+    if (!tokens.length) throw new AppError(ErrorCode.EMAIL_VERIFICATION_REQUEST_NOT_FOUND)
     const requestKeys = tokens.map(token => buildRequestKey(token))
     const rawRequests = await redis.mget(requestKeys)
     let isConfirmed: boolean = false
@@ -89,9 +89,9 @@ export const emailVerificationService = {
         if (!rawRequests[i]) continue
         const request: EmailVerificationTokenPayload = JSON.parse(rawRequests[i]!)
         if (request.accountId === params.accountId) {
+          if (request.isConfirmed) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
           savedRequestKey = requestKeys[i]
           savedToken = tokens[i]
-          if (request.isConfirmed) throw new AppError(ErrorCode.EMAIL_ALREADY_VERIFIED)
           const tokenTtlLeftMs = await redis.pttl(savedRequestKey!)
           const maxTtlForResendMs = appConfig.verification.email.tokenTtlMs - appConfig.verification.email.cooldownMs
           if (tokenTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_EMAIL_COOLDOWN, {
