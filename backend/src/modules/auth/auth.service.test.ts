@@ -49,7 +49,7 @@ describe("authService", () => {
     it.todo("throws GOOGLE_AUTH_FAILED for an incorrect code")
     it.todo("creates an account for this email and deletes its verification data from Redis")
     it.todo("links the Google ID to an existing email")
-    it.todo("returns auth tokens and the isNewAccount flag on success")
+    it.todo("returns auth tokens and the isNewAccount on success")
   })
 
   describe("getPasswordRecoveryContacts", () => {
