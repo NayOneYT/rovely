@@ -1,7 +1,7 @@
 describe("authService", () => {
   describe("refresh", () => {
-    it.todo("throws REFRESH_TOKEN_EXPIRED when the refresh token is expired")
-    it.todo("throws REFRESH_TOKEN_INVALID for an incorrect refresh token")
+    it.todo("throws REFRESH_TOKEN_EXPIRED when the refreshToken is expired")
+    it.todo("throws REFRESH_TOKEN_INVALID for an incorrect refreshToken")
     it.todo("throws ACCOUNT_NOT_FOUND for a non-existent ID")
     it.todo("throws REFRESH_TOKEN_INVALID when the password has been changed")
     it.todo("returns new auth tokens and rememberMe on success")
