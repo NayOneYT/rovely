@@ -32,7 +32,7 @@ const authenticateRequest = (req: Request) => {
   return true
 }
 
-const handleError = (error: unknown, next: NextFunction) => {
+export const handleError = (error: unknown, next: NextFunction) => {
   if (error instanceof jwt.TokenExpiredError) return next(new AppError(ErrorCode.ACCESS_TOKEN_EXPIRED))
   if (error instanceof jwt.JsonWebTokenError) return next(new AppError(ErrorCode.ACCESS_TOKEN_INVALID))
   next(error)
