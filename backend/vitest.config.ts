@@ -4,6 +4,6 @@ export default defineConfig({
   test: {
     globals: true,
     globalSetup: "./vitest.global-setup.ts",
-    setupFiles: "./vitest.setup.ts"
+    setupFiles: ["./tests/load-env.ts", "./vitest.setup.ts"]
   }
 })

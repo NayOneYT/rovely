@@ -1,3 +1,8 @@
-import dotenv from "dotenv"
+import { beforeEach } from "vitest"
+import { cleanDb } from "./tests/clean-db"
+import { redis } from "./src/shared/redis.client"
 
-dotenv.config({ path: ".env.test", override: true })
+beforeEach(async () => await Promise.all([
+  cleanDb(),
+  redis.flushdb()
+]))
