@@ -1,7 +1,3 @@
-import dotenv from "dotenv"
-
-dotenv.config()
-
 export const appConfig = {
   nodeEnv: process.env.NODE_ENV,
   clientUrl: process.env.NODE_ENV === "development"
