@@ -12,7 +12,7 @@ export const errorMiddleware = (error: Error, req: Request, res: Response, next:
   res.status(500).json({ code: ErrorCode.INTERNAL_ERROR })
 }
 
-const errorStatusMap: Record<ErrorCode, number> = {
+export const errorStatusMap: Record<ErrorCode, number> = {
   [ErrorCode.INTERNAL_ERROR]: 500,
   [ErrorCode.VALIDATION_ERROR]: 422,
   [ErrorCode.UNAUTHORIZED]: 401,
