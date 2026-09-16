@@ -4,8 +4,6 @@ import { ErrorCode } from "@shared/error-code.enums.js"
 import jwt from "jsonwebtoken"
 import type { Request, Response } from "express"
 
-beforeEach(() => vi.restoreAllMocks())
-
 describe("authMiddleware", () => {
   it("calls next with UNAUTHORIZED when accessToken isn't set in the cookies", () => {
     const req = createMockReq()

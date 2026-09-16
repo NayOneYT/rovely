@@ -3,8 +3,6 @@ import { AppError } from "@/shared/app.error.js"
 import { errorMiddleware, errorStatusMap } from "./error.middleware.js"
 import type { Request, Response, NextFunction } from "express"
 
-beforeEach(() => vi.restoreAllMocks())
-
 describe("errorMiddleware", () => {
   it("returns a status from errorStatusMap and JSON with code and data for AppError", () => {
     const res = createMockRes()

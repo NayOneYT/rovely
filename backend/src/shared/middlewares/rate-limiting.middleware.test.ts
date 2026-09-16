@@ -3,7 +3,7 @@ import { redis } from "@/shared/redis.client.js"
 import { ErrorCode } from "@shared/error-code.enums.js"
 import type { Request, Response } from "express"
 
-beforeEach(() => vi.restoreAllMocks())
+beforeEach(() => redis.flushdb())
 
 describe("rateLimitingMiddleware", () => {
   it("uses accountId as the identifier for Redis key when it's set", async () => {
