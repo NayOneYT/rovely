@@ -26,4 +26,4 @@ export const validationMiddleware = (schema: ZodSchema, target: ValidateTarget) 
   }
 }
 
-type ValidateTarget = "body" | "params" | "query"
+export type ValidateTarget = "body" | "params" | "query"
