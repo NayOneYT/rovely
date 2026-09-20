@@ -37,7 +37,7 @@ describe("rateLimitingMiddleware", () => {
     )
   })
 
-  it("creates a new record in Redis when the limit isn't exceeded and calls the next function", async () => {
+  it("creates a new record in Redis when the limit isn't exceeded and calls next", async () => {
     const rlKey = buildRlKey(ip)
     const requestsBefore = await redis.zcard(rlKey)
     const req = createMockReq()
