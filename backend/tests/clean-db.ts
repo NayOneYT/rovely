@@ -1,4 +1,4 @@
-import { prisma } from "../src/shared/prisma.client"
+import { prisma } from "@/shared/prisma.client.js"
 
 export const cleanDb = async () => {
   const tables = await prisma.$queryRaw<{ tablename: string }[]>`
