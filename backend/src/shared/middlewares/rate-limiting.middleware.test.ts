@@ -61,7 +61,7 @@ describe("rateLimitingMiddleware", () => {
     expect(next).toHaveBeenCalledWith()
   })
 
-  it("sets Retry-After and throws RATE_LIMIT_EXCEEDED with timeLeftMs when the limit is exceeded", async () => {
+  it("sets Retry-After and throws RATE_LIMIT_EXCEEDED with timeBeforeMs when the limit is exceeded", async () => {
     const req = createMockReq()
     const res = createMockRes()
     const next = vi.fn()
@@ -72,7 +72,7 @@ describe("rateLimitingMiddleware", () => {
     expect(res.setHeader).toHaveBeenCalledWith("Retry-After", expect.anything())
     expect(next).toHaveBeenCalledWith(expect.objectContaining({
       errorCode: ErrorCode.RATE_LIMIT_EXCEEDED,
-      data: { timeBeforeMs: expect.anything() }
+      data: { timeBeforeMs: expect.any(Number) }
     }))
   })
 })
