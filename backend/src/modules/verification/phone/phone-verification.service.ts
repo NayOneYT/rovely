@@ -69,12 +69,12 @@ export const phoneVerificationService = {
       if (account) throw new AppError(ErrorCode.PHONE_TAKEN)
       if (!telegramLink) throw new AppError(ErrorCode.TELEGRAM_LINK_NOT_FOUND)
       if (rawRequest) {
+        const request: PhoneVerificationRequestPayload = JSON.parse(rawRequest)
+        if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
         const maxTtlForResendMs = appConfig.verification.phone.codeTtlMs - appConfig.verification.phone.cooldownMs
         if (requestTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, {
           timeLeftMs: requestTtlLeftMs - maxTtlForResendMs
         })
-        const request: PhoneVerificationRequestPayload = JSON.parse(rawRequest)
-        if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
       }
       const code = generateSecureCode()
       await sendCode({
