@@ -50,11 +50,11 @@ describe("phoneVerificationService", () => {
     })
 
     it("updates phone for the provided accountId and deletes its data from Redis", async () => {
-      // creating an account has no effect on send method, since we don't specify a phone for it
       await Promise.all([
-        prisma.account.create({ data: { id: accountId } }),
         phoneVerificationService.send({ name, phone, accountId }),
-        phoneVerificationService.send({ name, phone, accountId: undefined })
+        phoneVerificationService.send({ name, phone, accountId: undefined }),
+        // creating an account has no effect on send method, since we don't specify a phone for it
+        prisma.account.create({ data: { id: accountId } })
       ])
       await phoneVerificationService.verify({ code, phone, accountId })
       await Promise.all([
