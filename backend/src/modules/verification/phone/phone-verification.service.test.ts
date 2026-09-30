@@ -14,7 +14,7 @@ describe("phoneVerificationService", () => {
       cleanDb(),
       redis.flushdb()
     ])
-    await createTelegramLink()
+    await prisma.telegramLink.create({ data: { phone, telegramUserId: 1 } })
     vi.spyOn(utils, "generateSecureCode").mockReturnValue(code)
     vi.spyOn(botService, "sendTelegramMessage").mockResolvedValue()
   })
@@ -142,5 +142,3 @@ const incorrectCode = "111111"
 const phone = "+375291234567"
 const accountId = "account123"
 const name = ""
-
-const createTelegramLink = async () => await prisma.telegramLink.create({ data: { phone, telegramUserId: 1 } })
