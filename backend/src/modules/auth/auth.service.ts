@@ -480,13 +480,13 @@ export const authService = {
   }
 }
 
-const hashPassword = async (password: string) => await bcrypt.hash(password, 10)
+export const hashPassword = async (password: string) => await bcrypt.hash(password, 10)
 
 const generateAccessToken = (payload: AccessTokenPayload) => {
   return jwt.sign({ id: payload.id }, appConfig.jwtAccessSecret, { expiresIn: "5m" })
 }
 
-const generateRefreshToken = (payload: RefreshTokenPayload) => {
+export const generateRefreshToken = (payload: RefreshTokenPayload) => {
   return jwt.sign(
     { id: payload.id, rememberMe: payload.rememberMe, passwordChangedAt: payload.passwordChangedAt },
     appConfig.jwtRefreshSecret,
@@ -557,8 +557,8 @@ export const generateUniqueUsername = async (email?: string | null) => {
   }
 }
 
-const buildLoginWithPhoneKey = (phone: string) => `login-with-phone:${phone}`
-const buildPasswordRecoveryTokenKey = (accountId: string, to: "EMAIL" | "PHONE") => {
+export const buildLoginWithPhoneKey = (phone: string) => `login-with-phone:${phone}`
+export const buildPasswordRecoveryTokenKey = (accountId: string, to: "EMAIL" | "PHONE") => {
   return `password-recovery-token:account-id:${accountId}:to:${to}`
 }
-const buildPasswordRecoveryRequestKey = (token: string) => `password-recovery-request:${token}`
+export const buildPasswordRecoveryRequestKey = (token: string) => `password-recovery-request:${token}`
