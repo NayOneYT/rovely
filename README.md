@@ -112,6 +112,7 @@ Access communities through a unique tilde-based URL system (e.g., `~flowname`). 
 ## 🚀 Getting Started
 
 ### Prerequisites
+- Node.js with npm
 - Git
 - Docker
 
