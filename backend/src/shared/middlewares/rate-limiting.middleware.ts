@@ -12,7 +12,7 @@ export const rateLimitingMiddleware = (params: {
     const identifier = req.accountId ?? req.ip
     const finalKey = `rl:${params.key}:${identifier}`
     try {
-      const [isBlocked, timeBeforeMs] = await redis.eval(
+      const [isBlocked, retryAfterMs] = await redis.eval(
         `
         local key = KEYS[1]
         local windowMs = tonumber(ARGV[1])
@@ -30,8 +30,8 @@ export const rateLimitingMiddleware = (params: {
         else
             local oldest = redis.call("ZRANGE", key, 0, 0, "WITHSCORES")
             local oldestTimestamp = tonumber(oldest[2])
-            local timeBeforeMs = (oldestTimestamp + windowMs) - now
-            return { true, timeBeforeMs }
+            local retryAfterMs = (oldestTimestamp + windowMs) - now
+            return { true, retryAfterMs }
         end
         `,
         1,
@@ -41,8 +41,8 @@ export const rateLimitingMiddleware = (params: {
         Date.now()
       ) as [boolean, number?]
       if (isBlocked) {
-        res.setHeader("Retry-After", Math.ceil(timeBeforeMs! / 1000))
-        throw new AppError(ErrorCode.RATE_LIMIT_EXCEEDED, { timeBeforeMs })
+        res.setHeader("Retry-After", Math.ceil(retryAfterMs! / 1000))
+        throw new AppError(ErrorCode.RATE_LIMIT_EXCEEDED, { retryAfterMs })
       } else next()
     } catch (error) {
       next(error)

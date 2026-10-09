@@ -2,7 +2,7 @@ export type RegistrationStep = 1 | 2 | 2.5 | 3
 export type PasswordRecoveryStep = 1 | 2
 
 export type SendLoginWithPhoneResponse = {
-  timeLeftMs: number
+  retryAfterMs: number
 }
 
 export type GetPasswordRecoveryContactsResponse = {
@@ -11,11 +11,11 @@ export type GetPasswordRecoveryContactsResponse = {
 }
 
 export type SendPasswordRecoveryResponse = {
-  timeLeftMs: number
+  retryAfterMs: number
 }
 
 export type CheckPasswordRecoveryTokenResponse = {
-  timeLeftMs: number
+  retryAfterMs: number
 }
 
 export type ResetPasswordStatus = "CHECKING" | "TOKEN_INVALID" | "READY" | "RESETTING" | "SUCCESS"

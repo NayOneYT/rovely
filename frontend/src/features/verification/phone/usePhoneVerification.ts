@@ -92,7 +92,7 @@ export const usePhoneVerification = ({
     mutationFn: phoneVerificationApi.send,
     onSuccess: (data) => {
       toast.success("Код для подтверждения отправлен в Telegram")
-      createNewTimer(phone.value.value, data.timeLeftMs)
+      createNewTimer(phone.value.value, data.retryAfterMs)
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -105,7 +105,7 @@ export const usePhoneVerification = ({
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Код для подтверждения недавно уже был отправлен")
-            createNewTimer(phone.value.value, error.timeLeftMs)
+            createNewTimer(phone.value.value, error.retryAfterMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")

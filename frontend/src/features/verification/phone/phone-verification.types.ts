@@ -9,7 +9,7 @@ export type usePhoneVerificationOptions = {
 }
 
 export type SendResponse = {
-  timeLeftMs: number
+  retryAfterMs: number
 }
 
 export type VerifyStatus = "VALIDATION_ERROR" | "SUCCESS" | "ERROR"

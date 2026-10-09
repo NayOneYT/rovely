@@ -98,11 +98,11 @@ describe("phoneVerificationService", () => {
       }))
     })
 
-    it("throws SEND_TELEGRAM_MESSAGE_COOLDOWN with timeLeftMs when resending too soon", async () => {
+    it("throws SEND_TELEGRAM_MESSAGE_COOLDOWN with retryAfterMs when resending too soon", async () => {
       await phoneVerificationService.send({ name, phone, accountId })
       await expect(phoneVerificationService.send({ name, phone, accountId })).rejects.toThrow(expect.objectContaining({
         errorCode: ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN,
-        data: { timeLeftMs: expect.any(Number) }
+        data: { retryAfterMs: expect.any(Number) }
       }))
     })
 
@@ -126,13 +126,13 @@ describe("phoneVerificationService", () => {
       }))
     })
 
-    it("creates a new request and stores accountId in Redis and returns timeLeftMs on success", async () => {
+    it("creates a new request and stores accountId in Redis and returns retryAfterMs on success", async () => {
       const result = await phoneVerificationService.send({ name, phone, accountId })
       await Promise.all([
         expect(redis.get(buildRequestKey(phone, accountId))).resolves.not.toBeNull(),
         expect(redis.smembers(buildAccountIdsKey(phone))).resolves.toEqual(expect.arrayContaining([accountId]))
       ])
-      expect(result).toEqual({ timeLeftMs: expect.any(Number) })
+      expect(result).toEqual({ retryAfterMs: expect.any(Number) })
     })
   })
 })

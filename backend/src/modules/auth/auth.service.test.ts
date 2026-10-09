@@ -146,12 +146,12 @@ describe("authService", () => {
       )
     })
 
-    it("throws SEND_TELEGRAM_MESSAGE_COOLDOWN with timeLeftMs when resending too soon", async () => {
+    it("throws SEND_TELEGRAM_MESSAGE_COOLDOWN with retryAfterMs when resending too soon", async () => {
       await authService.sendLoginWithPhone(createSendLoginWithPhoneDto())
       await expect(authService.sendLoginWithPhone(createSendLoginWithPhoneDto())).rejects.toThrow(
         expect.objectContaining({
           errorCode: ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN,
-          data: { timeLeftMs: expect.any(Number) }
+          data: { retryAfterMs: expect.any(Number) }
         })
       )
     })
@@ -168,9 +168,9 @@ describe("authService", () => {
       )
     })
 
-    it("creates a new record in Redis and returns timeLeftMs on success", async () => {
+    it("creates a new record in Redis and returns retryAfterMs on success", async () => {
       const result = await authService.sendLoginWithPhone(createSendLoginWithPhoneDto())
-      expect(result).toEqual({ timeLeftMs: expect.any(Number) })
+      expect(result).toEqual({ retryAfterMs: expect.any(Number) })
       await expect(redis.get(buildLoginWithPhoneKey(phone))).resolves.not.toBeNull()
     })
 
@@ -556,11 +556,11 @@ describe("authService", () => {
       )
     })
 
-    it("creates a new request and token in Redis and returns timeLeftMs on success", async () => {
+    it("creates a new request and token in Redis and returns retryAfterMs on success", async () => {
       await createAccount("email", accountId)
       vi.spyOn(utils, "generateSecureToken").mockReturnValue(token)
       await expect(authService.sendPasswordRecovery(createSendPasswordRecoveryDto(lowercaseEmail, "EMAIL"))).resolves.toEqual({
-        timeLeftMs: expect.any(Number)
+        retryAfterMs: expect.any(Number)
       })
       await Promise.all([
         expect(redis.get(buildPasswordRecoveryTokenKey(accountId, "EMAIL"))).resolves.not.toBeNull(),
@@ -594,7 +594,7 @@ describe("authService", () => {
       )
     })
 
-    it("returns accountId, request and timeLeftMs", async () => {
+    it("returns accountId, request and retryAfterMs", async () => {
       await prisma.account.create({
         data: {
           email, lowercaseEmail,
@@ -606,7 +606,7 @@ describe("authService", () => {
       await expect(authService.checkPasswordRecoveryToken(checkPasswordRecoveryTokenDto)).resolves.toEqual({
         accountId: expect.any(String),
         request: expect.any(Object),
-        timeLeftMs: expect.any(Number)
+        retryAfterMs: expect.any(Number)
       })
     })
 

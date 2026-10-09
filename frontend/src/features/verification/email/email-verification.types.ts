@@ -8,7 +8,7 @@ export type useEmailVerificationOptions = {
 }
 
 export type SendResponse = {
-  timeLeftMs: number
+  retryAfterMs: number
 }
 
 export type CheckRegistrationStatus = "VALIDATION_ERROR" | "VERIFIED" | "NOT_VERIFIED"

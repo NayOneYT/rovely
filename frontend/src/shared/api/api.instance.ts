@@ -28,7 +28,7 @@ api.interceptors.response.use(
         }
       }
       if (data.code === ErrorCode.RATE_LIMIT_EXCEEDED) {
-        toast.error(`Слишком много запросов, повторите через ${formatMsToMMSS(data.timeBeforeMs)}`)
+        toast.error(`Слишком много запросов, повторите через ${formatMsToMMSS(data.retryAfterMs)}`)
       }
       throw new ApiError(data)
     }

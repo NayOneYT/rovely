@@ -49,7 +49,7 @@ export const useEmailVerification = ({
     mutationFn: emailVerificationApi.send,
     onSuccess: (data) => {
       toast.success("Письмо для подтверждения отправлено")
-      createNewTimer(email.value.value.toLowerCase(), data.timeLeftMs)
+      createNewTimer(email.value.value.toLowerCase(), data.retryAfterMs)
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -59,7 +59,7 @@ export const useEmailVerification = ({
             break
           case ErrorCode.SEND_EMAIL_COOLDOWN:
             toast.info("Письмо для подтверждения недавно уже было отправлено")
-            createNewTimer(email.value.value.toLowerCase(), error.timeLeftMs)
+            createNewTimer(email.value.value.toLowerCase(), error.retryAfterMs)
             break
         }
       } else toast.error("Что-то пошло не так, попробуйте позже")

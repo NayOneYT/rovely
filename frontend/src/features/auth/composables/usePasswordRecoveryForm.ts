@@ -69,10 +69,10 @@ export const usePasswordRecoveryForm = () => {
     onSuccess: (data, variables) => {
       if (variables.to === "EMAIL") {
         toast.success("Письмо для восстановления отправлено")
-        createNewEmailTimer(variables.identifier.toLowerCase(), data.timeLeftMs)
+        createNewEmailTimer(variables.identifier.toLowerCase(), data.retryAfterMs)
       } else {
         toast.success("Сообщение для восстановления отправлено в Telegram")
-        createNewTelegramMessageTimer(variables.identifier, data.timeLeftMs)
+        createNewTelegramMessageTimer(variables.identifier, data.retryAfterMs)
       }
     },
     onError: (error) => {
@@ -80,11 +80,11 @@ export const usePasswordRecoveryForm = () => {
         switch (error.code) {
           case ErrorCode.SEND_EMAIL_COOLDOWN:
             toast.info("Письмо для восстановления недавно уже было отправлено")
-            createNewEmailTimer(identifier.value.value.toLowerCase(), error.timeLeftMs)
+            createNewEmailTimer(identifier.value.value.toLowerCase(), error.retryAfterMs)
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Сообщение для восстановления недавно уже было отправлено")
-            createNewTelegramMessageTimer(identifier.value.value, error.timeLeftMs)
+            createNewTelegramMessageTimer(identifier.value.value, error.retryAfterMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")

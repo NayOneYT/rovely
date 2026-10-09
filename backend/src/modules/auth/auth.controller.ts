@@ -96,8 +96,8 @@ export const authController = {
 
   checkPasswordRecoveryToken: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { timeLeftMs } = await authService.checkPasswordRecoveryToken(req.params as CheckPasswordRecoveryTokenDto)
-      res.status(200).json({ timeLeftMs })
+      const { retryAfterMs } = await authService.checkPasswordRecoveryToken(req.params as CheckPasswordRecoveryTokenDto)
+      res.status(200).json({ retryAfterMs })
     } catch (error) {
       next(error)
     }

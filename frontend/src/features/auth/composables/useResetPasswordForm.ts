@@ -46,8 +46,8 @@ export const useResetPasswordForm = () => {
     gcTime: 0
   })
 
-  watch(() => checkQuery.data.value?.timeLeftMs, (timeLeftMs) => {
-    if (timeLeftMs) createNewTimer(externalToken, timeLeftMs)
+  watch(() => checkQuery.data.value?.retryAfterMs, (retryAfterMs) => {
+    if (retryAfterMs) createNewTimer(externalToken, retryAfterMs)
   })
 
   const remainingTime = computed(() => formattedTime(externalToken))

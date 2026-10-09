@@ -73,7 +73,7 @@ export const phoneVerificationService = {
         if (request.isConfirmed) throw new AppError(ErrorCode.PHONE_ALREADY_VERIFIED)
         const maxTtlForResendMs = appConfig.verification.phone.codeTtlMs - appConfig.verification.phone.cooldownMs
         if (requestTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, {
-          timeLeftMs: requestTtlLeftMs - maxTtlForResendMs
+          retryAfterMs: requestTtlLeftMs - maxTtlForResendMs
         })
       }
       const code = generateSecureCode()
@@ -96,7 +96,7 @@ export const phoneVerificationService = {
       multi.sadd(accountIdsKey, String(params.accountId))
       multi.pexpire(accountIdsKey, appConfig.verification.phone.codeTtlMs)
       await multi.exec()
-      return { timeLeftMs: appConfig.verification.phone.cooldownMs }
+      return { retryAfterMs: appConfig.verification.phone.cooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error

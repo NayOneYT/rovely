@@ -90,7 +90,7 @@ export const useLoginWithPhoneForm = () => {
   const sendMutation = useMutation({
     mutationFn: authApi.sendLoginWithPhone,
     onSuccess: (data) => {
-      createNewTimer(phone.value.value, data.timeLeftMs)
+      createNewTimer(phone.value.value, data.retryAfterMs)
       toast.success("Код для входа отправлен в Telegram")
     },
     onError: (error) => {
@@ -101,7 +101,7 @@ export const useLoginWithPhoneForm = () => {
             break
           case ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN:
             toast.info("Код для входа недавно уже был отправлен")
-            createNewTimer(phone.value.value, error.timeLeftMs)
+            createNewTimer(phone.value.value, error.retryAfterMs)
             break
           case ErrorCode.TELEGRAM_BOT_BLOCKED:
             toast.warning("Сначала разблокируйте нашего бота в Telegram")

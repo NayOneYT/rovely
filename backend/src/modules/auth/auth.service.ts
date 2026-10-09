@@ -104,7 +104,7 @@ export const authService = {
       if (code) {
         const maxTtlForResendMs = appConfig.auth.loginWithPhoneCodeTtlMs - appConfig.auth.loginWithPhoneCooldownMs
         if (codeTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN, {
-          timeLeftMs: codeTtlLeftMs - maxTtlForResendMs
+          retryAfterMs: codeTtlLeftMs - maxTtlForResendMs
         })
       }
       const newCode = generateSecureCode()
@@ -114,7 +114,7 @@ export const authService = {
         code: newCode
       })
       await redis.set(key, newCode, "PX", appConfig.auth.loginWithPhoneCodeTtlMs)
-      return { timeLeftMs: appConfig.auth.loginWithPhoneCooldownMs }
+      return { retryAfterMs: appConfig.auth.loginWithPhoneCooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
@@ -392,7 +392,7 @@ export const authService = {
         const maxTtlForResendMs = appConfig.auth.passwordRecoveryTokenTtlMs - currentCooldownMs
         if (tokenTtlLeftMs > maxTtlForResendMs) throw new AppError(
           toEmail ? ErrorCode.SEND_EMAIL_COOLDOWN : ErrorCode.SEND_TELEGRAM_MESSAGE_COOLDOWN,
-          { timeLeftMs: tokenTtlLeftMs - maxTtlForResendMs }
+          { retryAfterMs: tokenTtlLeftMs - maxTtlForResendMs }
         )
         await redis.unlink(buildPasswordRecoveryRequestKey(token))
       }
@@ -415,7 +415,7 @@ export const authService = {
           "PX", appConfig.auth.passwordRecoveryTokenTtlMs
         )
       ])
-      return { timeLeftMs: currentCooldownMs }
+      return { retryAfterMs: currentCooldownMs }
     } catch (error) {
       if (error instanceof GrammyError && error.error_code === 403) throw new AppError(ErrorCode.TELEGRAM_BOT_BLOCKED)
       throw error
@@ -430,7 +430,7 @@ export const authService = {
     ])
     if (!rawRequest) throw new AppError(ErrorCode.PASSWORD_RECOVERY_REQUEST_NOT_FOUND)
     const request: PasswordRecoveryTokenPayload = JSON.parse(rawRequest)
-    return { accountId: request.accountId, request, timeLeftMs: requestTtlLeftms }
+    return { accountId: request.accountId, request, retryAfterMs: requestTtlLeftms }
   },
 
   resetPassword: async (dto: ResetPasswordDto) => {

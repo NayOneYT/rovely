@@ -5,10 +5,10 @@ export const useTimer = (cooldowns: Ref<Record<string, number>>) => {
   const timersMs = ref<Record<string, number>>({})
   const intervals: Record<string, number> = {}
 
-  const startTimer = (key: string, timeLeftMs: number) => {
+  const startTimer = (key: string, retryAfterMs: number) => {
     if (intervals[key]) clearInterval(intervals[key])
 
-    timersMs.value[key] = timeLeftMs
+    timersMs.value[key] = retryAfterMs
 
     intervals[key] = setInterval(() => {
       const remainingMs = cooldowns.value[key]! - Date.now()
@@ -22,9 +22,9 @@ export const useTimer = (cooldowns: Ref<Record<string, number>>) => {
     }, 1000)
   }
 
-  const createNewTimer = (key: string, timeLeftMs: number) => {
-    cooldowns.value[key] = Date.now() + timeLeftMs
-    startTimer(key, timeLeftMs)
+  const createNewTimer = (key: string, retryAfterMs: number) => {
+    cooldowns.value[key] = Date.now() + retryAfterMs
+    startTimer(key, retryAfterMs)
   }
 
   const formattedTime = (key: string | undefined) => {

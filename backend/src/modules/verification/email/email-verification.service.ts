@@ -95,7 +95,7 @@ export const emailVerificationService = {
           const tokenTtlLeftMs = await redis.pttl(savedRequestKey!)
           const maxTtlForResendMs = appConfig.verification.email.tokenTtlMs - appConfig.verification.email.cooldownMs
           if (tokenTtlLeftMs > maxTtlForResendMs) throw new AppError(ErrorCode.SEND_EMAIL_COOLDOWN, {
-            timeLeftMs: tokenTtlLeftMs - maxTtlForResendMs
+            retryAfterMs: tokenTtlLeftMs - maxTtlForResendMs
           })
           break
         }
@@ -130,7 +130,7 @@ export const emailVerificationService = {
         confirm_url: generateUrl(newToken)
       }
     })
-    return { timeLeftMs: appConfig.verification.email.cooldownMs }
+    return { retryAfterMs: appConfig.verification.email.cooldownMs }
   }
 }
 

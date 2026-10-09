@@ -90,11 +90,11 @@ describe("emailVerificationService", () => {
       )
     })
 
-    it("throws SEND_EMAIL_COOLDOWN with timeLeftMs when resending too soon", async () => {
+    it("throws SEND_EMAIL_COOLDOWN with retryAfterMs when resending too soon", async () => {
       await emailVerificationService.send({ email, name, accountId })
       await expect(emailVerificationService.send({ email, name, accountId })).rejects.toThrow(expect.objectContaining({
         errorCode: ErrorCode.SEND_EMAIL_COOLDOWN,
-        data: { timeLeftMs: expect.any(Number) }
+        data: { retryAfterMs: expect.any(Number) }
       }))
     })
 
@@ -109,13 +109,13 @@ describe("emailVerificationService", () => {
       ])
     })
 
-    it("creates a new request and stores a new token in Redis and returns timeLeftMs on success", async () => {
+    it("creates a new request and stores a new token in Redis and returns retryAfterMs on success", async () => {
       const result = await emailVerificationService.send({ email, name, accountId })
       await Promise.all([
         expect(redis.get(buildRequestKey(token1))).resolves.not.toBeNull(),
         expect(redis.smembers(buildTokensKey(lowercaseEmail))).resolves.toContain(token1)
       ])
-      expect(result).toEqual({ timeLeftMs: expect.any(Number) })
+      expect(result).toEqual({ retryAfterMs: expect.any(Number) })
     })
   })
 })
